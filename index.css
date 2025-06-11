@@ -1,5 +1,5 @@
 body {
-    background-color: #2c3e50;
+    background-color: #262626;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,9 +18,9 @@ body {
 }
 
 @keyframes hover {
-    0% {transform: translateZ(-10px)}
-    50% {transform: translateZ(10px)}
-    100% {transform: translateZ(-10px)}
+    0% {transform: translateZ(-5px)}
+    50% {transform: translateZ(5px)}
+    100% {transform: translateZ(-5px)}
 }
 
 .feld {
@@ -35,15 +35,66 @@ body {
     position: relative;
     transform-style: preserve-3d;
     transform: translateZ(5px);
-    transition: transform 0.5s ease-in-out;
+    transition: transform 200ms ease-in-out;
 }
 
+/* Klassen der Farben
 .rot, .gruen, .gelb, .blau{
-    animation: hover 3s ease-in-out infinite;
+    animation: hover 5s ease-in-out infinite;
+}*/
+
+/* Würfel über cursor hover
+.wuerfel:has(.wuerfel-flaeche:hover){
+    transform: translateZ(10px);
+}*/
+
+/* Würfelseiten über cursor hover */
+.wuerfel:has(.wuerfel-flaeche:hover) > .wuerfel-flaeche {
+    background-color: #888888;
+    transition-duration: 0s;
 }
 
-.wuerfel:has(.wuerfel-flaeche:hover){
-    transform: translateZ(50px);
+/* Würfel über "clicken" */
+.wuerfel:has(.wuerfel-flaeche:active){
+    transform: translateZ(-10px);
+    animation: shake 0.5s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(1px, 1px) rotate(0deg);
+    }
+    10% {
+        transform: translate(-1px, -2px) rotate(-1deg);
+    }
+    20% {
+        transform: translate(-3px, 0px) rotate(1deg);
+    }
+    30% {
+        transform: translate(3px, 2px) rotate(0deg);
+    }
+    40% {
+        transform: translate(1px, -1px) rotate(1deg);
+    }
+    50% {
+        transform: translate(-1px, 2px) rotate(-1deg);
+    }
+    60% {
+        transform: translate(-3px, 1px) rotate(0deg);
+    }
+    70% {
+        transform: translate(3px, 1px) rotate(-1deg);
+    }
+    80% {
+        transform: translate(-1px, -1px) rotate(1deg);
+    }
+    90% {
+        transform: translate(1px, 2px) rotate(0deg);
+    }
+    100% {
+        transform: translate(1px, -2px) rotate(-1deg);
+    }
 }
 
 .wuerfel-flaeche {
@@ -51,8 +102,10 @@ body {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    background-color: #bdc3c7;
+    background-color: #ECF0F1;
     border: 1px solid rgba(0, 0, 0, 0.3);
+    transition: background-color ease-in-out;
+    transition-duration: 0.1s;
 }
 
 /* Positionierung der 6 Würfelseiten */
@@ -71,10 +124,10 @@ body {
 }
 
 /* Spezifische Farben für Start- und Zielfelder überschreiben die Standardfarbe */
-.rot .wuerfel-flaeche.oben   { background-color: #e74c3c }
-.gruen .wuerfel-flaeche.oben { background-color: #2ecc71 }
-.blau .wuerfel-flaeche.oben  { background-color: #3498db }
-.gelb .wuerfel-flaeche.oben  { background-color: #f1c40f }
+.rot .wuerfel-flaeche.oben   { background-color: #E9B8F5 }
+.gruen .wuerfel-flaeche.oben { background-color: #DCF5B8 }
+.blau .wuerfel-flaeche.oben  { background-color: #B8E9F5 }
+.gelb .wuerfel-flaeche.oben  { background-color: #F5D5B8 }
 
 /* Ein leeres Feld ohne Würfel */
 .leer {
