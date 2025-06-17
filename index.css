@@ -10,8 +10,8 @@ body {
 
 #spielbrett {
     display: grid;
-    grid-template-columns: repeat(11, 50px);
-    grid-template-rows: repeat(11, 50px);
+    grid-template-columns: repeat(13, 50px);
+    grid-template-rows: repeat(13, 50px);
     gap: 5px;
     transform-style: preserve-3d;
     transform: rotateX(55deg) rotateZ(45deg);
