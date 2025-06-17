@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    font-family: "Sour Gummy", sans-serif;
+    margin: 0;
+    background-color: #fff;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Schwarze Magie?? */
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: 1em;
+}
