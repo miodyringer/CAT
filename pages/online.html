@@ -11,13 +11,13 @@
 <div class="submenu-container">
   <h1><span class="icon">🎮</span> Find Game <span class="icon">🌍</span></h1>
 
-  <section class="lobby-filters">
+  <section class="input-field">
     <h2><span class="icon">🔍</span> Filter Lobbies</h2>
-    <div class="filter-item">
+    <div class="input-item">
       <label for="lobby-name-filter">Lobby Name:</label>
       <input type="text" id="lobby-name-filter" name="lobby-name-filter" placeholder="Enter lobby name...">
     </div>
-    <div class="filter-item">
+    <div class="input-item">
       <label for="player-count-filter">Min Players:</label>
       <input type="number" id="player-count-filter" name="player-count-filter" min="1" max="4" placeholder="e.g., 2">
     </div>
@@ -35,7 +35,7 @@
           <h3 class="lobby-name">Cool Cats' Corner</h3>
           <p class="lobby-players">Players: 2/4</p>
         </div>
-        <button class="join-lobby-button" aria-label="Join Cool Cats' Corner lobby">Join Lobby</button>
+        <a href="join_lobby.html" class="join-lobby-button" aria-label="Join Lobby">Join Lobby</a>
       </div>
 
       <div class="lobby-item">
@@ -43,7 +43,7 @@
           <h3 class="lobby-name">Pro Gamers Only</h3>
           <p class="lobby-players">Players: 1/4</p>
         </div>
-        <button class="join-lobby-button" aria-label="Join Pro Gamers Only lobby">Join Lobby</button>
+        <a href="join_lobby.html" class="join-lobby-button" aria-label="Join Lobby">Join Lobby</a>
       </div>
 
       <div class="lobby-item">
@@ -51,16 +51,14 @@
           <h3 class="lobby-name">Weekend Warriors</h3>
           <p class="lobby-players">Players: 4/4</p>
         </div>
-        <button class="join-lobby-button" aria-label="Join Weekend Warriors lobby">Join Lobby</button>
+        <a href="join_lobby.html" class="join-lobby-button" aria-label="Join Lobby">Join Lobby</a>
       </div>
 
     </div>
   </section>
 
   <div class="lobby-actions">
-    <button class="action-button create-lobby-button" id="create-lobby-button" aria-label="Create New Lobby">
-      <span class="icon">➕</span> Create New Lobby
-    </button>
+    <a href="create_lobby.html" class="action-button create-lobby-button" aria-label="Create New Lobby"><span class="icon">➕</span> Create New Lobby</a>
     <a href="menu.html" class="back-button" aria-label="Back to Game Menu">Back to Menu</a>
   </div>
 </div>
