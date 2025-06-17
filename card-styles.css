@@ -1,0 +1,122 @@
+/* --- START OF FILE card-styles.css --- */
+
+@import url('https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: "Sour Gummy", sans-serif;
+    background-color: #f0f0f0;
+    gap: 30px;
+    padding: 30px;
+}
+
+.card {
+    width: 120px;
+    height: 180px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 6px 6px #aaaaaa;
+    border: 3px solid black;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+.card:hover {
+    transform: translate(3px, 3px) scale(1.05);
+    box-shadow: 3px 3px #888888;
+}
+
+.card:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0 0 #333333;
+}
+
+.card-inner {
+    font-size: 3.5em;
+    font-weight: bold;
+    color: #000;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-move {
+    background-color: #B8E9F5; /* Blue */
+}
+
+.card-special {
+    background-color: #E9B8F5; /* Pink */
+}
+
+
+/* --- Designs for Special Cards --- */
+
+/* Card 4: Plus/Minus (Centered) */
+.plus-minus-stacked {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7em;
+    font-weight: bold;
+    line-height: 0.8;
+}
+
+/* --- DUAL CORNER ICON LOGIC (Hard-Coded) --- */
+
+/* Style the top-right icons */
+.card-fire .fa-fire,
+.card-play span:last-child {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 0.6em;
+}
+
+/* Style the bottom-left pseudo-element icons */
+.card-fire .card-inner::before,
+.card-play .card-inner::before {
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    font-size: 0.6em;
+    transform: rotate(180deg);
+}
+
+/* Hard-code the content for each card type */
+.card-fire .card-inner::before {
+    font-family: "Font Awesome 6 Free"; /* Important for Font Awesome icons */
+    font-weight: 900; /* Use the 'solid' font weight */
+    content: "\f06d"; /* The unicode for the 'fire' icon */
+    color: #c0392b;
+}
+
+.card-play .card-inner::before {
+    content: "\25b6"; /* The unicode for the 'play' symbol (▶) */
+}
+
+/* Specific color for the fire icon */
+.fa-fire {
+    color: #c0392b;
+}
+
+/* --- Centered Symbol Cards --- */
+.joker-symbol {
+    font-size: 1.2em;
+}
+
+.swap-icon {
+    font-size: 1em;
+}

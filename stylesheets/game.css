@@ -8,11 +8,6 @@ body {
     overflow: hidden;
 }
 
-
-
-/* --- Game Board --- */
-
-
 #spielbrett {
     display: grid;
     grid-template-columns: repeat(15, 50px);
@@ -32,9 +27,7 @@ body {
     width: 150%;
     height: 262.5%;
     transform: translateX(-25%) translateY(-37.5%);
-    background: #000;
-    border-radius: 5px;
-    box-shadow: 5px 5px 0 #aaa;
+    pointer-events: none;
 }
 
 .wuerfel {
@@ -111,11 +104,11 @@ body {
     bottom: 0;
     left: 15%;
     width: 70%;
-    height: 20px; /* A little taller for a better oval shape */
+    height: 20px;
     background: rgba(0, 0, 0, 0.25);
     border-radius: 50%;
-    filter: blur(10px); /* More blur for a softer shadow */
-    z-index: -1; /* Place it behind the figure's body */
+    filter: blur(10px);
+    z-index: -1;
     transition: all 0.3s ease-in-out;
 }
 

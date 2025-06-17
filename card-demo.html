@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Game Cards - Style Demo</title>
+  <link rel="stylesheet" href="card-styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<!-- Move Cards -->
+<div class="card card-move"><div class="card-inner">2</div></div>
+<div class="card card-move"><div class="card-inner">8</div></div>
+
+<!-- Special Cards -->
+<div class="card card-special"><div class="card-inner"><span class="card-number">4</span><span class="plus-minus-stacked"><span class="plus-symbol">+</span><span class="minus-symbol">-</span></span></div></div>
+
+<!-- MODIFIED: Added specific class 'card-fire' -->
+<div class="card card-special card-fire">
+  <div class="card-inner">
+    <span class="card-number">7</span>
+    <i class="fa-solid fa-fire"></i>
+  </div>
+</div>
+
+<!-- MODIFIED: Added specific class 'card-play' -->
+<div class="card card-special card-play">
+  <div class="card-inner">
+    <span class="card-number">13</span>
+    <span>▶</span>
+  </div>
+</div>
+
+<!-- MODIFIED: Added specific class 'card-play' -->
+<div class="card card-special card-play">
+  <div class="card-inner">
+    <span class="card-number">1/11</span>
+    <span>▶</span>
+  </div>
+</div>
+
+<!-- Centered-Symbol Cards -->
+<div class="card card-special"><div class="card-inner"><span class="joker-symbol">?</span></div></div>
+<div class="card card-special"><div class="card-inner"><i class="fa-solid fa-rotate swap-icon"></i></div></div>
+
+</body>
+</html>

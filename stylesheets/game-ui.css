@@ -1,0 +1,428 @@
+body {
+    background-color: #f0f2f5;
+    font-family: "Sour Gummy", sans-serif;
+    position: relative;
+    overflow: hidden;
+    display: block;
+    align-items: initial;
+    justify-content: initial;
+}
+
+.game-board-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 25%;
+    padding-top: 80px;
+    box-sizing: border-box;
+}
+
+#game-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #ffffff;
+    border-bottom: 3px solid black;
+    box-shadow: 0 6px 0 #aaaaaa;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.header-section {
+    flex: 1;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: flex-start;
+    gap: 30px;
+    font-size: 1.2em;
+}
+
+.lobby-name-container {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.game-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.left-panel-container,
+.right-panel-container {
+    position: absolute;
+    width: 25%;
+    height: 100%;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    padding-top: 80px;
+}
+
+.left-panel-container {
+    left: 0;
+}
+
+.right-panel-container {
+    right: 0;
+}
+
+.ui-panel {
+    width: 100%;
+    max-width: 320px;
+    background-color: #fff;
+    padding: 25px;
+    box-shadow: 6px 6px 0 #aaa;
+    border: 3px solid #000;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #777;
+    padding-bottom: 10px;
+}
+
+.player-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    position: relative;
+    padding-left: 30px;
+    border: 2px solid transparent;
+}
+
+.player-entry.is-me .player-name:after {
+    content: ' (You)';
+}
+
+.turn-indicator {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5em;
+    color: #F5D5B8;
+    text-shadow: 2px 2px 0 #000;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.turn-indicator::after {
+    content: '➜';
+}
+
+.player-entry.is-turn .turn-indicator {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    flex-grow: 1;
+}
+
+.player-card-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.card-info-label {
+    font-size: 0.8em;
+    font-weight: normal;
+    color: #6c757d;
+}
+
+.card-count {
+    font-size: 1em;
+    font-weight: bold;
+    background-color: #e9ecef;
+    padding: 4px 12px;
+    border: 2px solid #343a40;
+    border-radius: 4px;
+}
+
+.player-icon {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    margin-right: 15px;
+    position: relative;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    overflow: hidden;
+}
+
+.ui-spielfigur-icon {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: scale(1.2) translateY(5px);
+}
+
+.card-hand-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+/* Base styling for all cards */
+.card {
+    /* Make the card smaller to fit in the panel */
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 8px; /* Slightly smaller radius for smaller cards */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 4px 4px #aaaaaa; /* Slightly smaller shadow */
+    border: 2px solid black; /* Slightly smaller border */
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+.card:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px #888888;
+}
+
+.card:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 #333333;
+}
+
+/* Inner container for the card content */
+.card-inner {
+    font-size: 2.5em; /* Smaller font for smaller cards */
+    font-weight: bold;
+    color: #000;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.card-move {
+    background-color: #B8E9F5; /* Blue */
+}
+
+.card-special {
+    background-color: #E9B8F5; /* Pink */
+}
+
+/* --- Specific Designs for Special Cards --- */
+.plus-minus-stacked {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7em;
+    font-weight: bold;
+    line-height: 0.8;
+}
+
+/* Corner Icon Logic */
+.card-fire .fa-fire,
+.card-play span:last-child {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.5em;
+}
+.card-fire .card-inner::before,
+.card-play .card-inner::before {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 0.5em;
+    transform: rotate(180deg);
+}
+.card-fire .card-inner::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f06d";
+    color: #c0392b;
+}
+.card-play .card-inner::before {
+    content: "\25b6";
+}
+.fa-fire {
+    color: #c0392b;
+}
+
+/* Centered Symbol Cards */
+.joker-symbol {
+    font-size: 1.2em;
+}
+.swap-icon {
+    font-size: 1em;
+}
+
+.leave-button {
+    color: black;
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 1em;
+    font-family: inherit;
+    font-weight: bold;
+    border: 3px solid black;
+    box-shadow: 6px 6px #aaaaaa;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+}
+
+.leave-button:hover {
+    background-color: #f5c4c4;
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px #888888;
+}
+
+.leave-button:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0 0 #333333;
+}
+
+.ui-spielfigur-icon .koerper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--color-light), var(--color-dark));
+    clip-path: polygon(15% 100%, 50% 0%, 85% 100%);
+}
+
+.ui-spielfigur-icon .kopf {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25px;
+    height: 25px;
+    background: radial-gradient(circle at 15px 15px, var(--color-light), var(--color-base));
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2);
+}
+
+.ui-spielfigur-icon .ohr {
+    position: absolute;
+    top: -5px;
+    width: 12px;
+    height: 13px;
+    overflow: hidden;
+}
+
+.ui-spielfigur-icon .ohr::after {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    border-radius: 50%;
+    background-color: var(--color-darker);
+}
+
+.ui-spielfigur-icon .ohr-links {
+    left: -1px;
+    transform: rotate(-15deg);
+}
+.ui-spielfigur-icon .ohr-links::after {
+    top: 4px;
+    left: -7px;
+    transform: rotate(45deg);
+}
+
+.ui-spielfigur-icon .ohr-rechts {
+    right: -1px;
+    transform: rotate(15deg);
+}
+.ui-spielfigur-icon .ohr-rechts::after {
+    top: 4px;
+    right: -7px;
+    transform: rotate(-45deg);
+}
+
+.ui-spielfigur-icon .schwanz {
+    position: absolute;
+    bottom: 9px;
+    left: 5px;
+    width: 12.5px;
+    height: 20px;
+    background: transparent;
+    border: 3px solid var(--color-dark);
+    border-color: transparent var(--color-dark) var(--color-dark) transparent;
+    border-radius: 0 50% 50% 0;
+    transform: rotate(40deg);
+    z-index: -1;
+}
+
+.ui-spielfigur-icon .schwanz::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform: translate(-40%, 40%);
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle at 5px 5px, var(--color-light), var(--color-base));
+    border-radius: 50%;
+}
+
+
+/* --- Colors --- */
+
+.ui-spielfigur-icon.gruen {
+    --color-base: #DCF5B8;
+    --color-light: #F0FBE0;
+    --color-dark: #B8D992;
+    --color-darker: #93B370;
+}
+
+.ui-spielfigur-icon.orange {
+    --color-base: #F5D5B8;
+    --color-light: #FFF0E0;
+    --color-dark: #D9B392;
+    --color-darker: #B38F70;
+}
+
+.ui-spielfigur-icon.blau {
+    --color-base: #B8E9F5;
+    --color-light: #E0F7FF;
+    --color-dark: #92C8D9;
+    --color-darker: #70A2B3;
+}
+
+.ui-spielfigur-icon.pink {
+    --color-base: #E9B8F5;
+    --color-light: #F7E0FF;
+    --color-dark: #C892D9;
+    --color-darker: #A270B3;
+}
