@@ -8,12 +8,15 @@ body {
     overflow: hidden;
 }
 
+
+
 /* --- Game Board --- */
+
 
 #spielbrett {
     display: grid;
-    grid-template-columns: repeat(11, 50px);
-    grid-template-rows: repeat(11, 50px);
+    grid-template-columns: repeat(15, 50px);
+    grid-template-rows: repeat(15, 50px);
     gap: 5px;
     transform-style: preserve-3d;
     transform: rotateX(55deg) rotateZ(45deg);
@@ -23,6 +26,15 @@ body {
     width: 50px;
     height: 50px;
     transform-style: preserve-3d;
+}
+
+.feld.cards{
+    width: 150%;
+    height: 262.5%;
+    transform: translateX(-25%) translateY(-37.5%);
+    background: #000;
+    border-radius: 5px;
+    box-shadow: 5px 5px 0 #aaa;
 }
 
 .wuerfel {
@@ -50,6 +62,7 @@ body {
 .feld.gruen .wuerfel-flaeche.oben { background-color: #DCF5B8 }
 .feld.blau .wuerfel-flaeche.oben  { background-color: #B8E9F5 }
 .feld.orange .wuerfel-flaeche.oben  { background-color: #F5D5B8 }
+
 
 .wuerfel:has(.wuerfel-flaeche:hover) > .wuerfel-flaeche {
     background-color: #888888;
@@ -83,43 +96,41 @@ body {
 .hrechts{ transform: rotateY(-90deg) translateZ(25px); }
 
 
-.spielfigur-final {
+.spielfigur {
     position: relative;
     width: 40px;
     height: 60px;
     cursor: grab;
     transform-style: preserve-3d;
-    z-index: 100;
-    transform: rotateZ(-45deg) rotateX(-55deg) translateY(-25px) translateZ(25px);
-    transition: transform 0.3s ease-in-out;
+    transform: rotateZ(-45deg) rotateX(-55deg) translateY(-55px) translateX(7px) translateZ(1000px);
 }
 
-.spielfigur-final::after {
+.spielfigur::after {
     content: '';
     position: absolute;
-    bottom: -5px;
+    bottom: 0;
     left: 15%;
     width: 70%;
-    height: 15px;
-    background: rgba(0, 0, 0, 0.3);
+    height: 20px; /* A little taller for a better oval shape */
+    background: rgba(0, 0, 0, 0.25);
     border-radius: 50%;
-    filter: blur(8px);
-    z-index: -2;
-    transition: all 0.3s ease;
+    filter: blur(10px); /* More blur for a softer shadow */
+    z-index: -1; /* Place it behind the figure's body */
+    transition: all 0.3s ease-in-out;
 }
 
-.spielfigur-final .koerper {
+.spielfigur .koerper {
     position: absolute;
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 40px;
     height: 40px;
-    background: linear-gradient(to right, var(--color-light), var(--color-dark));
+    background: linear-gradient(to bottom, var(--color-light), var(--color-dark));
     clip-path: polygon(15% 100%, 50% 0%, 85% 100%);
 }
 
-.spielfigur-final .kopf {
+.spielfigur .kopf {
     position: absolute;
     top: 0;
     left: 50%;
@@ -132,7 +143,7 @@ body {
     box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2);
 }
 
-.spielfigur-final .ohr {
+.spielfigur .ohr {
     position: absolute;
     top: -5px;
     width: 12px;
@@ -140,7 +151,7 @@ body {
     overflow: hidden;
 }
 
-.spielfigur-final .ohr::after {
+.spielfigur .ohr::after {
     content: '';
     position: absolute;
     width: 150%;
@@ -149,28 +160,27 @@ body {
     background-color: var(--color-darker);
 }
 
-.spielfigur-final .ohr-links {
+.spielfigur .ohr-links {
     left: -1px;
     transform: rotate(-15deg);
 }
-.spielfigur-final .ohr-links::after {
+.spielfigur .ohr-links::after {
     top: 4px;
     left: -7px;
     transform: rotate(45deg);
 }
 
-.spielfigur-final .ohr-rechts {
+.spielfigur .ohr-rechts {
     right: -1px;
     transform: rotate(15deg);
 }
-.spielfigur-final .ohr-rechts::after {
+.spielfigur .ohr-rechts::after {
     top: 4px;
     right: -7px;
     transform: rotate(-45deg);
 }
 
-
-.spielfigur-final .schwanz {
+.spielfigur .schwanz {
     position: absolute;
     bottom: 9px;
     left: 1px;
@@ -180,11 +190,11 @@ body {
     border: 3px solid var(--color-dark);
     border-color: transparent var(--color-dark) var(--color-dark) transparent;
     border-radius: 0 50% 50% 0;
-    transform: rotate(25deg);
+    transform: rotate(40deg);
     z-index: -1;
 }
 
-.spielfigur-final .schwanz::after {
+.spielfigur .schwanz::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -199,28 +209,28 @@ body {
 
 /* --- Colors --- */
 
-.spielfigur-final.gruen {
+.spielfigur.gruen {
     --color-base: #DCF5B8;
     --color-light: #F0FBE0;
     --color-dark: #B8D992;
     --color-darker: #93B370;
 }
 
-.spielfigur-final.orange {
+.spielfigur.orange {
     --color-base: #F5D5B8;
     --color-light: #FFF0E0;
     --color-dark: #D9B392;
     --color-darker: #B38F70;
 }
 
-.spielfigur-final.blau {
+.spielfigur.blau {
     --color-base: #B8E9F5;
     --color-light: #E0F7FF;
     --color-dark: #92C8D9;
     --color-darker: #70A2B3;
 }
 
-.spielfigur-final.pink {
+.spielfigur.pink {
     --color-base: #E9B8F5;
     --color-light: #F7E0FF;
     --color-dark: #C892D9;
