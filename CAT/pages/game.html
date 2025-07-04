@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat - Game</title>
+    <link rel="stylesheet" href="../stylesheets/base.css">
+    <link rel="stylesheet" href="../stylesheets/game.css">
+    <link rel="stylesheet" href="../stylesheets/submenu.css">
+    <link rel="stylesheet" href="../stylesheets/game-ui.css">
+  </head>
+  <body>
+    <main id="camera-container">
+      <div id="board">
+        <div class="tile cards" style="grid-area: 8 / 8">
+          <div class="card special fire">
+              <span class="card-number">7</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <header class="game-header">
+      <div class="game-info">
+        <span>Round: 1</span>
+        <span>Time: 00:05:32</span>
+      </div>
+      <div class="lobby-name">
+        <h2>Pro Gamers Only</h2>
+      </div>
+      <div class="leave-button">
+        <a class="button" href="menu.html">Leave Game</a>
+      </div>
+    </header>
+
+    <div class="left panel-container">
+      <h2>Players</h2>
+      <div class="player-list">
+
+      </div>
+    </div>
+
+    <div class="right panel-container">
+      <h2>Your Hand</h2>
+      <div class="card-hand-container">
+      </div>
+    </div>
+  </body>
+  <script src="../scripts/page_settings.js" type="module"></script>
+  <script src="../scripts/game_board.js" type="module"></script>
+  <script src="../scripts/game_ui.js" type="module"></script>
+  <script src="../scripts/services/server_service.js" type="module"></script>
+</html>

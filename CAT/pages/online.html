@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat - Find Game</title>
+    <link rel="stylesheet" href="../stylesheets/base.css">
+    <link rel="stylesheet" href="../stylesheets/submenu.css">
+    <link rel="stylesheet" href="../stylesheets/online.css">
+  </head>
+  <body>
+    <div class="submenu-container">
+      <h1><span class="icon">🎮</span> Find Game <span class="icon">🌍</span></h1>
+
+      <h2><span class="icon">🔍</span> Filter Lobbies</h2>
+      <div class="labeled-item">
+        <label for="lobby-name-filter">Lobby Name:</label>
+        <input type="text" id="lobby-name-filter" name="lobby-name-filter" placeholder="Enter lobby name...">
+      </div>
+      <div class="labeled-item">
+        <label>Min Players:</label>
+        <div class="radio-group">
+          <input type="radio" id="one-player" name="players" value="1" checked>
+          <label for="one-player">1</label>
+          <input type="radio" id="two-players" name="players" value="2" checked>
+          <label for="two-players">2</label>
+          <input type="radio" id="three-players" name="players" value="3">
+          <label for="three-players">3</label>
+          <input type="radio" id="four-players" name="players" value="4">
+          <label for="four-players">4</label>
+        </div>
+      </div>
+      <button class="button green" id="refresh-lobbies-button">
+        <span class="icon">🔄</span> Refresh
+      </button>
+
+      <h2><span class="icon">🚪</span> Available Lobbies</h2>
+      <div class="lobby-list" id="lobby-list"></div>
+
+      <div class="button-actions">
+        <a href="create_lobby.html" class="button green">Create New Lobby</a>
+        <a href="menu.html" class="button green">Back to Menu</a>
+      </div>
+    </div>
+  </body>
+  <script src="../scripts/page_settings.js" type="module"></script>
+  <script src="../scripts/online.js" type="module"></script>
+</html>

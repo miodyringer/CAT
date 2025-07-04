@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --color-background: #FFFFFF;
+    --color-background-darker: #F9F9F9;
+    --color-border: #000000;
+    --color-soft-border: #555555;
+    --color-softer-border: #777777;
+    --color-icon: #000000;
+    --color-shadow: #AAAAAA;
+    --color-shadow-darker: #888888;
+    --color-text: #333333;
+    --color-pink: #E9B8F5;
+    --color-blue: #B8E9F5;
+    --color-orange: #F5D5B8;
+    --color-green: #DDF5B8;
+    --color-pink-darker: #DCAAE6;
+    --color-blue-darker: #AADCE6;
+    --color-orange-darker: #E6C8AA;
+    --color-green-darker: #CFE6AC;
+    --color-important: #C0392B;
+    --color-strong: #D35400;
+    --size-border: 3px;
+    --size-shadow: 6px;
+    --size-p: 1rem;
+    --size-h1: 2.5rem;
+    --size-h2: 1.8rem;
+    --size-h3: 1.3rem;
+    --size-icon: 1rem;
+    --size-icon-action: 1.5rem;
+}
+
+body {
+    font-family: "Sour Gummy", sans-serif;
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: 1em;
+}
