@@ -1,0 +1,30 @@
+.labeled-item input[type="checkbox"],
+.labeled-item input[type="radio"] {
+    accent-color: var(--color-strong);
+}
+
+.lobby-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.lobby-item {
+    background-color: var(--color-background-darker);
+    border: var(--size-border) solid var(--color-softer-border);
+    box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.lobby-details { flex-grow: 1; }
+.lobby-name {
+    font-size: 1.4rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.lobby-item > .button {
+    margin: 1rem 0 1rem 0;
+}

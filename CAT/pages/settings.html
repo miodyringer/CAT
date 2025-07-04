@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat - Game Settings</title>
+    <link rel="stylesheet" href="../stylesheets/base.css">
+    <link rel="stylesheet" href="../stylesheets/submenu.css">
+    <link rel="stylesheet" href="../stylesheets/settings.css">
+  </head>
+  <body>
+    <div class="submenu-container">
+      <h1><span class="icon">🛠️</span> Game Settings <span class="icon">🛠️</span></h1>
+
+      <h2><span class="icon">⚙️</span> General Settings</h2>
+      <div class="labeled-item">
+        <label for="language-select">Language:</label>
+        <select id="language-select" name="language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </div>
+      <div class="labeled-item">
+        <label>Theme:</label>
+        <div class="radio-group" id="theme-select">
+          <input type="radio" id="theme-light" name="theme" value="light">
+          <label for="theme-light">Light</label>
+          <input type="radio" id="theme-dark" name="theme" value="dark">
+          <label for="theme-dark">Dark</label>
+          <input type="radio" id="theme-grayscale" name="theme" value="grayscale">
+          <label for="theme-grayscale">Grayscale</label>
+        </div>
+      </div>
+
+      <h2><span class="icon">🔊</span> Audio Settings</h2>
+      <div class="labeled-item">
+        <label for="master-volume">Master Volume:</label>
+        <input type="range" id="master-volume" name="master-volume" min="0" max="100" value="100">
+        <span class="range-value">75%</span>
+      </div>
+      <div class="labeled-item">
+        <label for="music-volume">Music Volume:</label>
+        <input type="range" id="music-volume" name="music-volume" min="0" max="100" value="50">
+        <span class="range-value">60%</span>
+      </div>
+      <div class="labeled-item">
+        <label for="sfx-volume">SFX Volume:</label>
+        <input type="range" id="sfx-volume" name="sfx-volume" min="0" max="100" value="50">
+        <span class="range-value">80%</span>
+      </div>
+      <div class="labeled-item">
+        <input type="checkbox" id="mute-all" name="mute-all">
+        <label for="mute-all">Mute All Sounds</label>
+      </div>
+
+      <h2><span class="icon">👁️</span> Accessibility Settings</h2>
+      <div class="color-section">
+        <p id="blue-showcase">C</p>
+        <p id="orange-showcase">A</p>
+        <p id="green-showcase">T</p>
+        <p id="pink-showcase">S</p>
+      </div>
+      <div class="labeled-item">
+        <label for="colorblind-mode">Colorblind Mode:</label>
+        <select id="colorblind-mode" name="colorblind-mode">
+          <option value="off">Off</option>
+          <option value="protanopia">Protanopia</option>
+          <option value="deuteranopia">Deuteranopia</option>
+          <option value="tritanopia">Tritanopia</option>
+        </select>
+      </div>
+      <div class="labeled-item">
+        <input type="checkbox" id="high-contrast-mode" name="high-contrast-mode">
+        <label for="high-contrast-mode">High Contrast</label>
+      </div>
+      <div class="labeled-item">
+        <label for="text-size">Text Size:</label>
+        <input type="range" id="text-size" name="text-size" min="80" max="150" value="100" step="5">
+        <span class="range-value">100%</span>
+      </div>
+      <div class="labeled-item">
+
+      <div class="button-actions">
+        <a href="about.html" class="button orange">About</a>
+        <a href="menu.html" class="button orange">Back to Menu</a>
+      </div>
+    </div>
+  </body>
+  <script src="../scripts/functions.mjs" type="module"></script>
+  <script src="../scripts/settings.js" type="module"></script>
+  <script src="../scripts/page_settings.js" type="module"></script>
+</html>

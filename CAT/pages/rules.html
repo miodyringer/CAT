@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cat - Game Rules</title>
+        <link rel="stylesheet" href="../stylesheets/base.css">
+        <link rel="stylesheet" href="../stylesheets/submenu.css">
+    </head>
+    <body>
+        <div class="submenu-container">
+            <h1><span class="icon">📜</span> CAT Game Rules <span class="icon">📜</span></h1>
+
+            <h2><span class="icon">🎯</span> Objective</h2>
+            <p>The goal is to be the first person to move all of its cats from the starting area, completely around the board into the designated finishing zone.</p>
+
+            <h2><span class="icon">🃏</span> Cards</h2>
+            <p>
+                Normal Cards (blue background) are used to move a cat forward along the track, the value printed on the card determines the range.
+                Special Cards (red background) provide unique abilities, they are needed to start the game and can bring a strategic situation to the game.
+            </p>
+            <ul>
+                <li><strong><span class="icon-action">▶️</span>Start Card:</strong> Needed to move a cat from the starting area onto its starting space on the track and move the designated value. Can also be as a normal card to move forward.</li>
+                <li><strong><span class="icon-action">🃏</span>Joker Card:</strong> Can be played as a substitute for any other card in the deck (both normal and special).</li>
+                <li><strong><span class="icon-action">🔁</span>Swap Card:</strong> Choose one of your cats on the track and swap its exact position with any other cat on the track. Pawns in the starting area or finishing zone are excluded.</li>
+                <li><strong><span class="icon-action">🔥</span>Inferno Card:</strong> Choose to split the value of this card among the number of cats and burn any enemy cat that it passes over, sending them back to their starting areas.</li>
+                <li><strong><span class="icon-action">↔️</span>Flex Card:</strong> Choose to move either forward or backward by the cards designated value.</li>
+            </ul>
+
+            <h2><span class="icon">🎮</span> Gameplay & Movement Rules</h2>
+
+
+            <h3> Basic Movement and Board Spaces </h3>
+            <p>
+                Each space on the track can only be occupied by one cat at a time.
+                Cats are moved clockwise around the board.
+                If a move ends by landing on a tile occupied by an enemy cat, then the enemy cat is going to get kicked into the designated starting area again.
+            </p>
+            <h3> The Start Tile </h3>
+            <p>
+                A cat that is occupying its own colored start tile is in a safe zone.
+                The cat is immune and cannot be captured, swapped or burned.
+                Furthermore, the cat cannot be passed over by any other cat. It serves as a solid wall, no cat can pass it until it is moved. To move into your finishing zone your starting tile can't be blocked because you move over this tile.
+            </p>
+            <h3> Entering and Moving in the Finishing Zone </h3>
+            <p>
+                Cats inside the finishing zone cannot be jumped over, they create a blockade for any cats behind them. The finishing zone needs to be filled sequentially.
+                A cat must enter the finishing zone with an exact value.
+                If a cat completes a full lap passing or landing exactly on the entrance to the finishing zone. It must complete another full lap around the board to get another chance.
+            </p>
+
+            <h2><span class="icon">🌊</span> Flow of the Game</h2>
+            <p>
+                The game is played over a series of rounds. At the beginning of each round, every player receives a number of cards that change each round in a descending cycle. Starting with 6 cards, descending to 2 cards. After the round with 2 cards, the cycle resets and the next round starts again with 6 cards.
+                The game proceeds clockwise. On your turn, you must perform the following actions:
+            </p>
+            <ul>
+                <li>Select one card from your hand.</li>
+                <li>Play the card, moving one of your cats according to the value or special effect.</li>
+                <li>If you are unable to make any legal move with the cards in your hand, you drop all your cards and are skipped until the next round starts.</li>
+                <li>When all players had their cards laid down, the round is over and the next one begins until a winner is determined.</li>
+            </ul>
+
+            <h2><span class="icon">👑</span> Winning the Game</h2>
+            <p>Bring all cats from the starting area into your finishing zone.</p>
+
+            <a href="menu.html" class="button pink" aria-label="Back to Game Menu">Back to Menu</a>
+        </div>
+    </body>
+    <script src="../scripts/page_settings.js" type="module"></script>
+</html>

@@ -1,0 +1,47 @@
+body {
+    flex-direction: column;
+}
+
+.kat-logo {
+    width: 20rem;
+    height: 10rem;
+}
+
+g, path {
+    stroke: var(--color-icon);
+    fill: var(--color-icon);
+}
+
+.menu-container {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.menu-button {
+    color: var(--color-icon);
+    padding: 1.5rem 3rem;
+    border: var(--size-border) solid var(--color-border);
+    box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease, color 0.2s ease;
+    cursor: pointer;
+}
+
+.menu-button > svg {
+    width: 3rem;
+    height: 3rem;
+}
+
+.menu-button:hover {
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px var(--color-shadow-darker);
+}
+
+.menu-button:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0 0 var(--color-shadow-darker);
+}
+
+#rules-button:hover { background-color: var(--color-pink) }
+#play-button:hover { background-color: var(--color-green) }
+#settings-button:hover { background-color: var(--color-orange) }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat - Create Lobby</title>
+    <link rel="stylesheet" href="../stylesheets/base.css">
+    <link rel="stylesheet" href="../stylesheets/submenu.css">
+  </head>
+  <body class="page-create-lobby">
+    <div class="submenu-container">
+      <h1>Create Lobby</h1>
+
+      <div class="labeled-item">
+        <label for="lobby-name">Lobby Name:</label>
+        <input type="text" id="lobby-name" name="lobby-name" placeholder="Enter Lobby name...">
+      </div>
+      <div class="labeled-item">
+        <label for="player-name">Player Name:</label>
+        <input type="text" id="player-name" name="player-name" placeholder="Enter Player name...">
+      </div>
+
+      <div class="button-actions">
+        <a href="game.html" class="button">Create Lobby</a>
+        <a href="online.html" class="button">Back to Find Game</a>
+      </div>
+    </div>
+  </body>
+  <script src="../scripts/page_settings.js" type="module"></script>
+  <script src="../scripts/services/player_service.js" type="module"></script>
+</html>
