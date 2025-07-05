@@ -7,7 +7,7 @@ function getLobbies() {
 }
 
 function joinLobby(lobbyId, lobbyName) {
-    window.location.href = "./join_lobby.html?lobbyId=" + lobbyId + "&lobbyName=" + lobbyName;
+    window.location.href = "/join_lobby";
 }
 
 getLobbies();
