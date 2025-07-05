@@ -36,8 +36,9 @@ async def get_join_lobby():
 @app.get("/menu", response_class=HTMLResponse)
 async def get_menu():
     with open("CAT/pages/menu.html", "r", encoding="utf-8") as f:
-        html = f.read()
-    return html
+            html = f.read()
+        return html
+
 
 @app.get("/online", response_class=HTMLResponse)
 async def get_online():
