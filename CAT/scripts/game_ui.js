@@ -21,9 +21,9 @@ const cards = [
 for (let i = 0; i < players.length; i++) {
     const playerEntry = document.createElement("div");
     if (i === 0) { playerEntry.className = "player-entry green" }
-    if (i === 1) { playerEntry.className = "player-entry blue" }
-    if (i === 2) { playerEntry.className = "player-entry pink" }
-    if (i === 3) { playerEntry.className = "player-entry orange" }
+    if (i === 1) { playerEntry.className = "player-entry pink" }
+    if (i === 2) { playerEntry.className = "player-entry orange" }
+    if (i === 3) { playerEntry.className = "player-entry blue" }
     const playerColor = document.createElement("div");
     playerColor.className = "player-color";
     const playerName = document.createElement("span");
