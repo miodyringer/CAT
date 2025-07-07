@@ -1,17 +1,40 @@
-body {
+@media (orientation: portrait) {
+
+    html {
+        transform: rotate(-90deg);
+        transform-origin: left top;
+        min-width: 100vh;
+        min-height: 100vw;
+        overflow: hidden;
+        position: absolute;
+        top: 100%;
+        left: 0;
+    }
+
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
 }
 
+
 #camera-container {
     position: absolute;
-    width: 500vmax;
-    aspect-ratio: 1;
-    left: 50%;
-    top: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: grab;
+    perspective-origin: center center;
+}
+
+#camera-container:active {
+    cursor: grabbing;
 }
 
 #board {
@@ -20,7 +43,9 @@ body {
     grid-template-rows: repeat(15, 3rem);
     gap: 0.5rem;
     transform-style: preserve-3d;
-    transform: rotateX(55deg) rotateZ(45deg);
+    position: absolute;
+    top: 50%;
+    left: 50%;
 }
 
 /*board shadow*/

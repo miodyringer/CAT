@@ -13,8 +13,7 @@ const cards = [
     {"type": "special", "number": "1/11"},
     {"type": "special", "number": "13"},
     {"type": "special", "number": "4"},
-    {"type": "special", "number": "S"},
-    {"type": "special", "number": "J"},
+    {"type": "special", "number": "S"}
     
 ]
 

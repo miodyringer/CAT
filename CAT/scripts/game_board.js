@@ -90,90 +90,105 @@ for (const [color, positions] of Object.entries(figures)) {
     });
 }
 
-const camera = document.querySelector("#camera-container");
-let zoom = 100;
-let x = 50;
-let y = 50;
+
+const cameraContainer = document.querySelector("#camera-container");
+
+let scale = 1.0;
+let panX = 0;
+let panY = 64;
+
+function updateBoardTransform() {
+    const centering = "translateX(-50%) translateY(-50%)";
+    const rotation = "rotateX(55deg) rotateZ(45deg)";
+
+    const panning = `translate3d(${panX}px, ${panY}px, 0)`;
+    const zooming = `scale(${scale})`;
+
+    boardElement.style.transform = `${centering} ${zooming} ${panning} ${rotation}`;
+}
+
+updateBoardTransform();
 
 document.addEventListener('keydown', (e) => {
-    if (e.code === "BracketRight" || e.code === "KeyP" && zoom < 200 ) { zoom += 10 }
-    else if (e.code === "Slash" || e.code === "KeyM" && zoom > 50) { zoom -= 10 }
-    else if (e.code === "ArrowUp" || e.code === "KeyW") { y += 5 }
-    else if (e.code === "ArrowLeft" || e.code === "KeyA") { x += 5 }
-    else if (e.code === "ArrowDown" || e.code === "KeyS") { y -= 5 }
-    else if (e.code === "ArrowRight" || e.code === "KeyD") { x -= 5 }
-    else if (e.code === "KeyR") {
-        zoom = 100;
-        x = 50;
-        y = 50;
+    let needsUpdate = true;
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const moveSpeed = 20 / scale ** 1.5;
+
+    let dx = 0, dy = 0;
+
+    switch (e.code) {
+        case "BracketRight": case "KeyP": if (scale < 2.0) { scale = Math.min(2.0, scale + 0.1) } break;
+        case "Slash": case "KeyM": if (scale > 0.5) { scale = Math.max(0.5, scale - 0.1) } break;
+        case "ArrowUp": case "KeyW": dy = -moveSpeed; break;
+        case "ArrowDown": case "KeyS": dy = moveSpeed; break;
+        case "ArrowLeft": case "KeyA": dx = -moveSpeed; break;
+        case "ArrowRight": case "KeyD": dx = moveSpeed; break;
+        case "KeyR":
+            scale = 1.0; panX = 0; panY = 64;
+            updateBoardTransform();
+            return;
     }
-    camera.style.left = x + "%";
-    camera.style.top = y + "%";
-    camera.style.zoom = zoom + "%";
+    if (isPortrait) {
+        panX -= dx;
+        panY -= dy;
+    } else {
+        panX += dx;
+        panY += dy;
+    }
+    if (dx !== 0 || dy !== 0) {
+        updateBoardTransform();
+    }
 });
 
 document.addEventListener('wheel', (e) => {
-    if (e.deltaY < 0 && zoom < 200) {
-        zoom += 10;
-    } else if (e.deltaY > 0 && zoom > 50) {
-        zoom -= 10;
-    }
-    camera.style.zoom = zoom + "%";
-});
-
-const panState = {
-    isPanning: false,
-    startX: 0,
-    startY: 0,
-    lastX: 0,
-    lastY: 0,
-};
-
-camera.addEventListener('mousedown', (e) => {
     e.preventDefault();
 
+    const oldScale = scale;
+
+    if (e.deltaY < 0 && scale < 2.0) {
+        scale = Math.min(2.0, scale + 0.1);
+    } else if (e.deltaY > 0 && scale > 0.5) {
+        scale = Math.max(0.5, scale - 0.1);
+    }
+
+    const scaleFactor = scale / oldScale;
+    panX *= scaleFactor;
+    panY *= scaleFactor;
+
+    updateBoardTransform();
+
+}, { passive: false });
+
+const panState = { isPanning: false, lastX: 0, lastY: 0 };
+
+cameraContainer.addEventListener('mousedown', (e) => {
+    e.preventDefault();
     panState.isPanning = true;
-    panState.startX = e.clientX;
-    panState.startY = e.clientY;
     panState.lastX = e.clientX;
     panState.lastY = e.clientY;
-
-    camera.classList.add('active');
 });
 
-camera.addEventListener('mousemove', (e) => {
-    if (!panState.isPanning) {
-        return;
-    }
+cameraContainer.addEventListener('mousemove', (e) => {
+    if (!panState.isPanning) return;
     e.preventDefault();
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
 
-    const deltaX = e.clientX - panState.lastX;
-    const deltaY = e.clientY - panState.lastY;
+    const dx = e.clientX - panState.lastX;
+    const dy = e.clientY - panState.lastY;
 
     panState.lastX = e.clientX;
     panState.lastY = e.clientY;
 
-    x += deltaX/20;
-    y += deltaY/20;
-    camera.style.left = x + "%";
-    camera.style.top = y + "%";
-});
-
-window.addEventListener('mouseup', (e) => {
-    if (panState.isPanning) {
-        panState.isPanning = false;
-        camera.classList.remove('active');
+    if (isPortrait) {
+        panX -= dy / scale;
+        panY += dx / scale;
+    } else {
+        panX += dx / scale;
+        panY += dy / scale;
     }
+    updateBoardTransform();
 });
 
-boardElement.addEventListener('mouseleave', (e) => {
-    if (panState.isPanning) {
-        panState.isPanning = false;
-        camera.classList.remove('active');
-    }
-});
-
-
-
-
-    
+const stopPanning = () => { if (panState.isPanning) panState.isPanning = false; };
+window.addEventListener('mouseup', stopPanning);
+cameraContainer.addEventListener('mouseleave', stopPanning);
