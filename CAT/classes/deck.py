@@ -106,3 +106,9 @@ class Deck:
     def add_to_discard(self, card: Card):
         """Adds a played card to the discard pile."""
         self.discard_pile.append(card)
+
+    def to_json(self):
+        return {
+            "cards": [card.to_json() for card in self.cards],
+            "discard_pile": [card.to_json() for card in self.discard_pile]
+        }
