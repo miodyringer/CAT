@@ -115,10 +115,11 @@ document.addEventListener('keydown', (e) => {
     const moveSpeed = 20 / scale ** 1.5;
 
     let dx = 0, dy = 0;
+    let zoomIn = false, zoomOut = false;
 
     switch (e.code) {
-        case "BracketRight": case "KeyP": if (scale < 2.0) { scale = Math.min(2.0, scale + 0.1) } break;
-        case "Slash": case "KeyM": if (scale > 0.5) { scale = Math.max(0.5, scale - 0.1) } break;
+        case "BracketRight": case "KeyP": if (scale < 2.0) { scale = Math.min(2.0, scale + 0.1); zoomIn = true } break;
+        case "Slash": case "KeyM": if (scale > 0.5) { scale = Math.max(0.5, scale - 0.1); zoomOut = true } break;
         case "ArrowUp": case "KeyW": dy = -moveSpeed; break;
         case "ArrowDown": case "KeyS": dy = moveSpeed; break;
         case "ArrowLeft": case "KeyA": dx = -moveSpeed; break;
@@ -135,7 +136,7 @@ document.addEventListener('keydown', (e) => {
         panX += dx;
         panY += dy;
     }
-    if (dx !== 0 || dy !== 0) {
+    if (dx !== 0 || dy !== 0 || zoomIn || zoomOut) {
         updateBoardTransform();
     }
 });
@@ -143,17 +144,11 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('wheel', (e) => {
     e.preventDefault();
 
-    const oldScale = scale;
-
     if (e.deltaY < 0 && scale < 2.0) {
         scale = Math.min(2.0, scale + 0.1);
     } else if (e.deltaY > 0 && scale > 0.5) {
         scale = Math.max(0.5, scale - 0.1);
     }
-
-    const scaleFactor = scale / oldScale;
-    panX *= scaleFactor;
-    panY *= scaleFactor;
 
     updateBoardTransform();
 
