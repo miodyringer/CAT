@@ -8,6 +8,13 @@
     flex-direction: column;
     gap: 1rem;
 }
+
+@media (max-width: 30rem) {
+    .lobby-item {
+        flex-wrap: wrap;
+    }
+}
+
 .lobby-item {
     background-color: var(--color-background-darker);
     border: var(--size-border) solid var(--color-softer-border);
