@@ -13,17 +13,16 @@ const cards = [
     {"type": "special", "number": "1/11"},
     {"type": "special", "number": "13"},
     {"type": "special", "number": "4"},
-    {"type": "special", "number": "S"},
-    {"type": "special", "number": "J"},
+    {"type": "special", "number": "S"}
     
 ]
 
 for (let i = 0; i < players.length; i++) {
     const playerEntry = document.createElement("div");
     if (i === 0) { playerEntry.className = "player-entry green" }
-    if (i === 1) { playerEntry.className = "player-entry blue" }
-    if (i === 2) { playerEntry.className = "player-entry pink" }
-    if (i === 3) { playerEntry.className = "player-entry orange" }
+    if (i === 1) { playerEntry.className = "player-entry pink" }
+    if (i === 2) { playerEntry.className = "player-entry orange" }
+    if (i === 3) { playerEntry.className = "player-entry blue" }
     const playerColor = document.createElement("div");
     playerColor.className = "player-color";
     const playerName = document.createElement("span");

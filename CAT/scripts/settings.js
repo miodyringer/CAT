@@ -18,7 +18,7 @@ if(getCookie("high_contrast_mode") === "true") {
     contrastBox.checked = true;
 }
 
-if(getCookie("color_theme") === "light") {
+if(getCookie("color_theme") === "light" || !getCookie("color_theme")) {
     light.checked = true;
 }
 if(getCookie("color_theme") === "dark") {

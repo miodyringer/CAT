@@ -18,6 +18,12 @@ g, path {
     padding: 2rem;
 }
 
+@media (max-width: 40rem) {
+    .menu-container {
+        flex-direction: column;
+    }
+}
+
 .menu-button {
     color: var(--color-icon);
     padding: 1.5rem 3rem;

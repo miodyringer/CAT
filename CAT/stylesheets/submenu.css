@@ -181,6 +181,17 @@ strong {
 
 .radio-group {
     display: flex;
+    flex-wrap:  wrap;
     gap: 1rem;
     align-items: center;
+}
+
+@media (max-width: 40rem) {
+
+    .wrap-item {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: 33%;
+    }
+
 }

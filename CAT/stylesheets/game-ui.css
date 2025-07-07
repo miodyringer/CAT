@@ -1,3 +1,43 @@
+@media (max-height: 40rem) or (max-width: 40rem) {
+    .game-header > *, .panel-container > * {
+        transform: scale(0.66)
+    }
+
+    .game-header {
+        max-height: 4rem;
+    }
+
+    .panel-container.left, .panel-container.right {
+        height: calc(100vh - 4rem);
+        top: 4rem;
+        max-width: 10rem;
+        padding: 1rem;
+    }
+
+    .panel-container h2 {
+        display: none;
+    }
+
+}
+
+@media (orientation: portrait){
+    .game-header > *, .panel-container > * {
+        transform: scale(0.66)
+    }
+
+    .game-header {
+        max-height: 4rem;
+    }
+
+    .panel-container.left, .panel-container.right {
+        height: calc(100vw - 4rem);
+        top: 4rem;
+        max-width: 10rem;
+        padding: 1rem;
+    }
+
+}
+
 .game-header {
     position: fixed;
     top: 0;
@@ -32,21 +72,28 @@
 .panel-container {
     position: absolute;
     width: 15rem;
-    height: calc(100% - 7rem);
+    height: calc(100vh - 7rem);
     top: 7rem;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding: 25px;
+    padding: 2rem;
     border: var(--size-border) solid var(--color-border);
-    border-top: 0;
+    border-bottom: var(--color-background);
+    border-top: var(--color-background);;
     background-color: var(--color-background);
     box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
 }
 
-.left { left: 0 }
-.right { right: 0 }
+.left {
+    left: 0;
+    border-left: var(--color-background);
+}
+.right {
+    right: 0;
+    border-right: var(--color-background);
+}
 
 .player-list {
     display: grid;

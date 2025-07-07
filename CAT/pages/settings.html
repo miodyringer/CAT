@@ -25,12 +25,18 @@
       <div class="labeled-item">
         <label>Theme:</label>
         <div class="radio-group" id="theme-select">
-          <input type="radio" id="theme-light" name="theme" value="light">
-          <label for="theme-light">Light</label>
-          <input type="radio" id="theme-dark" name="theme" value="dark">
-          <label for="theme-dark">Dark</label>
-          <input type="radio" id="theme-grayscale" name="theme" value="grayscale">
-          <label for="theme-grayscale">Grayscale</label>
+          <div class="wrap-item">
+            <input type="radio" id="theme-light" name="theme" value="light">
+            <label for="theme-light">Light</label>
+          </div>
+          <div class="wrap-item">
+            <input type="radio" id="theme-dark" name="theme" value="dark">
+            <label for="theme-dark">Dark</label>
+          </div>
+          <div class="wrap-item">
+            <input type="radio" id="theme-grayscale" name="theme" value="grayscale">
+            <label for="theme-grayscale">Gray</label>
+          </div>
         </div>
       </div>
 
@@ -82,9 +88,10 @@
       </div>
       <div class="labeled-item">
 
-      <div class="button-actions">
-        <a href="/about" class="button orange">About</a>
-        <a href="/menu" class="button orange">Back to Menu</a>
+        <div class="button-actions">
+          <a href="/about" class="button orange">About</a>
+          <a href="/" class="button orange">Back to Menu</a>
+        </div>
       </div>
     </div>
   </body>
