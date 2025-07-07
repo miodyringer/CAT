@@ -1,19 +1,20 @@
 import sendRequest from './services/server_service.js';
 
-// NEUE FUNKTION: Rendert die Kartenhand eines Spielers
+
 function renderHand(cards) {
     const handContainer = document.querySelector(".card-hand-container");
-    handContainer.innerHTML = ''; // Alte Hand leeren
+    handContainer.innerHTML = ''; // Leert die alte Hand
 
-    if (!cards) return;
+    if (!cards || cards.length === 0) return;
 
     cards.forEach(card => {
         const cardElement = document.createElement("div");
-        cardElement.className = "card special"; // Vereinfacht für den Anfang
+        // Später können wir hier je nach Kartentyp unterschiedliche Klassen vergeben
+        cardElement.className = "card special";
 
         const numberElement = document.createElement("span");
         numberElement.className = "card-number";
-        numberElement.innerText = card.name; // Zeigt den Kartennamen an
+        numberElement.innerText = card.name; // Zeigt den Namen der Karte an
 
         cardElement.appendChild(numberElement);
         handContainer.appendChild(cardElement);
@@ -21,70 +22,88 @@ function renderHand(cards) {
 }
 
 
-// Funktion zum Rendern der Spielerliste
 function renderPlayers(players) {
     const playerListContainer = document.querySelector(".player-list");
-    playerListContainer.innerHTML = ''; // Leere die alte Liste
+    playerListContainer.innerHTML = ''; // Leert die alte Liste
 
     players.forEach(player => {
         const playerEntry = document.createElement("div");
-        // Wir verwenden die Farbe, die vom Backend kommt
         playerEntry.className = `player-entry ${player.color}`;
 
         const playerName = document.createElement("span");
         playerName.className = "player-name";
         playerName.innerText = player.name;
+
         playerEntry.appendChild(playerName);
-
-        // Hier könntest du noch mehr Infos hinzufügen, z.B. die Anzahl der Karten
-        // const cardInfo = document.createElement("div"); ...
-
         playerListContainer.appendChild(playerEntry);
     });
 }
 
-// Hauptfunktion zum Initialisieren des Spiels
+
 async function initializeGame() {
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get('game_id');
-    // Hole unsere gespeicherte Spieler-ID aus dem localStorage
     const localPlayerId = localStorage.getItem('player_id');
 
-    if (!gameId) { /* ... */ }
+    if (!gameId) {
+        alert('No game ID found!');
+        window.location.href = '/';
+        return;
+    }
 
     try {
+        // 1. Lade den anfänglichen Zustand des Spiels
         const gameState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
-        // ... (UI aktualisieren) ...
+        console.log('Game state received:', gameState);
 
-        // *** HIER IST DIE NEUE LOGIK ***
+        if (!gameState) {
+            alert('Could not load game data from server.');
+            return;
+        }
+
+        // 2. Aktualisiere die UI mit den erhaltenen Daten
+        document.querySelector('.lobby-name h2').textContent = gameState.name;
+        renderPlayers(gameState.players); // Diese Zeile ist entscheidend für die Anzeige der Spielernamen
+
+        // 3. Logik für den "Start Game"-Button
         const startGameBtn = document.querySelector('#start-game-btn');
-
-        // Finde heraus, ob wir der Host sind
         const isHost = gameState.players.length > 0 && gameState.players[0].uuid === localPlayerId;
 
-        // Zeige den Button nur an, wenn das Spiel noch nicht gestartet ist UND wir der Host sind
         if (!gameState.game_started && isHost) {
             startGameBtn.style.display = 'block';
         } else {
-            startGameBtn.style.display = 'none'; // Ansonsten explizit verstecken
+            startGameBtn.style.display = 'none';
         }
 
-        startGameBtn.addEventListener('click', async () => {
-            try {
-                await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
-                startGameBtn.style.display = 'none'; // Verstecke den Button nach dem Klick
+        // Event-Listener nur einmal hinzufügen, falls er noch nicht existiert
+        if (!startGameBtn.dataset.listenerAttached) {
+            startGameBtn.addEventListener('click', async () => {
+                try {
+                    await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
+                    startGameBtn.style.display = 'none';
 
-                // Lade den Spielzustand neu, um die ausgeteilten Karten zu bekommen
-                const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
-                renderHand(updatedState.players[0].cards); // Zeigt die Karten des ersten Spielers
+                    // Lade den Zustand neu, um die ausgeteilten Karten zu erhalten
+                    const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
 
-            } catch (error) {
-                alert('Could not start the game.');
-                console.error(error);
-            }
-        });
+                    // Finde den aktuellen Spieler in der Liste, um seine Karten anzuzeigen
+                    const self = updatedState.players.find(p => p.uuid === localPlayerId);
+                    if (self) {
+                        renderHand(self.cards);
+                    }
 
-    } catch (error) { /* ... (bleibt gleich) ... */ }
+                } catch (error) {
+                    alert('Could not start the game.');
+                    console.error(error);
+                }
+            });
+            startGameBtn.dataset.listenerAttached = 'true';
+        }
+
+    } catch (error) {
+        console.error('Failed to get game state:', error);
+        alert('Could not load the game.');
+    }
 }
 
+// Starte die Initialisierung, wenn die Seite vollständig geladen ist
 document.addEventListener('DOMContentLoaded', initializeGame);

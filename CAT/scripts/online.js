@@ -1,17 +1,20 @@
 import sendRequest from './services/server_service.js';
 
-// Verknüpfung zur join_lobby.html-Seite
+// Eine globale Variable, um die ungefilterte Liste aller Lobbys zu speichern
+let allLobbies = {};
+
+// --- Die renderLobbies und joinLobby Funktionen bleiben fast gleich ---
+
 function joinLobby(lobbyId, lobbyName) {
     window.location.href = `./join_lobby?lobbyId=${lobbyId}&lobbyName=${lobbyName}`;
 }
 
-// Funktion zum Rendern der Lobbys
-function renderLobbies(lobbies) {
+function renderLobbies(lobbiesToRender) {
     const lobbyListContainer = document.querySelector("#lobby-list");
-    lobbyListContainer.innerHTML = ''; // Leere die Liste vor dem Neuzeichnen
+    lobbyListContainer.innerHTML = '';
 
-    // Das Backend gibt ein Objekt zurück, wir iterieren über die Werte (die Game-Objekte)
-    for (const game of Object.values(lobbies)) {
+    // Jetzt wird die Funktion mit einer möglicherweise gefilterten Liste aufgerufen
+    for (const game of Object.values(lobbiesToRender)) {
         const lobbyItem = document.createElement("div");
         lobbyItem.className = "lobby-item";
 
@@ -29,7 +32,6 @@ function renderLobbies(lobbies) {
         const button = document.createElement("button");
         button.textContent = "Join Lobby";
         button.className = "button green";
-        // Wir übergeben die game.uuid und den game.name an die joinLobby-Funktion
         button.onclick = () => joinLobby(game.uuid, game.name);
 
         lobbyDetails.appendChild(lobbyName);
@@ -40,29 +42,58 @@ function renderLobbies(lobbies) {
     }
 }
 
+// NEUE FUNKTION: Diese Funktion filtert und rendert die Lobbys
+function filterAndRender() {
+    // 1. Hole die aktuellen Filterwerte
+    const nameFilterValue = document.querySelector("#lobby-name-filter").value.toLowerCase();
+    const minPlayersValue = document.querySelector('input[name="players"]:checked').value;
+
+    // 2. Filtere die Lobbys
+    const filteredLobbies = Object.values(allLobbies).filter(game => {
+        const nameMatch = game.name.toLowerCase().includes(nameFilterValue);
+        const playersMatch = game.number_of_players >= parseInt(minPlayersValue);
+        return nameMatch && playersMatch;
+    });
+
+    // 3. Konvertiere das gefilterte Array zurück in ein Objekt, damit renderLobbies es verarbeiten kann
+    const filteredLobbiesObject = filteredLobbies.reduce((obj, game) => {
+        obj[game.uuid] = game;
+        return obj;
+    }, {});
+
+    // 4. Rufe die Render-Funktion mit der gefilterten Liste auf
+    renderLobbies(filteredLobbiesObject);
+}
+
+
 // Hauptfunktion zum Laden der Lobbys
 async function fetchAndDisplayLobbies() {
     try {
-        const lobbies = await sendRequest('http://127.0.0.1:7777/lobby/list');
-        renderLobbies(lobbies);
+        allLobbies = await sendRequest('http://127.0.0.1:7777/lobby/list');
+        // Zeige die Lobbys initial an (ungefiltert)
+        filterAndRender();
     } catch (error) {
         console.error("Failed to fetch lobbies:", error);
-        // Optional: eine Fehlermeldung auf der Seite anzeigen
     }
 }
 
-// 1. Finde den Refresh-Button im HTML
-const refreshButton = document.querySelector("#refresh-lobbies-button");
+// Event-Listener, wenn die Seite geladen ist
+document.addEventListener('DOMContentLoaded', () => {
+    // Lade die Lobbys beim ersten Mal
+    fetchAndDisplayLobbies();
 
-// 2. Füge einen Event-Listener für Klicks hinzu
-if (refreshButton) {
-    refreshButton.addEventListener('click', () => {
-        // 3. Rufe einfach die existierende Funktion erneut auf
-        fetchAndDisplayLobbies();
+    // Füge Event-Listener zu den Filter-Inputs hinzu
+    const nameFilterInput = document.querySelector("#lobby-name-filter");
+    nameFilterInput.addEventListener('input', filterAndRender);
+
+    const playerFilterRadios = document.querySelectorAll('input[name="players"]');
+    playerFilterRadios.forEach(radio => {
+        radio.addEventListener('change', filterAndRender);
     });
-}
-// *** ENDE NEUER CODE-BLOCK ***
 
-// Führe die Funktion aus, wenn die Seite geladen wird
-document.addEventListener('DOMContentLoaded', fetchAndDisplayLobbies);
-
+    // Dein Refresh-Button ruft jetzt auch die fetch-Funktion auf, was korrekt ist
+    const refreshButton = document.querySelector("#refresh-lobbies-button");
+    if (refreshButton) {
+        refreshButton.addEventListener('click', fetchAndDisplayLobbies);
+    }
+});
