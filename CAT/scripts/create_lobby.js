@@ -22,16 +22,17 @@ createLobbyBtn.addEventListener('click', async () => {
     };
 
     try {
-        const response = await sendRequest(`http://127.0.0.1:7777/lobby/create`, 'POST', requestBody);
+    const response = await sendRequest(`http://127.0.0.1:7777/lobby/create`, 'POST', requestBody);
 
-        if (response && response.game_id) {
-            localStorage.setItem('player_id', response.player_id);
-            console.log('Lobby created:', response);
-            window.location.href = `/game?game_id=${response.game_id}`;
-        } else {
-            alert('Error creating lobby: ' + (response ? JSON.stringify(response) : 'No response'));
-        }
-    } catch (error) {
+    if (response && response.game_id && response.player_id) {
+        console.log('Lobby created:', response);
+        // *** HIER DIE ÄNDERUNG: player_id zur URL hinzufügen ***
+        window.location.href = `/game?game_id=${response.game_id}&player_id=${response.player_id}`;
+    } else {
+        alert('Error creating lobby.');
+    }
+    } 
+    catch (error) {
         console.error('Failed to create lobby:', error);
         alert('Failed to connect to the server. Check the browser console (F12) for more details.');
     }

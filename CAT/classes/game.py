@@ -23,6 +23,7 @@ class Game:
         self.uuid = str(uuid.uuid4())
         self.name = name
         self.players = list_of_players
+        self.host_id = list_of_players[0].uuid if list_of_players else None
         self.number_of_players = len(self.players)
         # {15: <Figure object of Player green>, 23: <Figure object of player pink> }
         self.field_occupation: dict[int, Figure] = {}

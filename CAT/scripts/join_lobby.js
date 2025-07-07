@@ -34,13 +34,11 @@ joinGameBtn.addEventListener('click', async () => {
     };
 
     try {
-        // Der Join-Endpunkt gibt jetzt auch die player_id zurück
         const response = await sendRequest(`http://127.0.0.1:7777/lobby/${lobbyId}/join`, 'POST', requestBody);
 
         if (response && response.player_id) {
-            // Speichere die eigene Spieler-ID
-            localStorage.setItem('player_id', response.player_id);
-            window.location.href = `/game?game_id=${lobbyId}`;
+            // *** HIER DIE ÄNDERUNG: player_id zur URL hinzufügen ***
+            window.location.href = `/game?game_id=${lobbyId}&player_id=${response.player_id}`;
         } else {
             alert('Failed to get player confirmation from server.');
         }

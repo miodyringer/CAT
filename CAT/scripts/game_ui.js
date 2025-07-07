@@ -43,7 +43,7 @@ function renderPlayers(players) {
 async function initializeGame() {
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get('game_id');
-    const localPlayerId = localStorage.getItem('player_id');
+    const localPlayerId = params.get('player_id');
 
     if (!gameId) {
         alert('No game ID found!');
@@ -67,7 +67,7 @@ async function initializeGame() {
 
         // 3. Logik für den "Start Game"-Button
         const startGameBtn = document.querySelector('#start-game-btn');
-        const isHost = gameState.players.length > 0 && gameState.players[0].uuid === localPlayerId;
+        const isHost = gameState.host_id === localPlayerId;
 
         if (!gameState.game_started && isHost) {
             startGameBtn.style.display = 'block';
