@@ -1,10 +1,27 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from CAT.API.routers import lobby, game
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
-# Statische Verzeichnisse einbinden
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Erlaube alle Methoden (GET, POST, etc.)
+    allow_headers=["*"],  # Erlaube alle Header
+)
+
+# Include the API routers
+app.include_router(lobby.router)
+app.include_router(game.router)
+
+# Mount static directories for CSS and JavaScript files
 app.mount("/stylesheets", StaticFiles(directory="CAT/stylesheets"), name="stylesheets")
 app.mount("/scripts", StaticFiles(directory="CAT/scripts"), name="scripts")
 
@@ -33,7 +50,7 @@ async def get_join_lobby():
         html = f.read()
     return html
 
-@app.get("/menu", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def get_menu():
     with open("CAT/pages/menu.html", "r", encoding="utf-8") as f:
         html = f.read()
