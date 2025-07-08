@@ -16,7 +16,7 @@ const currentLang = getCookie("language") || "en";
 languageSelect.value = currentLang;
 
 const contrast_mode = getCookie("high_contrast_mode") || "false";
-contrastBox.checked = contrast_mode
+contrastBox.checked = contrast_mode === "true";
 
 const color_theme = getCookie("color_theme") || "light";
 if(color_theme === "light") { light.checked = true }
