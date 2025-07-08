@@ -1,79 +1,138 @@
-const self = {"name": "Dana", "cards": 4};
+import sendRequest from './services/server_service.js';
 
-const players = [
-    {"name": "Alex", "cards": 5},
-    {"name": "Ben", "cards": 4},
-    {"name": "Clara", "cards": 4},
-    self
-];
+/**
+ * Zeichnet die Handkarten des aktuellen Spielers.
+ * @param {Array} cards - Eine Liste von Kartenobjekten.
+ */
+function renderHand(cards) {
+    const handContainer = document.querySelector(".card-hand-container");
+    handContainer.innerHTML = '';
 
-const cards = [
-    {"type": "move", "number": "2"},
-    {"type": "special", "number": "7"},
-    {"type": "special", "number": "1/11"},
-    {"type": "special", "number": "13"},
-    {"type": "special", "number": "4"},
-    {"type": "special", "number": "S"}
-    
-]
+    if (!cards || cards.length === 0) return;
 
-for (let i = 0; i < players.length; i++) {
-    const playerEntry = document.createElement("div");
-    if (i === 0) { playerEntry.className = "player-entry green" }
-    if (i === 1) { playerEntry.className = "player-entry pink" }
-    if (i === 2) { playerEntry.className = "player-entry orange" }
-    if (i === 3) { playerEntry.className = "player-entry blue" }
-    const playerColor = document.createElement("div");
-    playerColor.className = "player-color";
-    const playerName = document.createElement("span");
-    playerName.className = "player-name";
-    playerName.innerText = players[i].name;
-    const cardInfo = document.createElement("div");
-    cardInfo.className = "player-card-info";
-    const infoLabel = document.createElement("span");
-    infoLabel.className = "card-info-label";
-    infoLabel.innerText = "Cards";
-    const cardCount = document.createElement("span");
-    cardCount.className = "card-count";
-    cardCount.innerText = players[i].cards + " / 6";
-    cardInfo.appendChild(infoLabel);
-    cardInfo.appendChild(cardCount);
-    playerEntry.appendChild(playerColor);
-    playerEntry.appendChild(playerName);
-    playerEntry.appendChild(cardInfo);
-    document.querySelector(".player-list").appendChild(playerEntry);
+    cards.forEach(card => {
+        const cardElement = document.createElement("div");
+        cardElement.className = "card special";
+
+        const numberElement = document.createElement("span");
+        numberElement.className = "card-number";
+        numberElement.innerText = card.name;
+
+        cardElement.appendChild(numberElement);
+        handContainer.appendChild(cardElement);
+    });
 }
 
-cards.forEach(card => {
-    const cardElement = document.createElement("div");
-    cardElement.className = "card " + card.type;
-    const numberElement = document.createElement("span");
-    numberElement.className = "card-number";
-    numberElement.innerText = card.number;
-    cardElement.appendChild(numberElement);
-    if (card.type === "special"){
-        const iconTop = document.createElement("span");
-        iconTop.className = "card-icon";
-        const iconBottom = document.createElement("span");
-        iconBottom.className = "card-icon";
-        if (card.number === "4") {
-            iconTop.innerText = "+";
-            iconBottom.innerText = "-";
-        }
-        if (card.number === "7") {
-            iconTop.innerText = "f";
-            iconBottom.innerText = "f";
-        }
-        if (card.number === "1/11") {
-            iconTop.innerText = "p";
-            iconBottom.innerText = "p";
-        }
-        if (card.number === "13") {
-            iconTop.innerText = "p";
-            iconBottom.innerText = "p";
-        }
-        cardElement.prepend(iconTop);
-        cardElement.appendChild(iconBottom);
+/**
+ * Zeichnet die Spielerliste, inklusive der Anzahl der Karten.
+ * @param {Array} players - Eine Liste von Spielerobjekten.
+ */
+function renderPlayers(players) {
+    const playerListContainer = document.querySelector(".player-list");
+    playerListContainer.innerHTML = '';
+
+    players.forEach(player => {
+        const playerEntry = document.createElement("div");
+        playerEntry.className = `player-entry ${player.color}`;
+
+        const playerName = document.createElement("span");
+        playerName.className = "player-name";
+        playerName.innerText = player.name;
+
+        // NEUER TEIL: Anzeige der Kartenanzahl
+        const cardInfo = document.createElement("div");
+        cardInfo.className = "player-card-info";
+
+        const infoLabel = document.createElement("span");
+        infoLabel.className = "card-info-label";
+        infoLabel.innerText = "Cards";
+
+        const cardCount = document.createElement("span");
+        cardCount.className = "card-count";
+        cardCount.innerText = player.cards.length; // Wir zeigen die Anzahl der Karten an
+
+        cardInfo.appendChild(infoLabel);
+        cardInfo.appendChild(cardCount);
+
+        playerEntry.appendChild(playerName);
+        playerEntry.appendChild(cardInfo); // Füge die Karten-Info hinzu
+        playerListContainer.appendChild(playerEntry);
+    });
+}
+
+/**
+ * Aktualisiert die gesamte Benutzeroberfläche basierend auf dem Spielzustand.
+ * @param {object} gameState - Das Spielzustand-Objekt vom Server.
+ * @param {string} localPlayerId - Die UUID des aktuellen Spielers.
+ */
+function updateUI(gameState, localPlayerId) {
+    document.querySelector('.lobby-name h2').textContent = gameState.name;
+    renderPlayers(gameState.players);
+
+    const self = gameState.players.find(p => p.uuid === localPlayerId);
+    if (self) {
+        renderHand(self.cards);
     }
-    document.querySelector(".card-hand-container").appendChild(cardElement);
-});
+
+    const startGameBtn = document.querySelector('#start-game-btn');
+    const isHost = gameState.host_id === localPlayerId;
+
+    if (!gameState.game_started && isHost) {
+        startGameBtn.style.display = 'block';
+    } else {
+        startGameBtn.style.display = 'none';
+    }
+}
+
+
+/**
+ * Die Hauptfunktion, die das Spiel initialisiert.
+ */
+async function initializeGame() {
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get('game_id');
+    const localPlayerId = params.get('player_id');
+
+    if (!gameId || !localPlayerId) {
+        alert('Error: Game or Player ID is missing from the URL!');
+        window.location.href = '/';
+        return;
+    }
+
+    try {
+        const gameState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
+        console.log('Initial game state received:', gameState);
+
+        if (!gameState) {
+            alert('Could not load game data from server.');
+            return;
+        }
+
+        // Rufe die zentrale UI-Update-Funktion auf
+        updateUI(gameState, localPlayerId);
+
+        const startGameBtn = document.querySelector('#start-game-btn');
+        if (!startGameBtn.dataset.listenerAttached) {
+            startGameBtn.addEventListener('click', async () => {
+                try {
+                    await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
+
+                    // Lade den Zustand neu und aktualisiere die gesamte UI
+                    const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
+                    updateUI(updatedState, localPlayerId);
+
+                } catch (error) {
+                    alert('Could not start the game.');
+                    console.error(error);
+                }
+            });
+            startGameBtn.dataset.listenerAttached = 'true';
+        }
+
+    } catch (error) {
+        console.error('Failed to get game state:', error);
+        alert('Could not load the game.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initializeGame);

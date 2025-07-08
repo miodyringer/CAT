@@ -1,19 +1,21 @@
-class ServerService {
+export default async function sendRequest(url, method = "GET", data = null) {
+    const options = {
+        method: method,
+        headers: {}
+    };
 
-    static async sendRequest(url, method = "GET", data) {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-        if(!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
+    if (data) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(data);
     }
 
-}
+    const response = await fetch(url, options);
 
-ServerService.sendRequest("http://0.0.0.0:7777/", "GET").then(r => console.log(r));
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: `HTTP error! status: ${response.status}` }));
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    // Wir fangen einen Fehler ab, falls die Antwort kein gültiges JSON ist
+    return response.json().catch(() => null);
+}
