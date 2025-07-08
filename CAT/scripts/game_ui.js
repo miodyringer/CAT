@@ -1,5 +1,6 @@
 import sendRequest from './services/server_service.js';
-import gameService from './services/game_service.js'; // NEUER IMPORT
+import gameService from './services/game_service.js';
+import { renderFigures } from './game_board.js';
 
 /**
  * Zeichnet die Handkarten des aktuellen Spielers.
@@ -86,6 +87,7 @@ function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
     renderPlayers();
     renderHand();
+    renderFigures();
 
     const startGameBtn = document.querySelector('#start-game-btn');
     const isHost = gameService.gameState.host_id === gameService.localPlayerId;

@@ -2,7 +2,21 @@ class GameService {
     constructor() {
         this.gameState = null;
         this.localPlayerId = null;
-        this.selectedCardIndex = null; // NEU: Speichert den Index der gewählten Karte
+        this.selectedCardIndex = null;
+        this.selectedFigureId = null;
+    }
+
+    selectFigure(figureId) {
+        if (this.selectedFigureId === figureId) {
+            this.selectedFigureId = null;
+        } else {
+            this.selectedFigureId = figureId;
+        }
+        console.log(`Selected figure ID: ${this.selectedFigureId}`);
+    }
+
+    getSelectedFigureId() {
+        return this.selectedFigureId;
     }
 
     // Wählt eine Karte aus oder ab

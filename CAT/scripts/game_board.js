@@ -1,3 +1,8 @@
+import gameService from "./services/game_service.js";
+
+const boardElement = document.querySelector("#board");
+const sideLength = 15;
+
 const board = [
     0, 0, 0, 0, 0, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0,
     0, 2, 2, 0, 0, 1, 0, 0, 3, 1, 0, 0, 3, 3, 0,
@@ -14,81 +19,93 @@ const board = [
     0, 4, 4, 0, 0, 1, 4, 0, 0, 1, 0, 0, 5, 5, 0,
     0, 4, 4, 0, 0, 1, 4, 0, 0, 1, 0, 0, 5, 5, 0,
     0, 0, 0, 0, 0, 4, 1, 1, 1, 1, 0, 0, 0, 0, 0
-]
-const sideLength = 15;
+];
 
-const figures = {
-    "pink": ["2 / 14", "3 / 14", "2 / 13", "3 / 13"],
-    "green": ["2 / 2", "2 / 3", "3 / 3", "3 / 2"],
-    "blue": ["14 / 2", "14 / 3", "13 / 2", "13 / 3"],
-    "orange": ["13 / 13", "13 / 14", "14 / 14", "14 / 13"],
-}
-
-const boardElement = document.querySelector("#board");
-
-for (let i = 0; i < board.length; i++) {
-    const row = i % sideLength + 1;
-    const col = Math.floor(i / sideLength) + 1;
-    if(board[i] !== 0) {
-        const tile = document.createElement("div");
-        if(board[i] === 1) {
-            tile.className = "tile path";
+function renderBoardTiles() {
+    for (let i = 0; i < board.length; i++) {
+        const row = i % sideLength + 1;
+        const col = Math.floor(i / sideLength) + 1;
+        if (board[i] !== 0) {
+            const tile = document.createElement("div");
+            if (board[i] === 1) { tile.className = "tile path"; }
+            if (board[i] === 2) { tile.className = "tile green"; }
+            if (board[i] === 3) { tile.className = "tile blue"; }
+            if (board[i] === 4) { tile.className = "tile pink"; }
+            if (board[i] === 5) { tile.className = "tile orange"; }
+            tile.style.gridArea = `${row} / ${col}`;
+            const cube = document.createElement("div");
+            cube.className = "cube";
+            cube.innerHTML = `<div class="side top"></div><div class="side bottom"></div><div class="side frontl"></div><div class="side frontr"></div><div class="side backl"></div><div class="side backr"></div>`;
+            tile.appendChild(cube);
+            boardElement.appendChild(tile);
         }
-        if(board[i] === 2) {
-            tile.className = "tile green";
-        }
-        if(board[i] === 3) {
-            tile.className = "tile blue";
-        }
-        if(board[i] === 4) {
-            tile.className = "tile pink";
-        }
-        if(board[i] === 5) {
-            tile.className = "tile orange";
-        }
-        tile.style.gridArea = row + " / " + col;
-        const cube = document.createElement("div");
-        cube.className = "cube";
-        const top = document.createElement("div");
-        top.className = "side top";
-        const bottom = document.createElement("div");
-        bottom.className = "side bottom";
-        const frontl = document.createElement("div");
-        frontl.className = "side frontl";
-        const frontr = document.createElement("div");
-        frontr.className = "side frontr";
-        const backl = document.createElement("div");
-        backl.className = "side backl";
-        const backr = document.createElement("div");
-        backr.className = "side backr";
-        cube.appendChild(top);
-        cube.appendChild(bottom);
-        cube.appendChild(frontl);
-        cube.appendChild(frontr);
-        cube.appendChild(backl);
-        cube.appendChild(backr);
-        tile.appendChild(cube);
-        boardElement.appendChild(tile);
     }
 }
 
-for (const [color, positions] of Object.entries(figures)) {
-    positions.forEach((position) => {
-        const figure = document.createElement("div");
-        figure.className = "figure " + color;
-        figure.style.gridArea = position;
-        const body = document.createElement("div");
-        body.className = "body";
-        const ears = document.createElement("div");
-        ears.className = "ears";
-        const head = document.createElement("div");
-        head.className = "head";
-        figure.appendChild(body);
-        figure.appendChild(ears);
-        figure.appendChild(head);
-        boardElement.appendChild(figure);
+const PATH_COORDINATES = [
+    "6/2", "6/3", "6/4", "6/5", "5/6", "4/6", "3/6", "2/6", "1/6", "1/7", "1/8", "1/9", "1/10", "2/10", "3/10", "4/10", "5/10", "6/11", "6/12", "6/13", "6/14", "6/15", "7/15", "8/15", "9/15", "10/15", "10/14", "10/13", "10/12", "10/11", "11/10", "12/10", "13/10", "14/10", "15/10", "15/9", "15/8", "15/7", "15/6", "14/6", "13/6", "12/6", "11/6", "10/5", "10/4", "10/3", "10/2", "10/1", "9/1", "8/1", "7/1", "6/1", "6/1", "6/1"
+];
+const HOME_COORDINATES = {
+    "green": ["2/2", "3/2", "2/3", "3/3"],
+    "pink": ["2/13", "2/14", "3/13", "3/14"],
+    "blue": ["13/2", "14/2", "13/3", "14/3"],
+    "orange": ["13/13", "14/13", "13/14", "14/14"],
+};
+const FINISH_COORDINATES = {
+    "green": ["7/2", "7/3", "7/4", "7/5"],
+    "pink": ["2/9", "3/9", "4/9", "5/9"],
+    "blue": ["9/2", "9/3", "9/4", "9/5"],
+    "orange": ["14/9", "13/9", "12/9", "11/9"],
+};
+
+
+export function renderFigures() {
+    document.querySelectorAll(".figure").forEach(fig => fig.remove());
+
+    const localPlayer = gameService.getLocalPlayer();
+    const players = gameService.getPlayers();
+    if (!players || !localPlayer) return;
+
+    players.forEach(player => {
+        player.figures.forEach((figure, index) => {
+            const figureElement = document.createElement("div");
+            figureElement.className = `figure ${figure.color}`;
+            figureElement.id = figure.uuid;
+
+            // calculate position in the grid based on the figure's position
+            let gridPosition = "";
+            if (figure.position === -1) { // In der Home-Base
+                gridPosition = HOME_COORDINATES[figure.color][index];
+            } else if (figure.position >= 100) { // In der Zielzone
+                const finishIndex = figure.position % 100;
+                gridPosition = FINISH_COORDINATES[figure.color][finishIndex];
+            } else { // Auf dem normalen Weg
+                gridPosition = PATH_COORDINATES[figure.position];
+            }
+            figureElement.style.gridArea = gridPosition;
+
+            // add the figure
+            figureElement.innerHTML = `<div class="body"></div><div class="ears"></div><div class="head"></div>`;
+
+            // only make the figure clickable if it's the local player's figure
+            if (player.uuid === localPlayer.uuid) {
+                figureElement.classList.add("own-figure");
+                figureElement.addEventListener('click', () => {
+                    gameService.selectFigure(figure.uuid);
+                    renderFigures(); // Brett neu zeichnen, um Auswahl zu zeigen
+                });
+            }
+
+            if (figure.uuid === gameService.getSelectedFigureId()) {
+                figureElement.classList.add("selected");
+            }
+
+            boardElement.appendChild(figureElement);
+        });
     });
 }
+
+renderBoardTiles();
 
 
 const cameraContainer = document.querySelector("#camera-container");
