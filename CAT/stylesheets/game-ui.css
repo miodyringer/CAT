@@ -169,4 +169,4 @@
     padding: 0 0.5rem 0 0.5rem;
 }
 
-.card-icon:first-child  { transform: scaleX(-1)}
+.card-icon:first-child  { text-align: left; }
