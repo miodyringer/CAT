@@ -28,7 +28,7 @@ class Player:
             "number": self.number,
             "color": self.color,
             "cards": [card.to_json() for card in self.cards],
-            "figures": [figure.to_jason() for figure in self.figures],
+            "figures": [figure.to_json() for figure in self.figures],
             "startfield": self.startfield,
             "finishing_field": self.finishing_field
         }

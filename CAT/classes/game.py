@@ -3,8 +3,8 @@ from CAT.classes.player import Player
 from CAT.classes.figure import Figure
 from CAT.classes.deck import Deck
 
-class Game:
 
+class Game:
     NUMBER_OF_FIELDS = 54
     COLOR_PLAYER_MAPPING = {
         "green": 0,
@@ -33,7 +33,6 @@ class Game:
         self.round_number = 1
         self.game_started = False
 
-
     def start_game_and_deal_cards(self):
         """Starts the game and deals cards for the first time."""
         if self.game_started:
@@ -45,7 +44,6 @@ class Game:
         self.deck.deal_cards(self.players, self.round_number)
         print(f"Game '{self.name}' started. Dealt cards for round {self.round_number}.")
 
-
     def add_player(self, name: str):
         if self.number_of_players >= 4:
             raise ValueError("Cannot add more than 4 players to the game.")
@@ -56,11 +54,10 @@ class Game:
             self.start_game()"""
         return new_player
 
-
     """def start_game(self):
-        
+
         Starts the game by setting the first player as the current player.
-        
+
         if self.number_of_players < 2:
             raise ValueError("At least two players are required to start the game.")
         self.current_player = self.players[0]
@@ -91,15 +88,14 @@ class Game:
         # Optional: Advance to the next player
         self.current_player_index = (self.current_player_index + 1) % self.number_of_players
 
-
-    def _calculate_new_position(self, figure : Figure, value: int) -> int:
+    def _calculate_new_position(self, figure: Figure, value: int) -> int:
         player = self.get_spieler_von_figur(figure)  # Eine Hilfsmethode, um den Besitzer einer Figur zu finden
         old_pos = figure.get_position()
 
         if old_pos < 100:
             distance_to_finishing_field = (player.finishing_field - old_pos) % self.NUMBER_OF_FIELDS
             if distance_to_finishing_field < value:
-                steps_left = distance_to_finishing_field - value - 2 #-2 because the figure has to enter the finishing area over the start field so there are two extra steps till the finish
+                steps_left = distance_to_finishing_field - value - 2  # -2 because the figure has to enter the finishing area over the start field so there are two extra steps till the finish
                 if steps_left < 4:
                     return (player.number + 1) * 101 + steps_left
 
@@ -112,7 +108,6 @@ class Game:
             else:
                 raise ValueError("Cannot move figure beyond the finishing area.")
 
-
     def move_figure(self, figure: Figure, value: int):
         if figure.get_position() < 0:
             raise ValueError("Figure is not on the board.")
@@ -123,12 +118,14 @@ class Game:
 
         new_position = self._calculate_new_position(figure, value)
         player_number = self.COLOR_PLAYER_MAPPING[figure.color]
-        if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) and new_position not in [player_number*100+i+101 for i in range(4)]:
+        if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) and new_position not in [
+            player_number * 100 + i + 101 for i in range(4)]:
             raise ValueError("New position is out of bounds.")
         if new_position in self.field_occupation:
             occupying_figure = self.field_occupation[new_position]
             if occupying_figure.get_color() != figure.get_color():
-                print(f"Figure {occupying_figure.get_uuid()} of color {occupying_figure.get_color()} is on the same field. It will be sent back to its start field.")
+                print(
+                    f"Figure {occupying_figure.get_uuid()} of color {occupying_figure.get_color()} is on the same field. It will be sent back to its start field.")
                 occupying_figure.position = -1
             else:
                 raise ValueError("Cannot move to a field occupied by your own figure.")
@@ -211,7 +208,6 @@ class Game:
                 return player
         raise ValueError("Figure not found in any player's figures.")
 
-
     def get_player_by_uuid(self, uuid) -> Player | None:
         """
         Returns the player with the given UUID.
@@ -223,3 +219,22 @@ class Game:
 
     def get_name(self):
         return self.name
+
+    def to_json(self):
+        """
+        Convert the game object to a JSON serializable dictionary.
+        This method ensures that all nested objects are also converted.
+        """
+        return {
+            "uuid": self.uuid,
+            "name": self.name,
+            "players": [player.to_json() for player in self.players],
+            "host_id": self.host_id,
+            "number_of_players": self.number_of_players,
+            "field_occupation": {str(k): v.to_json() for k, v in self.field_occupation.items()},
+            "game_over": self.game_over,
+            "deck": self.deck.to_json(),
+            "current_player_index": self.current_player_index,
+            "round_number": self.round_number,
+            "game_started": self.game_started,
+        }

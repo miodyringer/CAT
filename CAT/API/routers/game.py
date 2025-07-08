@@ -20,7 +20,7 @@ def get_game_state(game_id: str, game_manager: GameManager = Depends(get_game_ma
         return {"error": "Game not found"}
     # The game object will be automatically converted to JSON by FastAPI.
     # You might want to create a Pydantic schema for the game state for better control
-    return game
+    return game.to_json()
 
 
 # Example of a future endpoint for playing a card

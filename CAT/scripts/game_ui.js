@@ -1,27 +1,72 @@
 import sendRequest from './services/server_service.js';
 
 /**
- * Zeichnet die Handkarten des aktuellen Spielers.
- * @param {Array} cards - Eine Liste von Kartenobjekten.
+ * Zeichnet die Handkarten des Spielers mit stilisierten, non-emoji Icons.
+ * @param {Array} cards - Eine Liste von Kartenobjekten vom Server.
  */
 function renderHand(cards) {
     const handContainer = document.querySelector(".card-hand-container");
-    handContainer.innerHTML = '';
+    handContainer.innerHTML = ''; // Leert den Container für die Aktualisierung
 
     if (!cards || cards.length === 0) return;
 
     cards.forEach(card => {
         const cardElement = document.createElement("div");
-        cardElement.className = "card special";
+        let iconSymbol = '';
+        let cardNumber = '';
 
-        const numberElement = document.createElement("span");
-        numberElement.className = "card-number";
-        numberElement.innerText = card.name;
+        cardElement.title = card.description;
 
-        cardElement.appendChild(numberElement);
+        // Unterscheidung zwischen Standard- und Spezialkarten
+        if (card.type === 'StandardCard') {
+            cardElement.className = "card move";
+            iconSymbol = card.value;
+            cardNumber = card.value;
+        } else {
+            cardElement.className = "card special";
+            // Setzt Standardwert, falls keine Übereinstimmung gefunden wird
+            cardNumber = card.name;
+
+            // Wähle das passende Symbol für jede Spezialkarte
+            switch (card.name) {
+                case "Flex Card":
+                    iconSymbol = '±';
+                    cardNumber = '4';
+                    break;
+                case "Inferno Card":
+                    iconSymbol = '♠';
+                    cardNumber = '7';
+                    break;
+                case "13/Start":
+                    iconSymbol = '▶';
+                    cardNumber = '13';
+                    break;
+                case "1/11/Start":
+                    iconSymbol = '▶';
+                    cardNumber = '1/11';
+                    break;
+                case "Joker Card":
+                    iconSymbol = '?';
+                    cardNumber = 'J';
+                    break;
+                case "Swap Card":
+                    iconSymbol = '⇄';
+                    cardNumber = 'S';
+                    break;
+            }
+        }
+
+        // Erzeuge die HTML-Struktur mit den neuen Icons und der Nummer
+        cardElement.innerHTML = `
+            <span class="card-icon">${iconSymbol}</span>
+            <span class="card-number">${cardNumber}</span>
+            <span class="card-icon">${iconSymbol}</span>
+        `;
+
         handContainer.appendChild(cardElement);
     });
 }
+
 
 /**
  * Zeichnet die Spielerliste, inklusive der Anzahl der Karten.
@@ -39,7 +84,6 @@ function renderPlayers(players) {
         playerName.className = "player-name";
         playerName.innerText = player.name;
 
-        // NEUER TEIL: Anzeige der Kartenanzahl
         const cardInfo = document.createElement("div");
         cardInfo.className = "player-card-info";
 
@@ -49,13 +93,13 @@ function renderPlayers(players) {
 
         const cardCount = document.createElement("span");
         cardCount.className = "card-count";
-        cardCount.innerText = player.cards.length; // Wir zeigen die Anzahl der Karten an
+        cardCount.innerText = player.cards.length;
 
         cardInfo.appendChild(infoLabel);
         cardInfo.appendChild(cardCount);
 
         playerEntry.appendChild(playerName);
-        playerEntry.appendChild(cardInfo); // Füge die Karten-Info hinzu
+        playerEntry.appendChild(cardInfo);
         playerListContainer.appendChild(playerEntry);
     });
 }
@@ -108,7 +152,6 @@ async function initializeGame() {
             return;
         }
 
-        // Rufe die zentrale UI-Update-Funktion auf
         updateUI(gameState, localPlayerId);
 
         const startGameBtn = document.querySelector('#start-game-btn');
@@ -116,11 +159,8 @@ async function initializeGame() {
             startGameBtn.addEventListener('click', async () => {
                 try {
                     await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
-
-                    // Lade den Zustand neu und aktualisiere die gesamte UI
                     const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
                     updateUI(updatedState, localPlayerId);
-
                 } catch (error) {
                     alert('Could not start the game.');
                     console.error(error);

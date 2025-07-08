@@ -14,3 +14,10 @@ class Figure():
 
     def get_uuid(self) -> str:
         return self.uuid
+
+    def to_json(self):
+        return {
+            'uuid': self.uuid,
+            'color': self.color,
+            'position': self.position
+        }

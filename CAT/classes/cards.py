@@ -49,6 +49,7 @@ class StandardCard(Card):
     def to_json(self):
         data = super().to_json()
         data['value'] = self.value
+        data['type'] = 'StandardCard'
         return data
 
 
