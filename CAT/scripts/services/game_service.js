@@ -1,11 +1,25 @@
-// Diese Klasse wird den Spielzustand für den Client verwalten.
 class GameService {
     constructor() {
         this.gameState = null;
         this.localPlayerId = null;
+        this.selectedCardIndex = null; // NEU: Speichert den Index der gewählten Karte
     }
 
-    // Speichert den neuesten Spielzustand und die ID des lokalen Spielers
+    // Wählt eine Karte aus oder ab
+    selectCard(index) {
+        // Wenn die bereits ausgewählte Karte erneut geklickt wird, wird die Auswahl aufgehoben
+        if (this.selectedCardIndex === index) {
+            this.selectedCardIndex = null;
+        } else {
+            this.selectedCardIndex = index;
+        }
+        console.log(`Selected card index: ${this.selectedCardIndex}`);
+    }
+
+    // Gibt den Index der ausgewählten Karte zurück
+    getSelectedCardIndex() {
+        return this.selectedCardIndex;
+    }
     updateGameState(newState, playerId) {
         this.gameState = newState;
         this.localPlayerId = playerId;

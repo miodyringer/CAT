@@ -9,7 +9,7 @@ function renderHand() {
     const handContainer = document.querySelector(".card-hand-container");
     handContainer.innerHTML = '';
     if (!cards || cards.length === 0) return;
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
         const cardElement = document.createElement("div");
         let iconSymbol = '';
         let cardNumber = '';
@@ -31,6 +31,17 @@ function renderHand() {
             }
         }
         cardElement.innerHTML = `<span class="card-icon">${iconSymbol}</span><span class="card-number">${cardNumber}</span><span class="card-icon">${iconSymbol}</span>`;
+
+        if (index === gameService.getSelectedCardIndex()) {
+                cardElement.classList.add("selected");
+
+            }
+
+            cardElement.addEventListener('click', () => {
+                gameService.selectCard(index);
+                renderHand();
+            });
+
         handContainer.appendChild(cardElement);
     });
 }
