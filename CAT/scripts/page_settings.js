@@ -1,9 +1,25 @@
 import getCookie from "./functions.mjs";
 import { applyTranslationsToPage } from "./translator.mjs";
+import { initPageSound, navigateWithFade } from './audio_manager.mjs';
+
+initPageSound();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('a');
+
+    links.forEach(link => {
+        link.addEventListener('click', event => {
+            event.preventDefault();
+            navigateWithFade(link.href);
+        });
+    });
+});
 
 applyTranslationsToPage();
+applyPageSettings();
 
-const r = document.querySelector(':root');
+export function applyPageSettings(){
+    const r = document.querySelector(':root');
 
 if(getCookie("high_contrast_mode") === "true") {
     r.style.setProperty('--color-soft-border', '#000000');
@@ -11,6 +27,32 @@ if(getCookie("high_contrast_mode") === "true") {
     r.style.setProperty('--color-shadow', '#333333');
     r.style.setProperty('--color-shadow-darker', '#222222');
     r.style.setProperty('--color-text', '#000000');
+}
+
+if(getCookie("high_contrast_mode") === "false") {
+    r.style.setProperty('--color-soft-border', '#555555');
+    r.style.setProperty('--color-softer-border', '#777777');
+    r.style.setProperty('--color-shadow', '#AAAAAA');
+    r.style.setProperty('--color-shadow-darker', '#888888');
+    r.style.setProperty('--color-text', '#333333');
+}
+
+if(getCookie("color_theme") === "light") {
+    r.style.setProperty('--color-background', '#FFFFFF');
+    r.style.setProperty('--color-background-darker', '#F9F9F9');
+    r.style.setProperty('--color-border', '#000000');
+    r.style.setProperty('--color-soft-border', '#555555');
+    r.style.setProperty('--color-softer-border', '#777777');
+    r.style.setProperty('--color-icon', '#000000');
+    r.style.setProperty('--color-shadow', '#AAAAAA');
+    r.style.setProperty('--color-shadow-darker', '#888888');
+    r.style.setProperty('--color-text', '#333333');
+    r.style.setProperty('--color-pink', '#E9B8F5');
+    r.style.setProperty('--color-blue', '#B8E9F5');
+    r.style.setProperty('--color-green', '#DDF5B8');
+    r.style.setProperty('--color-orange', '#F5D5B8');
+    r.style.setProperty('--color-important', '#C0392B');
+    r.style.setProperty('--color-strong', '#D35400');
 }
 
 if(getCookie("color_theme") === "dark") {
@@ -29,6 +71,17 @@ if(getCookie("color_theme") === "dark") {
     r.style.setProperty('--color-orange', '#D8BCA2');
     r.style.setProperty('--color-important', '#C0392B');
     r.style.setProperty('--color-strong', '#D35400');
+}
+
+if(getCookie("colorblind_mode") === "off") {
+    r.style.setProperty('--color-pink', '#E9B8F5');
+    r.style.setProperty('--color-blue', '#B8E9F5');
+    r.style.setProperty('--color-orange', '#F5D5B8');
+    r.style.setProperty('--color-green', '#DDF5B8');
+    r.style.setProperty('--color-pink-darker', '#DCAAE6');
+    r.style.setProperty('--color-blue-darker', '#AADCE6');
+    r.style.setProperty('--color-orange-darker', '#E6C8AA');
+    r.style.setProperty('--color-green-darker', '#CFE6AC');
 }
 
 if(getCookie("colorblind_mode") === "protanopia") {
@@ -65,6 +118,15 @@ if(getCookie("colorblind_mode") === "tritanopia") {
 }
 
 if(getCookie("color_theme") === "grayscale") {
+    r.style.setProperty('--color-background', '#FFFFFF');
+    r.style.setProperty('--color-background-darker', '#F9F9F9');
+    r.style.setProperty('--color-border', '#000000');
+    r.style.setProperty('--color-soft-border', '#555555');
+    r.style.setProperty('--color-softer-border', '#777777');
+    r.style.setProperty('--color-icon', '#000000');
+    r.style.setProperty('--color-shadow', '#AAAAAA');
+    r.style.setProperty('--color-shadow-darker', '#888888');
+    r.style.setProperty('--color-text', '#333333');
     r.style.setProperty('--color-pink', '#777777');
     r.style.setProperty('--color-blue', '#999999');
     r.style.setProperty('--color-orange', '#BBBBBB');
@@ -86,4 +148,4 @@ if(getCookie("text_size")) {
     r.style.setProperty('--size-icon', (1 * scale).toString() + 'rem');
     r.style.setProperty('--size-icon-action', (1.5 * scale).toString() + 'rem');
 }
-
+}
