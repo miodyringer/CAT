@@ -11,7 +11,6 @@ const contrastBox = document.querySelector("#high-contrast-mode");
 const colorblind = document.querySelector("#colorblind-mode");
 const languageSelect = document.querySelector("#language-select");
 
-
 const currentLang = getCookie("language") || "en";
 languageSelect.value = currentLang;
 
