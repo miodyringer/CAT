@@ -131,8 +131,11 @@ html, body {
 }
 
 .figure.own-figure {
-    cursor: pointer;
     pointer-events: auto;
+}
+
+body:not(.not-my-turn) .figure.own-figure {
+    cursor: pointer;
 }
 
 .figure.green > * { background-color: var(--color-green-darker) }

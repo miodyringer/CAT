@@ -74,12 +74,12 @@ export function renderFigures() {
 
             // calculate position in the grid based on the figure's position
             let gridPosition = "";
-            if (figure.position === -1) { // In der Home-Base
+            if (figure.position === -1) { // home position
                 gridPosition = HOME_COORDINATES[figure.color][index];
-            } else if (figure.position >= 100) { // In der Zielzone
+            } else if (figure.position >= 100) { // finish position
                 const finishIndex = figure.position % 100;
                 gridPosition = FINISH_COORDINATES[figure.color][finishIndex];
-            } else { // Auf dem normalen Weg
+            } else { // path position
                 gridPosition = PATH_COORDINATES[figure.position];
             }
             figureElement.style.gridArea = gridPosition;
@@ -90,10 +90,12 @@ export function renderFigures() {
             // only make the figure clickable if it's the local player's figure
             if (player.uuid === localPlayer.uuid) {
                 figureElement.classList.add("own-figure");
-                figureElement.addEventListener('click', () => {
-                    gameService.selectFigure(figure.uuid);
-                    renderFigures(); // Brett neu zeichnen, um Auswahl zu zeigen
-                });
+                if (gameService.isLocalPlayerTurn()) {
+                    figureElement.addEventListener('click', () => {
+                        gameService.selectFigure(figure.uuid);
+                        renderFigures();
+                    });
+                }
             }
 
             if (figure.uuid === gameService.getSelectedFigureId()) {

@@ -6,6 +6,13 @@ class GameService {
         this.selectedFigureId = null;
     }
 
+    isLocalPlayerTurn() {
+        if (!this.gameState || !this.getLocalPlayer()) {
+            return false;
+        }
+        return this.gameState.current_player_index === this.getLocalPlayer().number;
+    }
+
     selectFigure(figureId) {
         if (this.selectedFigureId === figureId) {
             this.selectedFigureId = null;

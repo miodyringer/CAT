@@ -38,10 +38,12 @@ function renderHand() {
 
             }
 
-            cardElement.addEventListener('click', () => {
-                gameService.selectCard(index);
-                renderHand();
-            });
+            if (gameService.isLocalPlayerTurn()) {
+                cardElement.addEventListener('click', () => {
+                    gameService.selectCard(index);
+                    renderHand();
+                });
+            }
 
         handContainer.appendChild(cardElement);
     });
@@ -91,6 +93,12 @@ function updateUI() {
 
     const startGameBtn = document.querySelector('#start-game-btn');
     const isHost = gameService.gameState.host_id === gameService.localPlayerId;
+
+    if (gameService.isLocalPlayerTurn()) {
+        document.body.classList.remove('not-my-turn');
+    } else {
+        document.body.classList.add('not-my-turn');
+    }
 
     if (!gameService.gameState.game_started && isHost) {
         startGameBtn.style.display = 'block';
