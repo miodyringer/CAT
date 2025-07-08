@@ -18,16 +18,26 @@ class Player:
 
 
 
-    def to_json(self):
+    def to_json(self, perspective_player_id=None):
         """
-        Convert the player object to a JSON serializable dictionary.
+        Convert the player object to a JSON serializable dictionary,
+        filtering sensitive information based on the requesting player.
         """
+        # Wenn es der eigene Spieler ist, sende alle Kartendetails
+        if self.uuid == perspective_player_id:
+            cards_data = [card.to_json() for card in self.cards]
+            player_uuid = self.uuid
+        # Ansonsten sende nur die Anzahl der Karten
+        else:
+            cards_data = len(self.cards)
+            player_uuid = None
+
         return {
-            "uuid": self.uuid,
+            "uuid": player_uuid,
             "name": self.name,
             "number": self.number,
             "color": self.color,
-            "cards": [card.to_json() for card in self.cards],
+            "cards": cards_data,  # Enthält entweder die Karten oder nur die Anzahl
             "figures": [figure.to_json() for figure in self.figures],
             "startfield": self.startfield,
             "finishing_field": self.finishing_field

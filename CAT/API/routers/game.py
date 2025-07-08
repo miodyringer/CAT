@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
 from CAT.API.schemas import PlayCardRequest # Import the new schema
@@ -11,7 +11,7 @@ router = APIRouter(
 
 
 @router.get("/{game_id}/state")
-def get_game_state(game_id: str, game_manager: GameManager = Depends(get_game_manager)):
+def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
     """
     Retrieves the current state of a specific game.
     """
@@ -20,7 +20,7 @@ def get_game_state(game_id: str, game_manager: GameManager = Depends(get_game_ma
         return {"error": "Game not found"}
     # The game object will be automatically converted to JSON by FastAPI.
     # You might want to create a Pydantic schema for the game state for better control
-    return game.to_json()
+    return game.to_json(perspective_player_id=player_id)
 
 
 # Example of a future endpoint for playing a card

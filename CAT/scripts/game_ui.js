@@ -89,7 +89,12 @@ function renderPlayers(players) {
 
         const cardCount = document.createElement("span");
         cardCount.className = "card-count";
-        cardCount.innerText = player.cards.length;
+        // Prüfen, ob "cards" eine Liste (für den eigenen Spieler) oder eine Zahl ist
+        if (Array.isArray(player.cards)) {
+            cardCount.innerText = player.cards.length;
+        } else {
+            cardCount.innerText = player.cards; // player.cards ist hier direkt die Zahl
+        }
 
         cardInfo.appendChild(infoLabel);
         cardInfo.appendChild(cardCount);
@@ -140,7 +145,7 @@ async function initializeGame() {
     }
 
     try {
-        const gameState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
+        const gameState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
         console.log('Initial game state received:', gameState);
 
         if (!gameState) {
@@ -155,7 +160,7 @@ async function initializeGame() {
             startGameBtn.addEventListener('click', async () => {
                 try {
                     await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
-                    const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state`);
+                    const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
                     updateUI(updatedState, localPlayerId);
                 } catch (error) {
                     alert('Could not start the game.');

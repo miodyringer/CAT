@@ -39,29 +39,39 @@
 }
 
 .game-header {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: relative; /* Notwendig für die absolute Positionierung des Titels */
+    display: flex;
+    align-items: center;
+    padding: 0 1rem; /* Fügt links und rechts etwas Abstand hinzu */
     width: 100%;
     height: 7rem;
     background-color: var(--color-background);
     border-bottom: var(--size-border) solid var(--color-border);
     box-shadow: 0 var(--size-shadow) var(--color-shadow);
-    display: flex;
-    align-items: center;
 }
 
-.game-header > div { flex: 1 }
+
 .game-header h2 { border: 0 }
 .game-header .button { margin-top: 1rem }
 
 .game-info {
-    font-size: var(--size-h3);
-    text-align: center;
+    margin-right: auto; /* Schiebt alle nachfolgenden Elemente nach rechts */
 }
 
+.game-actions {
+    margin-right: 1rem;
+}
+
+
+
 .lobby-name {
-    text-align: center;
+    position: absolute; /* Nimmt das Element aus dem normalen Fluss */
+    left: 50%;
+    transform: translateX(-50%); /* Zentriert das Element exakt in der Mitte */
+}
+
+.lobby-name h2 {
+    margin: 0; /* Entfernt Standard-Abstände vom h2-Titel */
 }
 
 .leave-button {

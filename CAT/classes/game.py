@@ -220,7 +220,7 @@ class Game:
     def get_name(self):
         return self.name
 
-    def to_json(self):
+    def to_json(self, perspective_player_id = None):
         """
         Convert the game object to a JSON serializable dictionary.
         This method ensures that all nested objects are also converted.
@@ -228,12 +228,12 @@ class Game:
         return {
             "uuid": self.uuid,
             "name": self.name,
-            "players": [player.to_json() for player in self.players],
+            "players": [player.to_json(perspective_player_id) for player in self.players],
             "host_id": self.host_id,
             "number_of_players": self.number_of_players,
             "field_occupation": {str(k): v.to_json() for k, v in self.field_occupation.items()},
             "game_over": self.game_over,
-            "deck": self.deck.to_json(),
+            #"deck": self.deck.to_json(),
             "current_player_index": self.current_player_index,
             "round_number": self.round_number,
             "game_started": self.game_started,
