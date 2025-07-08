@@ -1,7 +1,7 @@
 import sendRequest from './services/server_service.js';
 
 /**
- * Zeichnet die Handkarten des Spielers mit stilisierten, non-emoji Icons.
+ * Zeichnet die Handkarten des Spielers mit stilisierten, non-emoji Icons und Hover-Beschreibung.
  * @param {Array} cards - Eine Liste von Kartenobjekten vom Server.
  */
 function renderHand(cards) {
@@ -17,17 +17,14 @@ function renderHand(cards) {
 
         cardElement.title = card.description;
 
-        // Unterscheidung zwischen Standard- und Spezialkarten
         if (card.type === 'StandardCard') {
             cardElement.className = "card move";
             iconSymbol = card.value;
             cardNumber = card.value;
         } else {
             cardElement.className = "card special";
-            // Setzt Standardwert, falls keine Übereinstimmung gefunden wird
             cardNumber = card.name;
 
-            // Wähle das passende Symbol für jede Spezialkarte
             switch (card.name) {
                 case "Flex Card":
                     iconSymbol = '±';
@@ -56,7 +53,6 @@ function renderHand(cards) {
             }
         }
 
-        // Erzeuge die HTML-Struktur mit den neuen Icons und der Nummer
         cardElement.innerHTML = `
             <span class="card-icon">${iconSymbol}</span>
             <span class="card-number">${cardNumber}</span>
