@@ -1,4 +1,7 @@
 import getCookie from "./functions.mjs";
+import { applyTranslationsToPage } from "./translator.mjs";
+
+applyTranslationsToPage();
 
 const r = document.querySelector(':root');
 

@@ -9,53 +9,50 @@ const textSize = document.querySelector('#text-size');
 const contrast = document.querySelector('#high-contrast-mode');
 const contrastBox = document.querySelector("#high-contrast-mode");
 const colorblind = document.querySelector("#colorblind-mode");
+const languageSelect = document.querySelector("#language-select");
 
-textSize.addEventListener("mouseup", () => {
-    window.location.reload()
+const currentLang = getCookie("language") || "en";
+languageSelect.value = currentLang;
+
+const contrast_mode = getCookie("high_contrast_mode") || "false";
+contrastBox.checked = contrast_mode === "true";
+
+const color_theme = getCookie("color_theme") || "light";
+if(color_theme === "light") { light.checked = true }
+if(color_theme === "dark") { dark.checked = true }
+if(color_theme === "grayscale") { grayscale.checked = true }
+
+const colorblind_mode = getCookie("colorblind_mode") || "off";
+colorblind.value = colorblind_mode;
+
+const muted = getCookie("muted") || "false";
+volume.checked = muted;
+volumeSliders.forEach((range) => {
+        range.disabled = true;
+        range.value = 0;
+        range.nextElementSibling.textContent = "0%";
 });
 
-if(getCookie("high_contrast_mode") === "true") {
-    contrastBox.checked = true;
-}
-
-if(getCookie("color_theme") === "light" || !getCookie("color_theme")) {
-    light.checked = true;
-}
-if(getCookie("color_theme") === "dark") {
-    dark.checked = true;
-}
-if(getCookie("color_theme") === "grayscale") {
-    grayscale.checked = true;
-}
-
-if(getCookie("colorblind_mode")){
-    colorblind.value = getCookie("colorblind_mode");
-}
+volumeSliders.forEach((range) => {
+    const volume = getCookie(range.id) || "50";
+    range.value = volume;
+    range.nextElementSibling.textContent = volume + "%";
+})
 
 if(getCookie("text_size")) {
     textSize.value = getCookie("text_size") * 100;
     textSize.nextElementSibling.textContent = Math.round(textSize.value) + "%";
 }
 
-if(getCookie("muted") === "true") {
-    volume.checked = true;
-    volumeSliders.forEach((range) => {
-        range.disabled = true;
-        range.value = 0;
-        range.nextElementSibling.textContent = "0%";
-    });
-}
 
-volumeSliders.forEach((range) => {
-    if(getCookie(range.id)){
-        range.value = getCookie(range.id);
-        range.nextElementSibling.textContent = range.value + "%";
-    }
-    else{
-        range.value = 50;
-        range.nextElementSibling.textContent = "50%";
-    }
-})
+languageSelect.addEventListener('change', () => {
+    document.cookie = "language=" + languageSelect.value;
+    window.location.reload();
+});
+
+textSize.addEventListener("mouseup", () => {
+    window.location.reload()
+});
 
 document.querySelectorAll('#theme-select input[type="radio"]').forEach(range => {
     range.oninput = () => {

@@ -3,22 +3,22 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat - Find Game</title>
+    <title data-translate="online_title">Cat - Find Game</title>
     <link rel="stylesheet" href="../stylesheets/base.css">
     <link rel="stylesheet" href="../stylesheets/submenu.css">
     <link rel="stylesheet" href="../stylesheets/online.css">
   </head>
   <body>
     <div class="submenu-container">
-      <h1><span class="icon">🎮</span> Find Game <span class="icon">🌍</span></h1>
+      <h1 data-translate="online_header">Find Game</h1>
 
-      <h2><span class="icon">🔍</span> Filter Lobbies</h2>
+      <h2 data-translate="filter_lobbies">Filter Lobbies</h2>
       <div class="labeled-item">
-        <label for="lobby-name-filter">Lobby Name:</label>
-        <input type="text" id="lobby-name-filter" name="lobby-name-filter" placeholder="Enter lobby name...">
+        <label data-translate="lobby_name_label" for="lobby-name-filter">Lobby Name:</label>
+        <input data-translate="lobby_name_placeholder" type="text" id="lobby-name-filter" name="lobby-name-filter" placeholder="Enter lobby name...">
       </div>
       <div class="labeled-item">
-        <label>Min Players:</label>
+        <label data-translate="min_players">Min Players:</label>
         <div class="radio-group">
           <div class="wrap-item">
             <input type="radio" id="one-player" name="players" value="1" checked>
@@ -34,16 +34,14 @@
           </div>
         </div>
       </div>
-      <button class="button green" id="refresh-lobbies-button">
-        <span class="icon">🔄</span> Refresh
-      </button>
+      <button data-translate="refresh_button" class="button green" id="refresh-lobbies-button">Refresh</button>
 
-      <h2><span class="icon">🚪</span> Available Lobbies</h2>
+      <h2 data-translate="available_lobbies">Available Lobbies</h2>
       <div class="lobby-list" id="lobby-list"></div>
 
       <div class="button-actions">
-        <a href="/create_lobby" class="button green">Create New Lobby</a>
-        <a href="/" class="button green">Back to Menu</a>
+        <a data-translate="create_new_lobby" href="/create_lobby" class="button green">Create New Lobby</a>
+        <a data-translate="back_to_menu" href="/" class="button green">Back to Menu</a>
       </div>
     </div>
   </body>
