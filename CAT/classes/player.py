@@ -39,8 +39,8 @@ class Player:
             "color": self.color,
             "cards": cards_data,  # Enthält entweder die Karten oder nur die Anzahl
             "figures": [figure.to_json() for figure in self.figures],
-            "startfield": self.startfield,
-            "finishing_field": self.finishing_field
+            #"startfield": self.startfield,
+            #"finishing_field": self.finishing_field
         }
 
 
