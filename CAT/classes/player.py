@@ -11,8 +11,8 @@ class Player:
         self.color = "green" if number == 0 else "pink" if number == 1 else "orange" if number == 2 else "blue"
         self.cards: list[Card] = []
         self.figures: list[Figure] = [Figure(self.color) for _ in range(4)]  # Each player starts with 4 figures
-        self.startfield = number * 14  # Startfield is determined by the player number
-        self.finishing_field = (self.startfield - 1) % 54 # Finishing field is the last field before the player's start field
+        self.startfield = (number * 14) % 56 # Startfield is determined by the player number
+        self.finishing_field = (self.startfield - 1) % 56 # Finishing field is the last field before the player's start field
 
 
 
