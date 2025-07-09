@@ -215,3 +215,10 @@ body.not-my-turn .card-hand-container .card:hover {
     transform: none;
     box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
 }
+
+.play-action-container {
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}

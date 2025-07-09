@@ -66,26 +66,38 @@ class Game:
     def execute_play_card(self, player: Player, card_index: int, action_details: dict):
         """
         Executes the entire process of a player playing a card.
-        1. Validates the move.
-        2. Calls the card's specific play_card method.
-        3. Moves the card from the player's hand to the discard pile.
         """
         if card_index >= len(player.cards):
             raise IndexError("Card index is out of bounds.")
 
         card_to_play = player.cards[card_index]
 
-        # Call the specific play_card method on the card object
-        # The card's logic will call methods like self.move_figure(), etc.
-        card_to_play.play_card(game_object=self, player=player, **action_details)
+        # Hol die Figur aus den action_details
+        figure_uuid = action_details.get("figure_uuid")
+        if not figure_uuid:
+            raise ValueError("Figure not provided in action_details.")
 
-        # Remove the card from the player's hand
+        figure_to_move = None
+        for p in self.players:
+            for fig in p.figures:
+                if str(fig.uuid) == figure_uuid:
+                    figure_to_move = fig
+                    break
+            if figure_to_move:
+                break
+
+        if not figure_to_move:
+            raise ValueError("Figure not found.")
+
+        # Hier wird die eigentliche Spiellogik der Karte aufgerufen
+        # Wir übergeben die Figur als zusätzliches Argument an die play_card Methode
+        card_to_play.play_card(game_object=self, player=player, figure=figure_to_move)
+
+        # Karte aus der Hand des Spielers entfernen
         played_card = player.cards.pop(card_index)
-
-        # Add the played card to the deck's discard pile
         self.deck.add_to_discard(played_card)
 
-        # Optional: Advance to the next player
+        # Nächster Spieler ist an der Reihe
         self.current_player_index = (self.current_player_index + 1) % self.number_of_players
 
     def _calculate_new_position(self, figure: Figure, value: int) -> int:

@@ -93,7 +93,7 @@ export function renderFigures() {
                 if (gameService.isLocalPlayerTurn()) {
                     figureElement.addEventListener('click', () => {
                         gameService.selectFigure(figure.uuid);
-                        renderFigures();
+                        document.dispatchEvent(new Event('selectionChanged'));
                     });
                 }
             }

@@ -2,6 +2,28 @@ import sendRequest from './services/server_service.js';
 import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
 
+
+function renderPlayButton() {
+    const container = document.querySelector('.play-action-container');
+    container.innerHTML = ''; // Leert den Container
+
+    const cardIndex = gameService.getSelectedCardIndex();
+    const figureId = gameService.getSelectedFigureId();
+
+    // Zeige den Button nur an, wenn BEIDES ausgewählt ist
+    if (cardIndex !== null && figureId !== null) {
+        const playButton = document.createElement('button');
+        playButton.className = 'button orange';
+        playButton.textContent = 'Play Card';
+
+        playButton.addEventListener('click', async () => {
+            await executePlay(); // Diese Funktion erstellen wir im nächsten Schritt
+        });
+
+        container.appendChild(playButton);
+    }
+}
+
 /**
  * Zeichnet die Handkarten des aktuellen Spielers.
  */
@@ -41,7 +63,7 @@ function renderHand() {
             if (gameService.isLocalPlayerTurn()) {
                 cardElement.addEventListener('click', () => {
                     gameService.selectCard(index);
-                    renderHand();
+                    document.dispatchEvent(new Event('selectionChanged'));
                 });
             }
 
@@ -90,6 +112,7 @@ function updateUI() {
     renderPlayers();
     renderHand();
     renderFigures();
+    renderPlayButton();
 
     const startGameBtn = document.querySelector('#start-game-btn');
     const isHost = gameService.gameState.host_id === gameService.localPlayerId;
@@ -104,6 +127,49 @@ function updateUI() {
         startGameBtn.style.display = 'block';
     } else {
         startGameBtn.style.display = 'none';
+    }
+}
+
+
+async function executePlay() {
+    const gameId = gameService.gameState.uuid;
+    const playerId = gameService.localPlayerId;
+    const cardIndex = gameService.getSelectedCardIndex();
+    const figureId = gameService.getSelectedFigureId();
+
+    // Hand-Objekt der lokalen Spieler*in abrufen
+    const localPlayer = gameService.getLocalPlayer();
+    if (!localPlayer) return;
+
+    // Gespielte Karte aus der Hand holen
+    const playedCard = localPlayer.cards[cardIndex];
+
+    // Details für die Aktion vorbereiten. Für eine Standardkarte ist das einfach.
+    const actionDetails = {
+        figure_uuid: figureId,
+        // Später kommen hier für Spezialkarten weitere Details hinzu
+    };
+
+    try {
+        const response = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', {
+            player_uuid: playerId,
+            card_index: cardIndex,
+            action_details: actionDetails
+        });
+
+        // Spielzustand nach dem Zug vom Server holen und UI aktualisieren
+        const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${playerId}`);
+        gameService.updateGameState(updatedState, playerId);
+
+        // Auswahl zurücksetzen
+        gameService.selectCard(null);
+        gameService.selectFigure(null);
+
+        updateUI();
+
+    } catch (error) {
+        console.error("Error playing card:", error);
+        alert(`Invalid Move: ${error.message}`);
     }
 }
 
@@ -157,3 +223,6 @@ async function initializeGame() {
 }
 
 document.addEventListener('DOMContentLoaded', initializeGame);
+document.addEventListener('selectionChanged', () => {
+    updateUI();
+});
