@@ -53,7 +53,6 @@ class Game:
 
         return new_player
 
-    """def start_game(self):
 
         Starts the game by setting the first player as the current player.
 
