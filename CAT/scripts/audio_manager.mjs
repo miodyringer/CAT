@@ -93,7 +93,7 @@ export function navigateWithFade(destinationUrl) {
 }
 
 export function playSound(filePath) {
-    const sound = new Audio('/audio/game-theme.mp3');
+    const sound = new Audio(filePath);
     const master = ((parseInt(getCookie("master_volume")) / 100) || 1);
     const sfx = ((parseInt(getCookie("sfx_volume")) / 100) || 0.5);
     sound.volume = master * sfx * 0.5
