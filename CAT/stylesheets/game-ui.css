@@ -14,8 +14,16 @@
         padding: 1rem;
     }
 
-    .panel-container h2 {
-        display: none;
+    .panel-container.left {
+        transform: translateX(-75%);
+    }
+
+    .panel-container.right {
+        transform: translateX(75%);
+    }
+
+    .left:hover, .right:hover{
+        transform: translateX(0%);
     }
 
 }
@@ -84,6 +92,7 @@
     border-top: var(--color-background);;
     background-color: var(--color-background);
     box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
+    transition: transform 0.5s ease-in-out;
 }
 
 .left {
