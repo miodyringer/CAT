@@ -24,7 +24,7 @@ app.include_router(game.router)
 # Mount static directories for CSS and JavaScript files
 app.mount("/stylesheets", StaticFiles(directory="CAT/stylesheets"), name="stylesheets")
 app.mount("/scripts", StaticFiles(directory="CAT/scripts"), name="scripts")
-
+app.mount("/audio", StaticFiles(directory="CAT/audio"), name="audio")
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():
