@@ -5,7 +5,7 @@ from CAT.classes.deck import Deck
 
 
 class Game:
-    NUMBER_OF_FIELDS = 54
+    NUMBER_OF_FIELDS = 56
     COLOR_PLAYER_MAPPING = {
         "green": 0,
         "pink": 1,
