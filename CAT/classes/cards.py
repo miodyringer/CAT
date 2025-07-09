@@ -114,16 +114,30 @@ class SwapCard(Card):
         super().__init__("Swap Card", "Choose one of your cats and swap its position with any other cat.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        own_figure = kwargs.get("own_figure")
-        other_figure = kwargs.get("other_figure")
+        own_figure_uuid = kwargs.get("figure_uuid")
+        other_figure_uuid = kwargs.get("other_figure_uuid")
 
-        if not own_figure or not other_figure:
-            raise ValueError("Two figures must be selected to swap.")
+        if not own_figure_uuid or not other_figure_uuid:
+            raise ValueError("Two figure UUIDs must be provided for a swap.")
 
-        if own_figure.color != player.color:
+        # Finde die beiden Figuren im Spiel
+        figure1 = None
+        figure2 = None
+        for p in game_object.players:
+            for fig in p.figures:
+                if fig.uuid == own_figure_uuid:
+                    figure1 = fig
+                elif fig.uuid == other_figure_uuid:
+                    figure2 = fig
+
+        if not figure1 or not figure2:
+            raise ValueError("One or both figures for the swap not found.")
+
+        # Stelle sicher, dass die erste Figur dem Spieler gehört
+        if figure1 not in player.figures:
             raise ValueError("You can only initiate a swap with one of your own figures.")
 
-        game_object.swap_figures(own_figure, other_figure)
+        game_object.swap_figures(figure1, figure2)
 
     def to_json(self):
         data = super().to_json()

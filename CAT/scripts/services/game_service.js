@@ -4,6 +4,7 @@ class GameService {
         this.localPlayerId = null;
         this.selectedCardIndex = null;
         this.selectedFigureId = null;
+        this.selectedTargetFigureId = null;
     }
 
     isLocalPlayerTurn() {
@@ -14,12 +15,47 @@ class GameService {
     }
 
     selectFigure(figureId) {
-        if (this.selectedFigureId === figureId) {
-            this.selectedFigureId = null;
-        } else {
+        const selectedCard = this.getHand()[this.selectedCardIndex];
+
+        // Wenn keine Tauschkarte ausgewählt ist, verhält es sich wie bisher
+        if (!selectedCard || selectedCard.type !== 'SwapCard') {
+            if (this.selectedFigureId === figureId) {
+                this.selectedFigureId = null;
+            } else {
+                this.selectedFigureId = figureId;
+            }
+            this.selectedTargetFigureId = null; // Auswahl zurücksetzen
+            return;
+        }
+
+        // --- Logik für die Tauschkarte ---
+        const localPlayer = this.getLocalPlayer();
+        const isOwnFigure = localPlayer.figures.some(f => f.uuid === figureId);
+
+        // 1. Klick: Wählt die EIGENE Figur aus
+        if (!this.selectedFigureId && isOwnFigure) {
             this.selectedFigureId = figureId;
         }
-        console.log(`Selected figure ID: ${this.selectedFigureId}`);
+        // 2. Klick: Wählt die ZIEL-Figur aus (darf nicht dieselbe sein)
+        else if (this.selectedFigureId && this.selectedFigureId !== figureId) {
+             if (this.selectedTargetFigureId === figureId) {
+                this.selectedTargetFigureId = null; // Auswahl der Zielfigur aufheben
+            } else {
+                this.selectedTargetFigureId = figureId;
+            }
+        }
+    }
+
+    // Setzt alle Auswahlen zurück
+    resetSelections() {
+        this.selectedCardIndex = null;
+        this.selectedFigureId = null;
+        this.selectedTargetFigureId = null;
+    }
+
+    // Getter für die Zielfigur
+    getSelectedTargetFigureId() {
+        return this.selectedTargetFigureId;
     }
 
     getSelectedFigureId() {

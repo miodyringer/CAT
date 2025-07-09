@@ -57,6 +57,21 @@ function renderPlayButton() {
         return;
     }
 
+    if (selectedCard.type === 'SwapCard') {
+        const targetFigureId = gameService.getSelectedTargetFigureId();
+        if (figureId && targetFigureId) {
+            const swapButton = document.createElement('button');
+            swapButton.className = 'button purple'; // Neue Farbe zur Abwechslung
+            swapButton.textContent = 'Figuren tauschen';
+            swapButton.addEventListener('click', () => executePlay({
+                figure_uuid: figureId,
+                other_figure_uuid: targetFigureId
+            }));
+            container.appendChild(swapButton);
+        }
+        return;
+    }
+
     // Standard-Button für alle anderen Karten
     const playButton = document.createElement('button');
     playButton.className = 'button orange';
@@ -189,6 +204,7 @@ async function executePlay(extraDetails = {}) {
         return;
     }
 
+
     // Grundlegende Action-Details erstellen
     let actionDetails = {
         action: 'move', // Standard-Aktion
@@ -209,6 +225,12 @@ async function executePlay(extraDetails = {}) {
         }
     }
 
+    if (playedCard.type === 'SwapCard') {
+        actionDetails.action = 'swap';
+        actionDetails.figure_uuid = extraDetails.figure_uuid;
+        actionDetails.other_figure_uuid = extraDetails.other_figure_uuid;
+    }
+
     try {
         const requestBody = {
             player_uuid: playerId,
@@ -223,7 +245,7 @@ async function executePlay(extraDetails = {}) {
 
         gameService.selectCard(null);
         gameService.selectFigure(null);
-
+        gameService.resetSelections();
         updateUI();
 
     } catch (error) {

@@ -67,6 +67,9 @@ export function renderFigures() {
 
     const localPlayer = gameService.getLocalPlayer();
     const players = gameService.getPlayers();
+    const selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
+    const isSwapActive = selectedCard && selectedCard.type === 'SwapCard';
+
     if (!players || !localPlayer) return;
 
     players.forEach(player => {
@@ -90,19 +93,21 @@ export function renderFigures() {
             // add the figure
             figureElement.innerHTML = `<div class="body"></div><div class="ears"></div><div class="head"></div>`;
 
-            // only make the figure clickable if it's the local player's figure
-            if (player.uuid === localPlayer.uuid) {
-                figureElement.classList.add("own-figure");
-                if (gameService.isLocalPlayerTurn()) {
-                    figureElement.addEventListener('click', () => {
-                        gameService.selectFigure(figure.uuid);
-                        document.dispatchEvent(new Event('selectionChanged'));
-                    });
-                }
+            const isOwn = player.uuid === localPlayer.uuid;
+            // Figur ist klickbar, wenn sie (a) die eigene ist und man dran ist ODER (b) eine Tauschkarte aktiv ist
+            if ((isOwn && gameService.isLocalPlayerTurn()) || isSwapActive) {
+                figureElement.classList.add("own-figure"); // Wiederverwendet die Cursor-Klasse
+                figureElement.addEventListener('click', () => {
+                    gameService.selectFigure(figure.uuid);
+                    document.dispatchEvent(new Event('selectionChanged'));
+                });
             }
 
             if (figure.uuid === gameService.getSelectedFigureId()) {
                 figureElement.classList.add("selected");
+            }
+            if (figure.uuid === gameService.getSelectedTargetFigureId()) {
+                figureElement.classList.add("target-selection");
             }
 
             boardElement.appendChild(figureElement);

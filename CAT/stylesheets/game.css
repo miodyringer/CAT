@@ -130,6 +130,10 @@ html, body {
     pointer-events: auto;
 }
 
+.figure.target-selection {
+    filter: drop-shadow(0 0 10px var(--color-blue)); /* Blauer Leuchteffekt */
+}
+
 .figure.own-figure {
     pointer-events: auto;
 }

@@ -142,9 +142,20 @@ class Game:
         pos1 = figure1.position
         pos2 = figure2.position
 
+        if figure1.get_color() == figure2.get_color():
+            raise ValueError("Cannot swap figures of the same color.")
+
         # Add validation logic (e.g., figures in home/finish cannot be swapped)
-        if pos1 < 0 or pos2 < 0:
+        if pos1 < 0 or pos2 < 0 or pos1 >= self.NUMBER_OF_FIELDS or pos2 >= self.NUMBER_OF_FIELDS:
             raise ValueError("Figures in the start or finish zone cannot be swapped.")
+
+        for player in self.players:
+            if figure1.get_color() == player.color:
+                if figure1.get_position() == player.startfield:
+                    raise ValueError("Cannot swap a figure on the start tile.")
+            if figure2.get_color() == player.color:
+                if figure2.get_position() == player.startfield:
+                    raise ValueError("Cannot swap a figure on the start tile.")
 
         # Swap positions in the figure objects
         figure1.position = pos2
