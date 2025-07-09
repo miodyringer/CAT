@@ -101,17 +101,9 @@ class GameService {
         return player ? player.cards : [];
     }
 
-    // BERECHNET das Startfeld für einen Spieler basierend auf seiner Nummer
-    getStartFieldForPlayer(playerNumber) {
-        return playerNumber * 14;
-    }
 
-    // BERECHNET das Endfeld für einen Spieler basierend auf seiner Nummer
-    getFinishingFieldForPlayer(playerNumber) {
-        const startField = this.getStartFieldForPlayer(playerNumber);
-        // Die Modulo-Logik vom Server wird hier einfach nachgebaut
-        return (startField - 1 + 54) % 54;
-    }
+
+
 }
 
 // Erstelle eine einzige Instanz, die von allen anderen Skripten importiert werden kann
