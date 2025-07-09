@@ -50,8 +50,7 @@ class Game:
         new_player = Player(name, self.number_of_players)
         self.players.append(new_player)
         self.number_of_players += 1
-        """if self.number_of_players == 4:
-            self.start_game()"""
+
         return new_player
 
     """def start_game(self):
