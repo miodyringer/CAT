@@ -167,12 +167,6 @@ class Game:
 
         print(f"Figures {figure1.get_uuid()} and {figure2.get_uuid()} have swapped positions.")
 
-    def move_figure_backwards(self, figure: Figure, steps: int):
-        """Moves a figure backwards."""
-        # Note: Moving backwards typically ignores the finish line entry
-        new_position = (figure.position - steps + self.NUMBER_OF_FIELDS) % self.NUMBER_OF_FIELDS
-        # This now calls a dedicated "execute" method
-        self._execute_move(figure, new_position)
 
     def start_figure(self, player: Player, figure: Figure):
         """Moves a figure from its home onto the player's starting tile."""
