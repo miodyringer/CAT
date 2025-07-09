@@ -78,16 +78,26 @@ class FlexCard(Card):
         super().__init__("Flex Card", "Choose to move either forward or backward by 4.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        figure = kwargs.get("figure")
-        direction = kwargs.get("direction")  # Frontend must send "forward" or "backward"
+        figure_uuid = kwargs.get("figure_uuid")
+        direction = kwargs.get("direction")  # Das Frontend muss "forward" oder "backward" senden
 
-        if not figure or not direction:
-            raise ValueError("A figure and a direction must be specified.")
+        if not figure_uuid or not direction:
+            raise ValueError("A figure_uuid and a direction must be specified.")
+
+        # Finde das passende Figur-Objekt im Spiel
+        figure = None
+        for p in game_object.players:
+            for fig in p.figures:
+                if fig.uuid == figure_uuid:
+                    figure = fig
+                    break
+        if not figure:
+            raise ValueError("Figure with specified UUID not found.")
 
         if direction == "forward":
             game_object.move_figure(figure, 4)
         elif direction == "backward":
-            game_object.move_figure_backwards(figure, 4)
+            game_object.move_figure(figure, -4)
         else:
             raise ValueError("Invalid direction. Must be 'forward' or 'backward'.")
 
