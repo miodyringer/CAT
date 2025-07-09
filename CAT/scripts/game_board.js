@@ -129,7 +129,7 @@ function updateBoardTransform() {
 updateBoardTransform();
 
 document.addEventListener('keydown', (e) => {
-    let needsUpdate = true;
+    e.preventDefault();
     const isPortrait = window.matchMedia("(orientation: portrait)").matches;
     const moveSpeed = 20 / scale ** 1.5;
 
