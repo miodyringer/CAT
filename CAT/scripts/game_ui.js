@@ -5,22 +5,43 @@ import { renderFigures } from './game_board.js';
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
-    container.innerHTML = ''; // Leert den Container
+    container.innerHTML = '';
 
     const cardIndex = gameService.getSelectedCardIndex();
     const figureId = gameService.getSelectedFigureId();
 
-    // Zeige den Button nur an, wenn BEIDES ausgewählt ist
-    if (cardIndex !== null && figureId !== null) {
-        const playButton = document.createElement('button');
-        playButton.className = 'button orange';
-        playButton.textContent = 'Play Card';
+    // Nur fortfahren, wenn beides ausgewählt ist
+    if (cardIndex === null || figureId === null) return;
 
-        playButton.addEventListener('click', async () => {
-            await executePlay(); // Diese Funktion erstellen wir im nächsten Schritt
-        });
+    const selectedCard = gameService.getHand()[cardIndex];
 
-        container.appendChild(playButton);
+    // Prüfen, um welche Karte es sich handelt
+    switch (selectedCard.type) {
+        case 'FlexCard':
+            // Für die FlexCard zwei Buttons erstellen
+            const forwardButton = document.createElement('button');
+            forwardButton.className = 'button green';
+            forwardButton.textContent = '4 Vorwärts';
+            forwardButton.addEventListener('click', () => executePlay({ direction: 'forward' }));
+
+            const backwardButton = document.createElement('button');
+            backwardButton.className = 'button pink';
+            backwardButton.textContent = '4 Rückwärts';
+            backwardButton.addEventListener('click', () => executePlay({ direction: 'backward' }));
+
+            container.appendChild(forwardButton);
+            container.appendChild(backwardButton);
+            break;
+
+        default:
+            // Standard-Button für alle anderen Karten
+            const playButton = document.createElement('button');
+            playButton.className = 'button orange';
+            playButton.textContent = 'Play Card';
+            playButton.addEventListener('click', () => executePlay());
+
+            container.appendChild(playButton);
+            break;
     }
 }
 
@@ -131,16 +152,13 @@ function updateUI() {
 }
 
 
-async function executePlay() {
+async function executePlay(extraDetails = {}) {
     const gameId = gameService.gameState.uuid;
     const playerId = gameService.localPlayerId;
     const cardIndex = gameService.getSelectedCardIndex();
     const figureId = gameService.getSelectedFigureId();
 
     const localPlayer = gameService.getLocalPlayer();
-    if (!localPlayer) return;
-
-    // Finde die ausgewählte Karte und die ausgewählte Figur
     const playedCard = localPlayer.cards[cardIndex];
     const targetFigure = localPlayer.figures.find(f => f.uuid === figureId);
 
@@ -149,44 +167,32 @@ async function executePlay() {
         return;
     }
 
-    // Erstelle die action_details
-    const actionDetails = {
-        figure: targetFigure // Backend erwartet ein 'figure' Objekt
+    // Grundlegende Action-Details erstellen
+    let actionDetails = {
+        action: 'move', // Standard-Aktion
+        figure_uuid: figureId,
+        ...extraDetails // Fügt zusätzliche Details wie "direction" hinzu
     };
 
-    // NEUE LOGIK: Entscheide, welche Aktion ausgeführt werden soll
-    // Prüfen, ob es eine Startkarte ist UND die Figur in der Home-Base ist (Position -1)
+    // Spezifische Logik für die Start-Karte
     if (playedCard.type === 'StartCard' && targetFigure.position === -1) {
         actionDetails.action = 'start';
-    } else {
-        // Andernfalls ist es eine normale "move"-Aktion
-        actionDetails.action = 'move';
-        // Für Startkarten müssen wir den Wert mitsenden (z.B. 1 oder 11)
-        // Das implementieren wir im nächsten Schritt, für jetzt funktioniert es mit Standardkarten.
-        if(playedCard.type === 'StartCard') {
-            actionDetails.value = playedCard.move_values[0]; // Nimm vorerst den ersten möglichen Wert
-        }
+    } else if (playedCard.type === 'StartCard') {
+        actionDetails.value = playedCard.move_values[0];
     }
 
     try {
-        // Das Request Body Schema vom Backend erwartet die UUID der Figur, nicht das ganze Objekt
         const requestBody = {
             player_uuid: playerId,
             card_index: cardIndex,
-            action_details: {
-                action: actionDetails.action,
-                figure_uuid: figureId, // Sende die UUID
-                value: actionDetails.value // Sende den Wert, falls vorhanden
-            }
+            action_details: actionDetails
         };
 
         await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
 
-        // Spielzustand nach dem Zug vom Server holen und UI aktualisieren
         const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${playerId}`);
         gameService.updateGameState(updatedState, playerId);
 
-        // Auswahl zurücksetzen
         gameService.selectCard(null);
         gameService.selectFigure(null);
 

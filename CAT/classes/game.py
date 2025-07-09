@@ -98,9 +98,9 @@ class Game:
         if old_pos < 100:
             distance_to_finishing_field = (player.finishing_field - old_pos) % self.NUMBER_OF_FIELDS
             if distance_to_finishing_field < value:
-                steps_left = distance_to_finishing_field - value - 2  # -2 because the figure has to enter the finishing area over the start field so there are two extra steps till the finish
+                steps_left =  value - distance_to_finishing_field - 3  # -3 because the figure has to enter the finishing area over the start field so there are two extra steps till the finish
                 if steps_left < 4:
-                    return (player.number + 1) * 101 + steps_left
+                    return player.number * 100 + 101  + steps_left
 
             new_pos = (old_pos + value) % self.NUMBER_OF_FIELDS
             return new_pos
