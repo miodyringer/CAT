@@ -41,9 +41,25 @@ class StandardCard(Card):
         self.value = value
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        figure_to_move = kwargs.get("figure")
+        # Holt die UUID der Figur aus den Argumenten
+        figure_uuid = kwargs.get("figure_uuid")
+        if not figure_uuid:
+            raise ValueError("A figure_uuid must be provided to play a StandardCard.")
+
+        # Findet das passende Figur-Objekt im Spiel
+        figure_to_move = None
+        for p in game_object.players:
+            for fig in p.figures:
+                if fig.uuid == figure_uuid:
+                    figure_to_move = fig
+                    break
+            if figure_to_move:
+                break
+
         if not figure_to_move:
-            raise ValueError("A figure to move must be selected.")
+            raise ValueError(f"Figure with UUID {figure_uuid} not found in the game.")
+
+        # Führt die Bewegung mit dem gefundenen Objekt aus
         game_object.move_figure(figure_to_move, self.value)
 
     def to_json(self):
@@ -118,13 +134,22 @@ class StartCard(Card):
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
         Plays the card by either starting a figure or moving it.
-        The frontend must specify the chosen action and, if moving, the chosen value.
         """
-        action = kwargs.get("action")  # Expected: "start" or "move"
-        figure = kwargs.get("figure")
+        action = kwargs.get("action")
+        figure_uuid = kwargs.get("figure_uuid") # Wir bekommen die UUID
 
-        if not action or not figure:
-            raise ValueError("An action and a figure must be specified.")
+        if not action or not figure_uuid:
+            raise ValueError("An action and a figure_uuid must be specified.")
+
+        # Finde die Figur basierend auf der UUID
+        figure = None
+        for p in game_object.players:
+            for fig in p.figures:
+                if fig.uuid == figure_uuid:
+                    figure = fig
+                    break
+        if not figure:
+            raise ValueError("Figure with specified UUID not found.")
 
         if action == "start":
             game_object.start_figure(player, figure)

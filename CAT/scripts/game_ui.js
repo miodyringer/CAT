@@ -137,25 +137,50 @@ async function executePlay() {
     const cardIndex = gameService.getSelectedCardIndex();
     const figureId = gameService.getSelectedFigureId();
 
-    // Hand-Objekt der lokalen Spieler*in abrufen
     const localPlayer = gameService.getLocalPlayer();
     if (!localPlayer) return;
 
-    // Gespielte Karte aus der Hand holen
+    // Finde die ausgewählte Karte und die ausgewählte Figur
     const playedCard = localPlayer.cards[cardIndex];
+    const targetFigure = localPlayer.figures.find(f => f.uuid === figureId);
 
-    // Details für die Aktion vorbereiten. Für eine Standardkarte ist das einfach.
+    if (!playedCard || !targetFigure) {
+        alert("Card or Figure not found!");
+        return;
+    }
+
+    // Erstelle die action_details
     const actionDetails = {
-        figure_uuid: figureId,
-        // Später kommen hier für Spezialkarten weitere Details hinzu
+        figure: targetFigure // Backend erwartet ein 'figure' Objekt
     };
 
+    // NEUE LOGIK: Entscheide, welche Aktion ausgeführt werden soll
+    // Prüfen, ob es eine Startkarte ist UND die Figur in der Home-Base ist (Position -1)
+    if (playedCard.type === 'StartCard' && targetFigure.position === -1) {
+        actionDetails.action = 'start';
+    } else {
+        // Andernfalls ist es eine normale "move"-Aktion
+        actionDetails.action = 'move';
+        // Für Startkarten müssen wir den Wert mitsenden (z.B. 1 oder 11)
+        // Das implementieren wir im nächsten Schritt, für jetzt funktioniert es mit Standardkarten.
+        if(playedCard.type === 'StartCard') {
+            actionDetails.value = playedCard.move_values[0]; // Nimm vorerst den ersten möglichen Wert
+        }
+    }
+
     try {
-        const response = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', {
+        // Das Request Body Schema vom Backend erwartet die UUID der Figur, nicht das ganze Objekt
+        const requestBody = {
             player_uuid: playerId,
             card_index: cardIndex,
-            action_details: actionDetails
-        });
+            action_details: {
+                action: actionDetails.action,
+                figure_uuid: figureId, // Sende die UUID
+                value: actionDetails.value // Sende den Wert, falls vorhanden
+            }
+        };
+
+        await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
 
         // Spielzustand nach dem Zug vom Server holen und UI aktualisieren
         const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${playerId}`);

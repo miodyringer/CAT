@@ -82,7 +82,7 @@ class Game:
 
         # Hier wird die eigentliche Spiellogik der Karte aufgerufen
         # Wir übergeben die Figur als zusätzliches Argument an die play_card Methode
-        card_to_play.play_card(game_object=self, player=player, figure=figure_to_move)
+        card_to_play.play_card(game_object=self, player=player, **action_details)
 
         # Karte aus der Hand des Spielers entfernen
         played_card = player.cards.pop(card_index)
