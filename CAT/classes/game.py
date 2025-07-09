@@ -54,13 +54,6 @@ class Game:
         return new_player
 
 
-        Starts the game by setting the first player as the current player.
-
-        if self.number_of_players < 2:
-            raise ValueError("At least two players are required to start the game.")
-        self.current_player = self.players[0]
-        print(f"Game started with {self.number_of_players} players. Current player: {self.current_player.get_name()}")"""
-
     def execute_play_card(self, player: Player, card_index: int, action_details: dict):
         """
         Executes the entire process of a player playing a card.
