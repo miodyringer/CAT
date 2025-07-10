@@ -249,7 +249,7 @@ class Game:
 
         new_position = self._calculate_new_position(figure, value)
         player_number = self.COLOR_PLAYER_MAPPING[figure.color]
-        if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) or new_position in [
+        if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) or new_position not in [
             (player_number+1) * 100 + i  for i in range(4)]:
             print(f"if ({new_position} < 0 or {new_position} >= {self.NUMBER_OF_FIELDS}) or {new_position} in {[
             (player_number + 1) * 100 + i  for i in range(4)]}:")
