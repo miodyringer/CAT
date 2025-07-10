@@ -63,25 +63,6 @@ class Game:
 
         card_to_play = player.cards[card_index]
 
-        # Hol die Figur aus den action_details
-        figure_uuid = action_details.get("figure_uuid")
-        if not figure_uuid:
-            raise ValueError("Figure not provided in action_details.")
-
-        figure_to_move = None
-        for p in self.players:
-            for fig in p.figures:
-                if str(fig.uuid) == figure_uuid:
-                    figure_to_move = fig
-                    break
-            if figure_to_move:
-                break
-
-        if not figure_to_move:
-            raise ValueError("Figure not found.")
-
-        # Hier wird die eigentliche Spiellogik der Karte aufgerufen
-        # Wir übergeben die Figur als zusätzliches Argument an die play_card Methode
         card_to_play.play_card(game_object=self, player=player, **action_details)
 
         # Karte aus der Hand des Spielers entfernen
@@ -90,6 +71,7 @@ class Game:
 
         # Nächster Spieler ist an der Reihe
         self.current_player_index = (self.current_player_index + 1) % self.number_of_players
+
 
     def _calculate_new_position(self, figure: Figure, value: int) -> int:
         player = self.get_spieler_von_figur(figure)  # Eine Hilfsmethode, um den Besitzer einer Figur zu finden
@@ -167,6 +149,42 @@ class Game:
 
         print(f"Figures {figure1.get_uuid()} and {figure2.get_uuid()} have swapped positions.")
 
+    def get_figure_by_uuid(self, figure_uuid: str) -> Figure | None:
+        """Helper to find any figure in the game by its UUID."""
+        for player in self.players:
+            for figure in player.figures:
+                if figure.uuid == figure_uuid:
+                    return figure
+        return None
+
+    def move_and_burn(self, figure: Figure, steps: int):
+        """Moves a figure and burns any figures on its path."""
+        if figure.position < 0:
+            raise ValueError("Cannot play Inferno card on a figure in the home base.")
+
+        path = []
+        current_pos = figure.position
+
+        # 1. Sammle alle Felder auf dem Weg
+        for _ in range(steps):
+            current_pos = (current_pos + 1) % self.NUMBER_OF_FIELDS
+            path.append(current_pos)
+
+        new_position = path[-1]
+
+        # 2. Verbrenne Figuren auf dem Weg (aber nicht auf dem Zielfeld)
+        for tile_pos in path[:-1]:
+            if tile_pos in self.field_occupation:
+                figure_to_burn = self.field_occupation[tile_pos]
+                owner = self.get_spieler_von_figur(figure_to_burn)
+                # Figuren auf ihrem eigenen, sicheren Startfeld können nicht verbrannt werden
+                if tile_pos != owner.startfield:
+                    print(f"Figure {figure_to_burn.uuid} was burned at position {tile_pos}!")
+                    figure_to_burn.position = -1
+                    del self.field_occupation[tile_pos]
+
+        # 3. Führe den finalen Zug aus (diese Methode existiert bereits und ist perfekt dafür)
+        self._execute_move(figure, new_position)
 
     def start_figure(self, player: Player, figure: Figure):
         """Moves a figure from its home onto the player's starting tile."""

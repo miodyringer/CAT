@@ -160,15 +160,44 @@ function renderPlayers() {
     });
 }
 
+function renderInfernoControls() {
+    const container = document.querySelector('.inferno-controls-container');
+    const selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
+
+    if (selectedCard && selectedCard.type === 'InfernoCard') {
+        container.style.display = 'block';
+        const pointsLeft = gameService.getInfernoPointsRemaining();
+        container.innerHTML = `<div class="inferno-points-display">${pointsLeft} Punkte übrig</div>`;
+
+        // Zeige den Bestätigen-Button nur, wenn genau 0 Punkte übrig sind
+        if (pointsLeft === 0) {
+            const confirmButton = document.createElement('button');
+            confirmButton.className = 'button red';
+            confirmButton.textContent = 'Inferno-Zug bestätigen';
+            confirmButton.onclick = () => {
+                const moves = gameService.getInfernoMovePlan().map(move => ({
+                    figure_uuid: move.figureId,
+                    steps: move.steps
+                }));
+                executePlay({ moves: moves });
+            };
+            container.appendChild(confirmButton);
+        }
+    } else {
+        container.style.display = 'none';
+    }
+}
+
 /**
  * Aktualisiert die gesamte Benutzeroberfläche basierend auf dem Spielzustand.
  */
-function updateUI() {
+export function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
     renderPlayers();
     renderHand();
     renderFigures();
     renderPlayButton();
+    renderInfernoControls();
 
     const startGameBtn = document.querySelector('#start-game-btn');
     const isHost = gameService.gameState.host_id === gameService.localPlayerId;
@@ -191,44 +220,48 @@ async function executePlay(extraDetails = {}) {
     const gameId = gameService.gameState.uuid;
     const playerId = gameService.localPlayerId;
     const cardIndex = gameService.getSelectedCardIndex();
-    const figureId = gameService.getSelectedFigureId();
 
-    const localPlayer = gameService.getLocalPlayer();
-    if (!localPlayer) return;
-
-    const playedCard = localPlayer.cards[cardIndex];
-    const targetFigure = localPlayer.figures.find(f => f.uuid === figureId);
-
-    if (!playedCard || !targetFigure) {
-        alert("Card or Figure not found!");
+    const playedCard = gameService.getHand()[cardIndex];
+    if (!playedCard) {
+        alert("Card not found!");
         return;
     }
 
+    let actionDetails = { ...extraDetails };
 
-    // Grundlegende Action-Details erstellen
-    let actionDetails = {
-        action: 'move', // Standard-Aktion
-        figure_uuid: figureId,
-        ...extraDetails
-    };
+    // --- FINALE KORREKTUR HIER ---
+    // Behandle die Inferno-Karte als ersten Sonderfall, da sie keine einzelne Zielfigur benötigt.
+    if (playedCard.type === 'InfernoCard') {
+        actionDetails.action = 'inferno';
+        actionDetails.figure_uuid = gameService.getSelectedFigureId();
+        // Der 'moves'-Plan wird bereits korrekt in extraDetails übergeben.
+    } else {
+        // Für alle anderen Karten benötigen wir eine einzelne ausgewählte Figur.
+        const figureId = gameService.getSelectedFigureId();
+        const targetFigure = gameService.getFigureById(figureId);
 
-    // --- KORREKTE LOGIK HIER ---
-    if (playedCard.type === 'StartCard') {
-        // Wenn die Figur startet, ist die Aktion 'start'
-        if (extraDetails.action === 'start') {
-            actionDetails.action = 'start';
+        if (!targetFigure) {
+            alert("Figure not found! Please select a figure to play your card on.");
+            return;
         }
-        // Wenn es eine normale Bewegung ist und kein Wert mitgegeben wurde (wie bei der 13er-Karte)
-        else if (!extraDetails.value) {
-            // Nimm den ersten (und einzigen) Wert aus dem Array
-            actionDetails.value = playedCard.move_values[0];
-        }
-    }
 
-    if (playedCard.type === 'SwapCard') {
-        actionDetails.action = 'swap';
-        actionDetails.figure_uuid = extraDetails.figure_uuid;
-        actionDetails.other_figure_uuid = extraDetails.other_figure_uuid;
+        actionDetails.figure_uuid = figureId;
+
+        // Zusätzliche Logik für die anderen Kartentypen
+        switch (playedCard.type) {
+            case 'StartCard':
+                if (!actionDetails.action) {
+                    actionDetails.action = 'move';
+                    actionDetails.value = playedCard.move_values[0];
+                }
+                break;
+            case 'SwapCard':
+                actionDetails.action = 'swap';
+                //actionDetails.figure_uuid = figureId;
+                actionDetails.other_figure_uuid = gameService.getSelectedTargetFigureId();
+                break;
+            // Standardkarten und FlexCard benötigen keine spezielle Logik hier
+        }
     }
 
     try {
@@ -241,11 +274,9 @@ async function executePlay(extraDetails = {}) {
         await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
 
         const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${playerId}`);
+        gameService.resetSelections(); // Auswahl nach dem Zug zurücksetzen
         gameService.updateGameState(updatedState, playerId);
 
-        gameService.selectCard(null);
-        gameService.selectFigure(null);
-        gameService.resetSelections();
         updateUI();
 
     } catch (error) {

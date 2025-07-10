@@ -1,4 +1,5 @@
 import gameService from "./services/game_service.js";
+import { updateUI } from './game_ui.js';
 
 const boardElement = document.querySelector("#board");
 const sideLength = 15;
@@ -69,6 +70,7 @@ export function renderFigures() {
     const players = gameService.getPlayers();
     const selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
     const isSwapActive = selectedCard && selectedCard.type === 'SwapCard';
+    const isInfernoActive = selectedCard && selectedCard.type === 'InfernoCard';
 
     if (!players || !localPlayer) return;
 
@@ -102,12 +104,42 @@ export function renderFigures() {
                     document.dispatchEvent(new Event('selectionChanged'));
                 });
             }
+            if (isInfernoActive && isOwn && figure.position !== -1) {
+                const controls = document.createElement('div');
+                controls.className = 'figure-step-controls';
 
-            if (figure.uuid === gameService.getSelectedFigureId()) {
-                figureElement.classList.add("selected");
-            }
-            if (figure.uuid === gameService.getSelectedTargetFigureId()) {
-                figureElement.classList.add("target-selection");
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'step-button';
+                minusBtn.textContent = '-';
+                minusBtn.onclick = (e) => {
+                    e.stopPropagation(); // Verhindert, dass der Klick die Figur auswählt
+                    let steps = gameService.getStepsForFigure(figure.uuid);
+                    if (steps > 0) {
+                        gameService.updateInfernoMove(figure.uuid, steps - 1);
+                        updateUI();
+                    }
+                };
+
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'step-button';
+                plusBtn.textContent = '+';
+                plusBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    let pointsLeft = gameService.getInfernoPointsRemaining();
+                    if (pointsLeft > 0) {
+                        let steps = gameService.getStepsForFigure(figure.uuid);
+                        gameService.updateInfernoMove(figure.uuid, steps + 1);
+                        updateUI();
+                    }
+                };
+
+                const stepsDisplay = document.createElement('span');
+                stepsDisplay.textContent = gameService.getStepsForFigure(figure.uuid);
+
+                controls.appendChild(minusBtn);
+                controls.appendChild(stepsDisplay);
+                controls.appendChild(plusBtn);
+                figureElement.appendChild(controls);
             }
 
             boardElement.appendChild(figureElement);

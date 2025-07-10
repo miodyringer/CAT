@@ -5,6 +5,7 @@ class GameService {
         this.selectedCardIndex = null;
         this.selectedFigureId = null;
         this.selectedTargetFigureId = null;
+        this.infernoMovePlan = [];
     }
 
     isLocalPlayerTurn() {
@@ -51,6 +52,7 @@ class GameService {
         this.selectedCardIndex = null;
         this.selectedFigureId = null;
         this.selectedTargetFigureId = null;
+        this.resetInfernoPlan();
     }
 
     // Getter für die Zielfigur
@@ -99,6 +101,45 @@ class GameService {
     getHand() {
         const player = this.getLocalPlayer();
         return player ? player.cards : [];
+    }
+
+    getFigureById(figureId) {
+        if (!this.gameState) return null;
+        for (const player of this.gameState.players) {
+            const figure = player.figures.find(f => f.uuid === figureId);
+            if (figure) {
+                return figure;
+            }
+        }
+        return null;
+    }
+
+    resetInfernoPlan() {
+        this.infernoMovePlan = [];
+    }
+
+    updateInfernoMove(figureId, steps) {
+        // Entferne den alten Eintrag für diese Figur, falls vorhanden
+        this.infernoMovePlan = this.infernoMovePlan.filter(move => move.figureId !== figureId);
+
+        // Füge den neuen Zug hinzu, wenn die Schritte > 0 sind
+        if (steps > 0) {
+            this.infernoMovePlan.push({ figureId: figureId, steps: steps });
+        }
+    }
+
+    getInfernoMovePlan() {
+        return this.infernoMovePlan;
+    }
+
+    getInfernoPointsRemaining() {
+        const totalAssignedPoints = this.infernoMovePlan.reduce((sum, move) => sum + move.steps, 0);
+        return 7 - totalAssignedPoints;
+    }
+
+    getStepsForFigure(figureId) {
+        const move = this.infernoMovePlan.find(m => m.figureId === figureId);
+        return move ? move.steps : 0;
     }
 
 

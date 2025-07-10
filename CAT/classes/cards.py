@@ -85,14 +85,9 @@ class FlexCard(Card):
             raise ValueError("A figure_uuid and a direction must be specified.")
 
         # Finde das passende Figur-Objekt im Spiel
-        figure = None
-        for p in game_object.players:
-            for fig in p.figures:
-                if fig.uuid == figure_uuid:
-                    figure = fig
-                    break
+        figure = game_object.get_figure_by_uuid(figure_uuid)
         if not figure:
-            raise ValueError("Figure with specified UUID not found.")
+            raise ValueError(f"Figure with UUID {figure_uuid} not found.")
 
         if direction == "forward":
             game_object.move_figure(figure, 4)
@@ -120,20 +115,12 @@ class SwapCard(Card):
         if not own_figure_uuid or not other_figure_uuid:
             raise ValueError("Two figure UUIDs must be provided for a swap.")
 
-        # Finde die beiden Figuren im Spiel
-        figure1 = None
-        figure2 = None
-        for p in game_object.players:
-            for fig in p.figures:
-                if fig.uuid == own_figure_uuid:
-                    figure1 = fig
-                elif fig.uuid == other_figure_uuid:
-                    figure2 = fig
+        figure1 = game_object.get_figure_by_uuid(own_figure_uuid)
+        figure2 = game_object.get_figure_by_uuid(other_figure_uuid)
 
         if not figure1 or not figure2:
             raise ValueError("One or both figures for the swap not found.")
 
-        # Stelle sicher, dass die erste Figur dem Spieler gehört
         if figure1 not in player.figures:
             raise ValueError("You can only initiate a swap with one of your own figures.")
 
@@ -166,14 +153,7 @@ class StartCard(Card):
             raise ValueError("An action and a figure_uuid must be specified.")
 
         # Finde die Figur basierend auf der UUID
-        figure = None
-        for p in game_object.players:
-            for fig in p.figures:
-                if fig.uuid == figure_uuid:
-                    figure = fig
-                    break
-        if not figure:
-            raise ValueError("Figure with specified UUID not found.")
+        figure = game_object.get_figure_by_uuid(figure_uuid)
 
         if action == "start":
             game_object.start_figure(player, figure)
@@ -201,19 +181,32 @@ class InfernoCard(Card):
         super().__init__("Inferno Card", "Split the value of 7 among your cats and burn any enemy cat it passes over.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        # This is the most complex card logic.
-        # The frontend needs to send a list of moves, e.g.,
-        # moves = [ {'figure': figure_A, 'steps': 3}, {'figure': figure_B, 'steps': 4} ]
         moves = kwargs.get("moves")
 
-        if not isinstance(moves, list) or sum(move['steps'] for move in moves) != 7:
-            raise ValueError("The moves must be a list and the steps must sum to 7.")
+        if not isinstance(moves, list) or not moves:
+            raise ValueError("A list of moves must be provided for the Inferno Card.")
 
-        # NOTE: The "burn" logic is an extension of a normal move.
-        # You would need to create a special `move_and_burn` method in `game.py`
-        # that checks for enemy figures on all tiles that are being passed over.
+        # Prüft, ob die Summe der Schritte exakt 7 ist
+        if sum(move.get('steps', 0) for move in moves) != 7:
+            raise ValueError("The steps of all moves for the Inferno Card must sum to 7.")
+
+        # Führe jeden einzelnen Zug aus dem "Bauplan" aus
         for move in moves:
-            game_object.move_and_burn(move['figure'], move['steps'])
+            figure_uuid = move.get("figure_uuid")
+            steps = move.get("steps")
+
+            if not figure_uuid or steps is None:
+                raise ValueError("Each move must contain a 'figure_uuid' and 'steps'.")
+
+            # Finde die Figur im Spiel, die bewegt werden soll
+            figure = game_object.get_figure_by_uuid(figure_uuid)
+
+            # Stelle sicher, dass die Figur existiert und dem Spieler gehört
+            if not figure or figure not in player.figures:
+                raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
+
+            # Rufe die spezielle Methode zum Bewegen und Verbrennen auf
+            game_object.move_and_burn(figure, steps)
 
     def to_json(self):
         data = super().to_json()
