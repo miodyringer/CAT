@@ -45,6 +45,7 @@ def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameM
             card_index=request.card_index,
             action_details=request.action_details
         )
+        game.check_and_skip_turn_if_no_moves()
         return {"message": f"Player {player.name} successfully played card at index {request.card_index}."}
     except (ValueError, IndexError) as e:
         # Catch potential errors from the game logic (e.g., invalid move)
