@@ -6,6 +6,7 @@ class GameService {
         this.selectedFigureId = null;
         this.selectedTargetFigureId = null;
         this.infernoMovePlan = [];
+        this.jokerImitation = null;
     }
 
     isLocalPlayerTurn() {
@@ -16,34 +17,48 @@ class GameService {
     }
 
     selectFigure(figureId) {
-        const selectedCard = this.getHand()[this.selectedCardIndex];
-
-        // Wenn keine Tauschkarte ausgewählt ist, verhält es sich wie bisher
-        if (!selectedCard || selectedCard.type !== 'SwapCard') {
-            if (this.selectedFigureId === figureId) {
-                this.selectedFigureId = null;
-            } else {
-                this.selectedFigureId = figureId;
+        let selectedCard = gameService.getHand()[this.selectedCardIndex];
+        // Prüfen, ob ein Joker eine SwapCard imitiert
+        if (selectedCard && selectedCard.type === 'JokerCard') {
+            const jokerImitation = this.getJokerImitation();
+            if (jokerImitation) {
+                selectedCard = jokerImitation;
             }
-            this.selectedTargetFigureId = null; // Auswahl zurücksetzen
-            return;
         }
+
+        const isSwapActive = selectedCard && selectedCard.type === 'SwapCard';
 
         // --- Logik für die Tauschkarte ---
-        const localPlayer = this.getLocalPlayer();
-        const isOwnFigure = localPlayer.figures.some(f => f.uuid === figureId);
+        if (isSwapActive) {
+            const isOwnFigure = this.getLocalPlayer().figures.some(f => f.uuid === figureId);
+            const figure = this.getFigureById(figureId);
 
-        // 1. Klick: Wählt die EIGENE Figur aus
-        if (!this.selectedFigureId && isOwnFigure) {
-            this.selectedFigureId = figureId;
-        }
-        // 2. Klick: Wählt die ZIEL-Figur aus (darf nicht dieselbe sein)
-        else if (this.selectedFigureId && this.selectedFigureId !== figureId) {
-             if (this.selectedTargetFigureId === figureId) {
-                this.selectedTargetFigureId = null; // Auswahl der Zielfigur aufheben
-            } else {
-                this.selectedTargetFigureId = figureId;
+            // Figur muss auf dem Brett sein
+            if (!figure || figure.position < 0) return;
+
+            // 1. Klick: Auswahl der EIGENEN Figur.
+            // Dies passiert nur, wenn noch keine Hauptfigur ausgewählt ist.
+            if (!this.selectedFigureId && isOwnFigure) {
+                this.selectedFigureId = figureId;
+                return; // Beende die Funktion hier, warte auf den nächsten Klick.
             }
+
+            // 2. Klick: Auswahl der ZIEL-Figur (darf nicht die eigene sein).
+            // Dies passiert nur, wenn bereits eine Hauptfigur ausgewählt ist.
+            if (this.selectedFigureId && !isOwnFigure) {
+                // Erlaube das Ab- und Anwählen der Zielfigur
+                this.selectedTargetFigureId = (this.selectedTargetFigureId === figureId) ? null : figureId;
+            }
+             // Klick auf die eigene Figur, um sie abzuwählen
+            else if (this.selectedFigureId === figureId) {
+                this.selectedFigureId = null;
+                this.selectedTargetFigureId = null; // Setzt auch das Ziel zurück
+            }
+        }
+        // --- Normale Auswahl-Logik (für alle anderen Karten) ---
+        else {
+            this.selectedTargetFigureId = null; // Immer sicherstellen, dass die Tauschauswahl weg ist
+            this.selectedFigureId = (this.selectedFigureId === figureId) ? null : figureId;
         }
     }
 
@@ -53,6 +68,7 @@ class GameService {
         this.selectedFigureId = null;
         this.selectedTargetFigureId = null;
         this.resetInfernoPlan();
+        this.jokerImitation = null;
     }
 
     // Getter für die Zielfigur
@@ -140,6 +156,14 @@ class GameService {
     getStepsForFigure(figureId) {
         const move = this.infernoMovePlan.find(m => m.figureId === figureId);
         return move ? move.steps : 0;
+    }
+
+    setJokerImitation(cardData) {
+        this.jokerImitation = cardData;
+    }
+
+    getJokerImitation() {
+        return this.jokerImitation;
     }
 
 

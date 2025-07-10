@@ -130,6 +130,12 @@
     overflow: hidden;
 }
 
+.player-entry.active-player {
+    border-color: var(--color-strong);
+    box-shadow: 0 0 12px var(--color-strong);
+    transform: scale(1.03);
+}
+
 .player-entry.pink { background-color: var(--color-pink) }
 .player-entry.green { background-color: var(--color-green) }
 .player-entry.blue { background-color: var(--color-blue) }
@@ -271,4 +277,37 @@ body.not-my-turn .card-hand-container .card:hover {
     background: white;
     font-weight: bold;
     cursor: pointer;
+}
+
+#joker-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.joker-modal-content {
+  background: var(--color-background);
+  padding: 2rem;
+  border: var(--size-border) solid var(--color-border);
+  width: 90%;
+  max-width: 700px;
+  text-align: center;
+}
+
+#joker-card-selection-grid {
+  display: grid;
+  /* Passe die Spalten an, damit die Karten der Handgrösse entsprechen */
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+  /* Füge einen max-height hinzu, damit das Modal scrollbar wird, wenn viele Karten da sind */
+  max-height: 60vh;
+  overflow-y: auto;
 }

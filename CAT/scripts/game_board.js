@@ -1,5 +1,4 @@
 import gameService from "./services/game_service.js";
-import { updateUI } from './game_ui.js';
 
 const boardElement = document.querySelector("#board");
 const sideLength = 15;
@@ -68,11 +67,31 @@ export function renderFigures() {
 
     const localPlayer = gameService.getLocalPlayer();
     const players = gameService.getPlayers();
-    const selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
-    const isSwapActive = selectedCard && selectedCard.type === 'SwapCard';
-    const isInfernoActive = selectedCard && selectedCard.type === 'InfernoCard';
-
     if (!players || !localPlayer) return;
+
+    let selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
+
+    // --- KORREKTUR FÜR SWAP UND INFERNO ---
+    let isSwapActive = false;
+    let isInfernoActive = false;
+
+    if (selectedCard) {
+        let activeCard = selectedCard;
+        // Wenn ein Joker gespielt wird, nutze die imitierte Karte für die Logik
+        if (selectedCard.type === 'JokerCard') {
+            const jokerImitation = gameService.getJokerImitation();
+            if (jokerImitation) {
+                activeCard = jokerImitation;
+            }
+        }
+
+        if (activeCard.type === 'SwapCard') {
+            isSwapActive = true;
+        }
+        if (activeCard.type === 'InfernoCard') {
+            isInfernoActive = true;
+        }
+    }
 
     players.forEach(player => {
         player.figures.forEach((figure, index) => {
@@ -80,30 +99,37 @@ export function renderFigures() {
             figureElement.className = `figure ${figure.color}`;
             figureElement.id = figure.uuid;
 
-            // calculate position in the grid based on the figure's position
             let gridPosition = "";
-            if (figure.position === -1) { // home position
+            if (figure.position === -1) {
                 gridPosition = HOME_COORDINATES[figure.color][index];
-            } else if (figure.position >= 100) { // finish position
+            } else if (figure.position >= 100) {
                 const finishIndex = figure.position % 100;
                 gridPosition = FINISH_COORDINATES[figure.color][finishIndex];
-            } else { // path position
+            } else {
                 gridPosition = PATH_COORDINATES[figure.position];
             }
             figureElement.style.gridArea = gridPosition;
 
-            // add the figure
             figureElement.innerHTML = `<div class="body"></div><div class="ears"></div><div class="head"></div>`;
 
             const isOwn = player.uuid === localPlayer.uuid;
-            // Figur ist klickbar, wenn sie (a) die eigene ist und man dran ist ODER (b) eine Tauschkarte aktiv ist
-            if ((isOwn && gameService.isLocalPlayerTurn()) || isSwapActive) {
-                figureElement.classList.add("own-figure"); // Wiederverwendet die Cursor-Klasse
+            const isClickable = (isOwn && gameService.isLocalPlayerTurn()) || (isSwapActive && figure.position >= 0);
+
+            if (isClickable) {
+                figureElement.classList.add("own-figure");
                 figureElement.addEventListener('click', () => {
                     gameService.selectFigure(figure.uuid);
                     document.dispatchEvent(new Event('selectionChanged'));
                 });
             }
+
+            if (figure.uuid === gameService.getSelectedFigureId()) {
+                figureElement.classList.add("selected");
+            }
+            if (figure.uuid === gameService.getSelectedTargetFigureId()) {
+                figureElement.classList.add("target-selection");
+            }
+
             if (isInfernoActive && isOwn && figure.position !== -1) {
                 const controls = document.createElement('div');
                 controls.className = 'figure-step-controls';
@@ -112,11 +138,11 @@ export function renderFigures() {
                 minusBtn.className = 'step-button';
                 minusBtn.textContent = '-';
                 minusBtn.onclick = (e) => {
-                    e.stopPropagation(); // Verhindert, dass der Klick die Figur auswählt
+                    e.stopPropagation();
                     let steps = gameService.getStepsForFigure(figure.uuid);
                     if (steps > 0) {
                         gameService.updateInfernoMove(figure.uuid, steps - 1);
-                        updateUI();
+                        document.dispatchEvent(new Event('selectionChanged'));
                     }
                 };
 
@@ -129,7 +155,7 @@ export function renderFigures() {
                     if (pointsLeft > 0) {
                         let steps = gameService.getStepsForFigure(figure.uuid);
                         gameService.updateInfernoMove(figure.uuid, steps + 1);
-                        updateUI();
+                        document.dispatchEvent(new Event('selectionChanged'));
                     }
                 };
 

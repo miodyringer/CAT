@@ -229,11 +229,11 @@ class JokerCard(Card):
             raise ValueError("You must specify which card the Joker should imitate.")
 
         # Create a temporary instance of the target card and play it.
-        if card_to_imitate == "Swap":
+        if card_to_imitate == "Swap Card":
             imitated_card = SwapCard()
-        elif card_to_imitate == "Flex":
+        elif card_to_imitate == "Flex Card":
             imitated_card = FlexCard()
-        elif card_to_imitate == "Inferno":
+        elif card_to_imitate == "Inferno Card":
             imitated_card = InfernoCard()
         elif card_to_imitate == "Start":
             # For StartCard, we need to specify the move values.

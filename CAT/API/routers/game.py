@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
-from CAT.API.schemas import PlayCardRequest # Import the new schema
+from CAT.API.schemas import PlayCardRequest
+from CAT.classes.cards import *
 
 
 router = APIRouter(
@@ -88,3 +89,25 @@ def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameM
         return {"message": f"Player {player.name} successfully played card."}
     except (ValueError, IndexError) as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/card_types", tags=["Game"])
+def get_all_card_types():
+    """
+    Returns a list of all unique, imitable card types in the game.
+    """
+    card_types = [
+        StandardCard(2).to_json(),
+        StandardCard(3).to_json(),
+        StandardCard(5).to_json(),
+        StandardCard(6).to_json(),
+        StandardCard(8).to_json(),
+        StandardCard(9).to_json(),
+        StandardCard(10).to_json(),
+        StandardCard(12).to_json(),
+        FlexCard().to_json(),
+        SwapCard().to_json(),
+        InfernoCard().to_json(),
+        StartCard(name="13/Start", move_values=[13], description="Move a cat from the start area or move 13 fields forward.").to_json(),
+        StartCard(name="1/11/Start", move_values=[1, 11], description="Move a cat from the start area or move 1 or 11 fields forward.").to_json()
+    ]
+    return card_types
