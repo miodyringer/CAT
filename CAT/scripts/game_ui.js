@@ -310,6 +310,7 @@ function renderDiscardPile() {
 
 export function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
+    document.getElementById('round-display').textContent = `Round: ${gameService.gameState.round_number}`;
     renderPlayers();
     renderHand();
     renderFigures();
