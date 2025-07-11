@@ -155,6 +155,48 @@ class Game:
             return False
 
         for card in player.cards:
+            if isinstance(card, InfernoCard):
+                moveable_figures = [f for f in player.figures if f.position >= 0]
+                if not moveable_figures:
+                    continue
+                if len(moveable_figures) == 1:
+                        try:
+                            self._calculate_new_position(moveable_figures[0], 7)
+                            return True
+                        except ValueError:
+                            continue
+                elif len(moveable_figures) == 2:
+                    for i in range(0,8):
+                        try:
+                            self._calculate_new_position(moveable_figures[0], i)
+                            self._calculate_new_position(moveable_figures[1], 7-i)
+                            return True
+                        except ValueError:
+                            continue
+                elif len(moveable_figures) == 3:
+                    for i in range(0,8):
+                        for j in range(0,8-i):
+                            try:
+                                self._calculate_new_position(moveable_figures[0], i)
+                                self._calculate_new_position(moveable_figures[1], j)
+                                self._calculate_new_position(moveable_figures[2], 7-i-j)
+                                return True
+                            except ValueError:
+                                continue
+                elif len(moveable_figures) == 4:
+                    for i in range(0,8):
+                        for j in range(0,8-i):
+                            for k in range(0,8-i-j):
+                                try:
+                                    self._calculate_new_position(moveable_figures[0], i)
+                                    self._calculate_new_position(moveable_figures[1], j)
+                                    self._calculate_new_position(moveable_figures[2], k)
+                                    self._calculate_new_position(moveable_figures[3], 7-i-j-k)
+                                    return True
+                                except ValueError:
+                                    continue
+
+
             for figure in player.figures:
                 try:
                     # case 1: start figure
