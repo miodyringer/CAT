@@ -127,17 +127,19 @@ class Game:
             if target_finish_pos < 0:
                 raise ValueError("Cannot move backwards in the finish zone.")
             if target_finish_pos > 3:
-                raise ValueError("Move would go past the finish line.")
-            for i in range(current_finish_pos + 1, target_finish_pos + 1):
-                if (100 + i) in self.field_occupation:
+                raise ValueError("Move would out of the finish area.")
+            for i in range(old_pos + 1, old_pos + value + 1):
+                if i in self.field_occupation:
                     raise ValueError(f"Cannot jump over figure in finish-zone at position {i}.")
-            return 100 + target_finish_pos
+            return old_pos + value
         else:
             # ... (Logik für Züge auf dem Hauptpfad)
             finish_entry = player.finishing_field
             dist_to_finish = (finish_entry - old_pos + self.NUMBER_OF_FIELDS) % self.NUMBER_OF_FIELDS
             print(f"Distance to finish: {dist_to_finish}, Old position: {old_pos}, Value: {value}")
-            if value > dist_to_finish:
+            if value > dist_to_finish + 1:
+                if self.field_occupation.get(player.startfield):
+                    raise ValueError(f"Cannot go in finish-zone when start field is blocked.")
                 steps_into_finish = value - dist_to_finish - 2  # -2 because you move over the start field and the first finishing field
                 if steps_into_finish > 3:
                     return (old_pos + value) % self.NUMBER_OF_FIELDS
@@ -209,6 +211,7 @@ class Game:
 
         if not self.has_any_valid_move(current_player):
             print(f"Server check: Player {current_player.name} has no valid moves. Skipping turn.")
+            print(f"cards of player {current_player.name}: {current_player.cards}")
             self.pass_turn(current_player)
 
             # Prüfen, ob durch das Passen die Runde regulär beendet wurde
@@ -251,9 +254,9 @@ class Game:
         player_number = self.COLOR_PLAYER_MAPPING[figure.color]
         if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) and new_position not in [
             (player_number+1) * 100 + i  for i in range(4)]:
-            print(f"if ({new_position} < 0 or {new_position} >= {self.NUMBER_OF_FIELDS}) or {new_position} in {[
+            print(f"if ({new_position} < 0 or {new_position} >= {self.NUMBER_OF_FIELDS}) and {new_position} not in {[
             (player_number + 1) * 100 + i  for i in range(4)]}:")
-            print(f"if {new_position < 0 or new_position >= self.NUMBER_OF_FIELDS} or {new_position in [
+            print(f"if {new_position < 0 or new_position >= self.NUMBER_OF_FIELDS} and {new_position not in [
                 (player_number + 1) * 100 + i for i in range(4)]}:")
             raise ValueError("New position is out of bounds.")
         if new_position in self.field_occupation:
@@ -268,6 +271,7 @@ class Game:
         self.field_occupation[new_position] = figure
         figure.position = new_position
         print(f"Figure moved from {old_position} to {new_position}.")
+        print(self.field_occupation)
 
     def swap_figures(self, figure1: Figure, figure2: Figure):
         """Swaps the positions of two figures, respecting safe start tiles."""
@@ -300,15 +304,19 @@ class Game:
                     return figure
         return None
 
-    def move_and_burn(self, figure: Figure, steps: int):
-        """Moves a figure and burns any figures on its path, using the correct path calculation."""
-        if figure.position < 0:
-            raise ValueError("Cannot play Inferno card on a figure in the home base.")
+    def move_and_burn(self, figure: Figure, steps: int, moving_figure_uuids: list[str]):
+        """
+        Moves a figure and burns any figures on its path, with corrected logic.
+        """
+        # normal move when figure is in the finish zone
+        if figure.position >= 100:
+            new_position = self._calculate_new_position(figure, steps)
+            self._execute_move(figure, new_position)
+            return
 
-        # 1. Berechne die korrekte Zielposition
+
         new_position = self._calculate_new_position(figure, steps)
 
-        # 2. Rekonstruiere den Pfad bis zum Zielfeld (ohne das Zielfeld selbst)
         path_to_burn = []
         current_pos = figure.position
 
@@ -322,17 +330,20 @@ class Game:
             current_pos = (current_pos + 1) % self.NUMBER_OF_FIELDS
             path_to_burn.append(current_pos)
 
-        # 3. Verbrenne Figuren auf dem Weg
         for tile_pos in path_to_burn:
             if tile_pos in self.field_occupation:
                 figure_to_burn = self.field_occupation[tile_pos]
+
+                # moving figures are not burned, because they move out of the way
+                if figure_to_burn.uuid in moving_figure_uuids:
+                    continue
+
                 owner = self.get_spieler_von_figur(figure_to_burn)
                 if tile_pos != owner.startfield:
                     print(f"Figure {figure_to_burn.uuid} was burned at position {tile_pos}!")
                     figure_to_burn.position = -1
                     del self.field_occupation[tile_pos]
 
-        # 4. Führe den finalen Zug aus
         self._execute_move(figure, new_position)
 
     def start_figure(self, player: Player, figure: Figure):

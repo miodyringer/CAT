@@ -190,6 +190,8 @@ class InfernoCard(Card):
         if sum(move.get('steps', 0) for move in moves) != 7:
             raise ValueError("The steps of all moves for the Inferno Card must sum to 7.")
 
+        moving_figure_uuids = [move.get("figure_uuid") for move in moves]
+
         # Führe jeden einzelnen Zug aus dem "Bauplan" aus
         for move in moves:
             figure_uuid = move.get("figure_uuid")
@@ -206,7 +208,7 @@ class InfernoCard(Card):
                 raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
 
             # Rufe die spezielle Methode zum Bewegen und Verbrennen auf
-            game_object.move_and_burn(figure, steps)
+            game_object.move_and_burn(figure, steps, moving_figure_uuids)
 
     def to_json(self):
         data = super().to_json()
