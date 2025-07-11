@@ -11,26 +11,36 @@ class Player:
         self.color = "green" if number == 0 else "pink" if number == 1 else "orange" if number == 2 else "blue"
         self.cards: list[Card] = []
         self.figures: list[Figure] = [Figure(self.color) for _ in range(4)]  # Each player starts with 4 figures
-        self.startfield = number * 14  # Startfield is determined by the player number
-        self.finishing_field = (self.startfield - 1) % 54 # Finishing field is the last field before the player's start field
+        self.startfield = (number * 14) % 56 # Startfield is determined by the player number
+        self.finishing_field = (self.startfield - 1) % 56 # Finishing field is the last field before the player's start field
 
 
 
 
 
-    def to_json(self):
+    def to_json(self, perspective_player_id=None):
         """
-        Convert the player object to a JSON serializable dictionary.
+        Convert the player object to a JSON serializable dictionary,
+        filtering sensitive information based on the requesting player.
         """
+        # Wenn es der eigene Spieler ist, sende alle Kartendetails
+        if self.uuid == perspective_player_id:
+            cards_data = [card.to_json() for card in self.cards]
+            player_uuid = self.uuid
+        # Ansonsten sende nur die Anzahl der Karten
+        else:
+            cards_data = len(self.cards)
+            player_uuid = None
+
         return {
-            "uuid": self.uuid,
+            "uuid": player_uuid,
             "name": self.name,
             "number": self.number,
             "color": self.color,
-            "cards": [card.to_json() for card in self.cards],
-            "figures": [figure.to_jason() for figure in self.figures],
-            "startfield": self.startfield,
-            "finishing_field": self.finishing_field
+            "cards": cards_data,  # Enthält entweder die Karten oder nur die Anzahl
+            "figures": [figure.to_json() for figure in self.figures],
+            #"startfield": self.startfield,
+            #"finishing_field": self.finishing_field
         }
 
 

@@ -123,6 +123,25 @@ html, body {
     pointer-events: none;
 }
 
+.figure.selected {
+    transform: rotateZ(-45deg) rotateX(-55deg) translateY(-3rem) scaleY(1.5) translateZ(1rem) scale(1.1);
+    filter: drop-shadow(0 0 8px var(--color-strong));
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.figure.target-selection {
+    filter: drop-shadow(0 0 10px var(--color-blue)); /* Blauer Leuchteffekt */
+}
+
+.figure.own-figure {
+    pointer-events: auto;
+}
+
+body:not(.not-my-turn) .figure.own-figure {
+    cursor: pointer;
+}
+
 .figure.green > * { background-color: var(--color-green-darker) }
 .figure.pink > * { background-color: var(--color-pink-darker) }
 .figure.orange > * { background-color: var(--color-orange-darker) }

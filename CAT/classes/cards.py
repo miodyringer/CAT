@@ -41,14 +41,31 @@ class StandardCard(Card):
         self.value = value
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        figure_to_move = kwargs.get("figure")
+        # Holt die UUID der Figur aus den Argumenten
+        figure_uuid = kwargs.get("figure_uuid")
+        if not figure_uuid:
+            raise ValueError("A figure_uuid must be provided to play a StandardCard.")
+
+        # Findet das passende Figur-Objekt im Spiel
+        figure_to_move = None
+        for p in game_object.players:
+            for fig in p.figures:
+                if fig.uuid == figure_uuid:
+                    figure_to_move = fig
+                    break
+            if figure_to_move:
+                break
+
         if not figure_to_move:
-            raise ValueError("A figure to move must be selected.")
+            raise ValueError(f"Figure with UUID {figure_uuid} not found in the game.")
+
+        # Führt die Bewegung mit dem gefundenen Objekt aus
         game_object.move_figure(figure_to_move, self.value)
 
     def to_json(self):
         data = super().to_json()
         data['value'] = self.value
+        data['type'] = 'StandardCard'
         return data
 
 
@@ -61,16 +78,21 @@ class FlexCard(Card):
         super().__init__("Flex Card", "Choose to move either forward or backward by 4.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        figure = kwargs.get("figure")
-        direction = kwargs.get("direction")  # Frontend must send "forward" or "backward"
+        figure_uuid = kwargs.get("figure_uuid")
+        direction = kwargs.get("direction")  # Das Frontend muss "forward" oder "backward" senden
 
-        if not figure or not direction:
-            raise ValueError("A figure and a direction must be specified.")
+        if not figure_uuid or not direction:
+            raise ValueError("A figure_uuid and a direction must be specified.")
+
+        # Finde das passende Figur-Objekt im Spiel
+        figure = game_object.get_figure_by_uuid(figure_uuid)
+        if not figure:
+            raise ValueError(f"Figure with UUID {figure_uuid} not found.")
 
         if direction == "forward":
             game_object.move_figure(figure, 4)
         elif direction == "backward":
-            game_object.move_figure_backwards(figure, 4)
+            game_object.move_figure(figure, -4)
         else:
             raise ValueError("Invalid direction. Must be 'forward' or 'backward'.")
 
@@ -87,16 +109,22 @@ class SwapCard(Card):
         super().__init__("Swap Card", "Choose one of your cats and swap its position with any other cat.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        own_figure = kwargs.get("own_figure")
-        other_figure = kwargs.get("other_figure")
+        own_figure_uuid = kwargs.get("figure_uuid")
+        other_figure_uuid = kwargs.get("other_figure_uuid")
 
-        if not own_figure or not other_figure:
-            raise ValueError("Two figures must be selected to swap.")
+        if not own_figure_uuid or not other_figure_uuid:
+            raise ValueError("Two figure UUIDs must be provided for a swap.")
 
-        if own_figure.color != player.color:
+        figure1 = game_object.get_figure_by_uuid(own_figure_uuid)
+        figure2 = game_object.get_figure_by_uuid(other_figure_uuid)
+
+        if not figure1 or not figure2:
+            raise ValueError("One or both figures for the swap not found.")
+
+        if figure1 not in player.figures:
             raise ValueError("You can only initiate a swap with one of your own figures.")
 
-        game_object.swap_figures(own_figure, other_figure)
+        game_object.swap_figures(figure1, figure2)
 
     def to_json(self):
         data = super().to_json()
@@ -117,13 +145,15 @@ class StartCard(Card):
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
         Plays the card by either starting a figure or moving it.
-        The frontend must specify the chosen action and, if moving, the chosen value.
         """
-        action = kwargs.get("action")  # Expected: "start" or "move"
-        figure = kwargs.get("figure")
+        action = kwargs.get("action")
+        figure_uuid = kwargs.get("figure_uuid") # Wir bekommen die UUID
 
-        if not action or not figure:
-            raise ValueError("An action and a figure must be specified.")
+        if not action or not figure_uuid:
+            raise ValueError("An action and a figure_uuid must be specified.")
+
+        # Finde die Figur basierend auf der UUID
+        figure = game_object.get_figure_by_uuid(figure_uuid)
 
         if action == "start":
             game_object.start_figure(player, figure)
@@ -151,19 +181,34 @@ class InfernoCard(Card):
         super().__init__("Inferno Card", "Split the value of 7 among your cats and burn any enemy cat it passes over.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        # This is the most complex card logic.
-        # The frontend needs to send a list of moves, e.g.,
-        # moves = [ {'figure': figure_A, 'steps': 3}, {'figure': figure_B, 'steps': 4} ]
         moves = kwargs.get("moves")
 
-        if not isinstance(moves, list) or sum(move['steps'] for move in moves) != 7:
-            raise ValueError("The moves must be a list and the steps must sum to 7.")
+        if not isinstance(moves, list) or not moves:
+            raise ValueError("A list of moves must be provided for the Inferno Card.")
 
-        # NOTE: The "burn" logic is an extension of a normal move.
-        # You would need to create a special `move_and_burn` method in `game.py`
-        # that checks for enemy figures on all tiles that are being passed over.
+        # Prüft, ob die Summe der Schritte exakt 7 ist
+        if sum(move.get('steps', 0) for move in moves) != 7:
+            raise ValueError("The steps of all moves for the Inferno Card must sum to 7.")
+
+        moving_figure_uuids = [move.get("figure_uuid") for move in moves]
+
+        # Führe jeden einzelnen Zug aus dem "Bauplan" aus
         for move in moves:
-            game_object.move_and_burn(move['figure'], move['steps'])
+            figure_uuid = move.get("figure_uuid")
+            steps = move.get("steps")
+
+            if not figure_uuid or steps is None:
+                raise ValueError("Each move must contain a 'figure_uuid' and 'steps'.")
+
+            # Finde die Figur im Spiel, die bewegt werden soll
+            figure = game_object.get_figure_by_uuid(figure_uuid)
+
+            # Stelle sicher, dass die Figur existiert und dem Spieler gehört
+            if not figure or figure not in player.figures:
+                raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
+
+            # Rufe die spezielle Methode zum Bewegen und Verbrennen auf
+            game_object.move_and_burn(figure, steps, moving_figure_uuids)
 
     def to_json(self):
         data = super().to_json()
@@ -186,11 +231,11 @@ class JokerCard(Card):
             raise ValueError("You must specify which card the Joker should imitate.")
 
         # Create a temporary instance of the target card and play it.
-        if card_to_imitate == "Swap":
+        if card_to_imitate == "Swap Card":
             imitated_card = SwapCard()
-        elif card_to_imitate == "Flex":
+        elif card_to_imitate == "Flex Card":
             imitated_card = FlexCard()
-        elif card_to_imitate == "Inferno":
+        elif card_to_imitate == "Inferno Card":
             imitated_card = InfernoCard()
         elif card_to_imitate == "Start":
             # For StartCard, we need to specify the move values.

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
-from CAT.API.schemas import PlayCardRequest # Import the new schema
+from CAT.API.schemas import PlayCardRequest
+from CAT.classes.cards import *
 
 
 router = APIRouter(
@@ -11,7 +12,7 @@ router = APIRouter(
 
 
 @router.get("/{game_id}/state")
-def get_game_state(game_id: str, game_manager: GameManager = Depends(get_game_manager)):
+def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
     """
     Retrieves the current state of a specific game.
     """
@@ -20,7 +21,7 @@ def get_game_state(game_id: str, game_manager: GameManager = Depends(get_game_ma
         return {"error": "Game not found"}
     # The game object will be automatically converted to JSON by FastAPI.
     # You might want to create a Pydantic schema for the game state for better control
-    return game
+    return game.to_json(perspective_player_id=player_id)
 
 
 # Example of a future endpoint for playing a card
@@ -44,6 +45,7 @@ def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameM
             card_index=request.card_index,
             action_details=request.action_details
         )
+        game.check_and_skip_turn_if_no_moves()
         return {"message": f"Player {player.name} successfully played card at index {request.card_index}."}
     except (ValueError, IndexError) as e:
         # Catch potential errors from the game logic (e.g., invalid move)
@@ -64,3 +66,49 @@ def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manage
         return {"message": "Game started and cards dealt successfully."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{game_id}/play")
+def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
+    """
+    Handles a player's action to play a card.
+    """
+    game = game_manager.get_game(game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    player = game.get_player_by_uuid(request.player_uuid)
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found in this game")
+
+    try:
+        # Die Logik wird an das Game-Objekt übergeben
+        game.execute_play_card(
+            player=player,
+            card_index=request.card_index,
+            action_details=request.action_details
+        )
+        return {"message": f"Player {player.name} successfully played card."}
+    except (ValueError, IndexError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/card_types", tags=["Game"])
+def get_all_card_types():
+    """
+    Returns a list of all unique, imitable card types in the game.
+    """
+    card_types = [
+        StandardCard(2).to_json(),
+        StandardCard(3).to_json(),
+        StandardCard(5).to_json(),
+        StandardCard(6).to_json(),
+        StandardCard(8).to_json(),
+        StandardCard(9).to_json(),
+        StandardCard(10).to_json(),
+        StandardCard(12).to_json(),
+        FlexCard().to_json(),
+        SwapCard().to_json(),
+        InfernoCard().to_json(),
+        StartCard(name="13/Start", move_values=[13], description="Move a cat from the start area or move 13 fields forward.").to_json(),
+        StartCard(name="1/11/Start", move_values=[1, 11], description="Move a cat from the start area or move 1 or 11 fields forward.").to_json()
+    ]
+    return card_types
