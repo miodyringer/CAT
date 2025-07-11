@@ -33,6 +33,7 @@ class Game:
         self.current_player_index = 0
         self.round_number = 1
         self.game_started = False
+        self.last_played_card = None
 
     def start_game_and_deal_cards(self):
         """Starts the game and deals cards for the first time."""
@@ -69,6 +70,7 @@ class Game:
         # Karte aus der Hand des Spielers entfernen
         played_card = player.cards.pop(card_index)
         self.deck.add_to_discard(played_card)
+        self.last_played_card = played_card
 
         if self.check_for_winner():
             print(f"Game Over! Player {player.name} has won!")
@@ -482,4 +484,6 @@ class Game:
             "current_player_index": self.current_player_index,
             "round_number": self.round_number,
             "game_started": self.game_started,
+
+            "last_played_card": self.last_played_card.to_json() if self.last_played_card else None
         }

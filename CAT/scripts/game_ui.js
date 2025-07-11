@@ -270,6 +270,44 @@ async function openJokerModal() {
     }
 }
 
+function renderDiscardPile() {
+    const container = document.getElementById('discard-pile-container');
+    const lastCard = gameService.gameState.last_played_card;
+
+    if (!lastCard) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.innerHTML = ''; // Leere den alten Inhalt
+    container.style.display = 'block';
+
+    const cardElement = document.createElement("div");
+    // Nutze exakt dieselbe Logik wie in renderHand, um die Karte zu erstellen
+    let iconSymbol = '';
+    let cardNumber = '';
+
+    if (lastCard.type === 'StandardCard') {
+        cardElement.className = "card move";
+        iconSymbol = lastCard.value;
+        cardNumber = lastCard.value;
+    } else {
+        cardElement.className = "card special";
+        cardNumber = lastCard.name;
+        switch (lastCard.name) {
+            case "Flex Card": iconSymbol = '±'; cardNumber = '4'; break;
+            case "Inferno Card": iconSymbol = '♠'; cardNumber = '7'; break;
+            case "Swap Card": iconSymbol = '⇄'; cardNumber = 'S'; break;
+            case "13/Start": iconSymbol = '▶'; cardNumber = '13'; break;
+            case "1/11/Start": iconSymbol = '▶'; cardNumber = '1/11'; break;
+            case "Joker Card": iconSymbol = '?'; cardNumber = 'J'; break;
+        }
+    }
+    cardElement.innerHTML = `<span class="card-icon">${iconSymbol}</span><span class="card-number">${cardNumber}</span><span class="card-icon">${iconSymbol}</span>`;
+
+    container.appendChild(cardElement);
+}
+
 export function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
     renderPlayers();
@@ -277,6 +315,7 @@ export function updateUI() {
     renderFigures();
     renderPlayButton();
     renderInfernoControls();
+    renderDiscardPile();
 
     const startGameBtn = document.querySelector('#start-game-btn');
     const isHost = gameService.gameState.host_id === gameService.localPlayerId;
