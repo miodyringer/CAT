@@ -406,7 +406,8 @@ class Game:
 
         # Check if the player's own start tile is blocked
         if self.field_occupation.get(start_tile):
-            raise ValueError("The start tile is currently blocked.")
+            if self.field_occupation[start_tile].color == figure.color:
+                raise ValueError("The start tile is currently blocked.")
 
         # Place the figure on the start tile
         self._execute_move(figure, start_tile)
