@@ -30,7 +30,7 @@ class Game:
         self.field_occupation: dict[int, Figure] = {}
         self.game_over = False
         self.deck = Deck()
-        self.current_player_index = 0
+        self.current_player_index = -1
         self.round_number = 1
         self.game_started = False
         self.last_played_card = None
@@ -45,6 +45,7 @@ class Game:
         self.game_started = True
         self.deck.deal_cards(self.players, self.round_number)
         print(f"Game '{self.name}' started. Dealt cards for round {self.round_number}.")
+        self.current_player_index = 0
 
         self.check_and_skip_turn_if_no_moves()
 
