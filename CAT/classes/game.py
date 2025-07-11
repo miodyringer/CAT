@@ -155,6 +155,11 @@ class Game:
             return False
 
         for card in player.cards:
+            if isinstance(card, JokerCard):
+                # there is always a valid move with a JokerCard unless you won but then game should be over
+                return True
+
+        for card in player.cards:
             if isinstance(card, InfernoCard):
                 moveable_figures = [f for f in player.figures if f.position >= 0]
                 if not moveable_figures:
@@ -220,7 +225,7 @@ class Game:
 
 
                     # Fall 3: Spezialkarten, die fast immer gehen
-                    if figure.position >= 0 and isinstance(card, (SwapCard, InfernoCard, JokerCard)):
+                    if figure.position >= 0 and isinstance(card, SwapCard):
                         # Vereinfachte Prüfung: Gibt es überhaupt andere Figuren zum tauschen?
                         if isinstance(card, SwapCard):
                             for p in self.players:
