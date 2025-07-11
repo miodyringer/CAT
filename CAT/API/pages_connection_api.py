@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from CAT.API.routers import lobby, game
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +25,11 @@ app.include_router(game.router)
 app.mount("/stylesheets", StaticFiles(directory="CAT/stylesheets"), name="stylesheets")
 app.mount("/scripts", StaticFiles(directory="CAT/scripts"), name="scripts")
 app.mount("/audio", StaticFiles(directory="CAT/audio"), name="audio")
+app.mount("/icon", StaticFiles(directory="CAT/icon"), name="icon")
+
+@app.get("/favicon.ico")
+async def get_favicon():
+    return FileResponse("CAT/icon/favicon.ico", media_type="image/x-icon")
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():

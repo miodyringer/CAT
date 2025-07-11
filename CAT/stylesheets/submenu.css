@@ -123,10 +123,10 @@ strong {
     gap: 1.5rem;
 }
 
-.pink:hover { background-color: var(--color-pink) }
-.green:hover { background-color: var(--color-green) }
-.blue:hover { background-color: var(--color-blue) }
-.orange:hover { background-color: var(--color-orange) }
+a.pink:hover { background-color: var(--color-pink) }
+a.green:hover { background-color: var(--color-green) }
+a.blue:hover { background-color: var(--color-blue) }
+a.orange:hover { background-color: var(--color-orange) }
 
 .labeled-item {
     margin-bottom: 1rem;
