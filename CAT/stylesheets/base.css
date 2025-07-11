@@ -18,6 +18,10 @@
     --color-blue-darker: #AADCE6;
     --color-orange-darker: #E6C8AA;
     --color-green-darker: #CFE6AC;
+    --color-figure: #FFC300;
+    --color-figure-darker: #C79F00;
+    --color-target: #E53935;
+    --color-target-darker: #B71C1C;
     --color-important: #C0392B;
     --color-strong: #D35400;
     --size-border: 3px;

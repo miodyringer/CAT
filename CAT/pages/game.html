@@ -19,17 +19,17 @@
 
     <header class="game-header">
       <div class="game-info">
-        <span>Round: 1</span>
-        <span>Time: 00:05:32</span>
+        <span>Round: </span><span id="round-count"></span>
+        <span>- Time: </span><span id="game-time"></span>
       </div>
       <div class="lobby-name">
         <h2>Pro Gamers Only</h2>
       </div>
       <div class="game-actions">
-        <button id="start-game-btn" class="button green" style="display: none;">Start Game</button>
+        <a id="start-game-btn" class="button green" style="display: none;">Start</a>
       </div>
       <div class="leave-button">
-        <a class="button" href="/">Leave Game</a>
+        <a class="button orange" href="/">Leave</a>
       </div>
     </header>
 
@@ -53,7 +53,7 @@
           <h3>Select a card to imitate</h3>
           <div id="joker-card-selection-grid">
             </div>
-          <button id="joker-cancel-btn" class="button pink">Cancel</button>
+          <a id="joker-cancel-btn" class="button pink">Cancel</a>
         </div>
       </div>
     </div>

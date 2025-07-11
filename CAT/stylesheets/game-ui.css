@@ -47,10 +47,10 @@
 }
 
 .game-header {
-    position: relative; /* Notwendig für die absolute Positionierung des Titels */
+    position: relative;
     display: flex;
     align-items: center;
-    padding: 0 1rem; /* Fügt links und rechts etwas Abstand hinzu */
+    padding: 0 1rem;
     width: 100%;
     height: 7rem;
     background-color: var(--color-background);
@@ -61,9 +61,12 @@
 
 .game-header h2 { border: 0 }
 .game-header .button { margin-top: 1rem }
+.game-header span {
+    font-size: var(--size-h3);
+}
 
 .game-info {
-    margin-right: auto; /* Schiebt alle nachfolgenden Elemente nach rechts */
+    margin-right: auto;
 }
 
 .game-actions {
@@ -73,13 +76,13 @@
 
 
 .lobby-name {
-    position: absolute; /* Nimmt das Element aus dem normalen Fluss */
+    position: absolute;
     left: 50%;
-    transform: translateX(-50%); /* Zentriert das Element exakt in der Mitte */
+    transform: translateX(-50%);
 }
 
 .lobby-name h2 {
-    margin: 0; /* Entfernt Standard-Abstände vom h2-Titel */
+    margin: 0;
 }
 
 .leave-button {
@@ -126,7 +129,6 @@
     background-color: var(--color-background-darker);
     border: var(--size-border) solid var(--color-border);
     align-items: center;
-    /* Wichtig: Wir fügen overflow hidden hinzu, um sicherzugehen, dass nichts aus dem Container ausbricht */
     overflow: hidden;
 }
 
@@ -146,7 +148,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* Die entscheidende Änderung: Erlaubt dem Element, zu schrumpfen */
     min-width: 0;
 }
 

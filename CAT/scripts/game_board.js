@@ -93,6 +93,16 @@ export function renderFigures() {
         }
     }
 
+    const previouslyHighlighted = document.querySelector('.tile.highlighted');
+    if (previouslyHighlighted) {
+        previouslyHighlighted.classList.remove('highlighted');
+    }
+
+    const previouslyTargetHighlighted = document.querySelector('.tile.target-highlighted');
+    if (previouslyTargetHighlighted) {
+        previouslyTargetHighlighted.classList.remove('target-highlighted');
+    }
+
     players.forEach(player => {
         player.figures.forEach((figure, index) => {
             const figureElement = document.createElement("div");
@@ -122,12 +132,21 @@ export function renderFigures() {
                     document.dispatchEvent(new Event('selectionChanged'));
                 });
             }
-
             if (figure.uuid === gameService.getSelectedFigureId()) {
                 figureElement.classList.add("selected");
+                const figureGridArea = figureElement.style.gridArea;
+                const figureTile = document.querySelector(`.tile[style*="grid-area: ${figureGridArea}"]`);
+                if (figureTile) {
+                    figureTile.classList.add('highlighted');
+                }
             }
             if (figure.uuid === gameService.getSelectedTargetFigureId()) {
                 figureElement.classList.add("target-selection");
+                const targetGridArea = figureElement.style.gridArea;
+                const targetTile = document.querySelector(`.tile[style*="grid-area: ${targetGridArea}"]`);
+                if (targetTile) {
+                    targetTile.classList.add('target-highlighted');
+                }
             }
 
             if (isInfernoActive && isOwn && figure.position !== -1) {

@@ -1,6 +1,6 @@
 import getCookie from "./functions.mjs";
 import { applyTranslationsToPage } from "./translator.mjs";
-import { initPageSound, navigateWithFade } from './audio_manager.mjs';
+import {initPageSound, navigateWithFade, playSound} from './audio_manager.mjs';
 
 initPageSound();
 

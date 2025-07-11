@@ -95,20 +95,22 @@ html, body {
 }
 
 .top { transform: rotateY(0deg) translateZ(1.5rem) }
+.tile.highlighted > .cube > .top { background-color: var(--color-figure-darker) }
+.tile.target-highlighted > .cube > .top { background-color: var(--color-target-darker) }
 .frontl { transform: rotateX(-90deg) translateZ(1.5rem) }
 .frontr{ transform: rotateY(90deg) translateZ(1.5rem) }
 .bottom { transform: rotateY(0deg) translateZ(-1.5rem) }
 .backr { transform: rotateX(90deg) translateZ(1.5rem) }
 .backl{ transform: rotateY(-90deg) translateZ(1.5rem) }
 
-.top { background-color: var(--color-background-darker) }
+.top { background-color: var(--color-background-darker)}
 .tile.pink .top   { background-color: var(--color-pink) }
 .tile.green .top { background-color: var(--color-green) }
 .tile.blue .top  { background-color: var(--color-blue) }
 .tile.orange .top  { background-color: var(--color-orange) }
 
 .cube:has(.side:hover) > .side {
-    background-color: #888888;
+    background-color: var(--color-shadow);
     transition-duration: 0s;
 }
 
@@ -124,15 +126,19 @@ html, body {
 }
 
 .figure.selected {
-    transform: rotateZ(-45deg) rotateX(-55deg) translateY(-3rem) scaleY(1.5) translateZ(1rem) scale(1.1);
-    filter: drop-shadow(0 0 8px var(--color-strong));
     cursor: pointer;
     pointer-events: auto;
 }
 
-.figure.target-selection {
-    filter: drop-shadow(0 0 10px var(--color-blue)); /* Blauer Leuchteffekt */
-}
+.figure.selected.green > * { background-color: var(--color-figure) }
+.figure.selected.pink > * { background-color: var(--color-figure) }
+.figure.selected.blue > * { background-color: var(--color-figure) }
+.figure.selected.orange > * { background-color: var(--color-figure) }
+
+.figure.target-selection.green > * { background-color: var(--color-target) }
+.figure.target-selection.pink > * { background-color: var(--color-target) }
+.figure.target-selection.blue > * { background-color: var(--color-target) }
+.figure.target-selection.orange > * { background-color: var(--color-target) }
 
 .figure.own-figure {
     pointer-events: auto;
