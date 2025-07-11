@@ -484,6 +484,5 @@ class Game:
             "current_player_index": self.current_player_index,
             "round_number": self.round_number,
             "game_started": self.game_started,
-
             "last_played_card": self.last_played_card.to_json() if self.last_played_card else None
         }
