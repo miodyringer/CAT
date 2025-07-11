@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+import json
+from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
 from CAT.API.schemas import PlayCardRequest
 from CAT.classes.cards import *
+from CAT.API.connection_manager import manager
 
 
 router = APIRouter(
@@ -10,6 +12,16 @@ router = APIRouter(
     tags=["Game"],
 )
 
+@router.websocket("/ws/{game_id}/{player_id}")
+async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
+    await manager.connect(websocket, game_id)
+    try:
+        while True:
+            # Warte auf Nachrichten vom Client (aktuell nicht genutzt, aber für die Zukunft nötig)
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, game_id)
+        print(f"Player {player_id} disconnected from game {game_id}")
 
 @router.get("/{game_id}/state")
 def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
@@ -26,7 +38,7 @@ def get_game_state(game_id: str, player_id: str = Query(...), game_manager: Game
 
 # Example of a future endpoint for playing a card
 @router.post("/{game_id}/play")
-def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
+async def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
     """
     Handles a player's action to play a card.
     """
@@ -46,14 +58,17 @@ def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameM
             action_details=request.action_details
         )
         game.check_and_skip_turn_if_no_moves()
-        return {"message": f"Player {player.name} successfully played card at index {request.card_index}."}
+
+        updated_game_state = game.to_json()  # JSON für alle (ohne Perspektive)
+        await manager.broadcast(json.dumps({"event": "update"}), game_id)
+
+        return {"message": "Action successful."}
     except (ValueError, IndexError) as e:
-        # Catch potential errors from the game logic (e.g., invalid move)
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/{game_id}/start")
-def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manager)):
+async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manager)):
     """
     Starts the game and deals the initial hand of cards.
     """
@@ -63,33 +78,11 @@ def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manage
 
     try:
         game.start_game_and_deal_cards()
+        await manager.broadcast(json.dumps({"event": "update"}), game_id)
         return {"message": "Game started and cards dealt successfully."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/{game_id}/play")
-def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
-    """
-    Handles a player's action to play a card.
-    """
-    game = game_manager.get_game(game_id)
-    if not game:
-        raise HTTPException(status_code=404, detail="Game not found")
-
-    player = game.get_player_by_uuid(request.player_uuid)
-    if not player:
-        raise HTTPException(status_code=404, detail="Player not found in this game")
-
-    try:
-        # Die Logik wird an das Game-Objekt übergeben
-        game.execute_play_card(
-            player=player,
-            card_index=request.card_index,
-            action_details=request.action_details
-        )
-        return {"message": f"Player {player.name} successfully played card."}
-    except (ValueError, IndexError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/card_types", tags=["Game"])
 def get_all_card_types():

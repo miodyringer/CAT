@@ -231,8 +231,10 @@ class Game:
                         # Vereinfachte Prüfung: Gibt es überhaupt andere Figuren zum tauschen?
                         if isinstance(card, SwapCard):
                             for p in self.players:
+                                if p.uuid != player.uuid:
+                                    continue
                                 for f in p.figures:
-                                    if f.uuid != figure.uuid and f.position >= 0:
+                                    if f.uuid != figure.uuid and f.position >= 0 and f.position < 100 and f.position != player.startfield:
                                         return True  # Tausch möglich
                         else:
                             return True

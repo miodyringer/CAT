@@ -2,6 +2,7 @@ import sendRequest from './services/server_service.js';
 import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
 
+let socket = null;
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
@@ -401,15 +402,12 @@ async function executePlay(extraDetails = {}) {
 
         await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
 
-        const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${playerId}`);
         gameService.resetSelections();
-        gameService.updateGameState(updatedState, playerId);
-
-        updateUI();
+        renderPlayButton();
 
     } catch (error) {
         console.error("Error playing card:", error);
-        alert(`Invalid Move: ${error.message}`);
+        alert(error.message);
     }
 }
 
@@ -437,6 +435,33 @@ async function initializeGame() {
 
         updateUI();
 
+        // NEU: Baue die WebSocket-Verbindung auf
+        const ws_url = `ws://127.0.0.1:7777/game/ws/${gameId}/${localPlayerId}`;
+        socket = new WebSocket(ws_url);
+
+        socket.onopen = () => {
+            console.log("WebSocket connection established.");
+        };
+
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+
+            // Prüfe, ob es eine Update-Nachricht ist
+            if (message.event === 'update') {
+                console.log("Update-Nudge from server received. Refetching state.");
+                // Rufe eine Funktion auf, die den personalisierten Zustand neu lädt
+                fetchAndUpdateState();
+            }
+        };
+
+        socket.onclose = () => {
+            console.log("WebSocket connection closed.");
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
         const startGameBtn = document.querySelector('#start-game-btn');
         if (!startGameBtn.dataset.listenerAttached) {
             startGameBtn.addEventListener('click', async () => {
@@ -463,6 +488,21 @@ async function initializeGame() {
     } catch (error) {
         console.error('Failed to get game state:', error);
         alert('Could not load the game.');
+    }
+}
+
+async function fetchAndUpdateState() {
+    const gameId = gameService.gameState.uuid;
+    const localPlayerId = gameService.localPlayerId;
+
+    if (!gameId || !localPlayerId) return;
+
+    try {
+        const newState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+        gameService.updateGameState(newState, localPlayerId);
+        updateUI();
+    } catch (error) {
+        console.error("Failed to refetch state after update:", error);
     }
 }
 
