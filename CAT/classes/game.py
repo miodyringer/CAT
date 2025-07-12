@@ -356,7 +356,7 @@ class Game:
                     return figure
         return None
 
-    def move_and_burn(self, figure: Figure, steps: int, moving_figure_uuids: list[str]):
+    def move_and_burn(self, figure: Figure, steps: int):
         """
         Moves a figure and burns any figures on its path, with corrected logic.
         """
@@ -386,15 +386,14 @@ class Game:
             if tile_pos in self.field_occupation:
                 figure_to_burn = self.field_occupation[tile_pos]
 
-                # moving figures are not burned, because they move out of the way
-                if figure_to_burn.uuid in moving_figure_uuids:
-                    continue
 
                 owner = self.get_spieler_von_figur(figure_to_burn)
                 if tile_pos != owner.startfield:
                     print(f"Figure {figure_to_burn.uuid} was burned at position {tile_pos}!")
                     figure_to_burn.position = -1
                     del self.field_occupation[tile_pos]
+                else:
+                    raise ValueError(f"Path is blocked by a safe figure on tile {tile_pos}.")
 
         self._execute_move(figure, new_position)
 
