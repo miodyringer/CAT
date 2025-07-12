@@ -1,14 +1,26 @@
 import asyncio
 import json
 import time
+import uvicorn
+import os
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from CAT.API.routers import lobby, game
 from fastapi.middleware.cors import CORSMiddleware
+from CAT.API.routers import lobby, game
 from CAT.API.dependencies import get_game_manager
 from CAT.API.connection_manager import manager
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Erstellt die korrekten, absoluten Pfade für die Static- und Seiten-Verzeichnisse
+STYLESHEETS_DIR = os.path.join(BASE_DIR, "stylesheets")
+SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
+AUDIO_DIR = os.path.join(BASE_DIR, "audio")
+PAGES_DIR = os.path.join(BASE_DIR, "pages")
 
 
 @asynccontextmanager
@@ -52,10 +64,22 @@ app.include_router(lobby.router)
 app.include_router(game.router)
 
 # Mount static directories for CSS and JavaScript files
-app.mount("/stylesheets", StaticFiles(directory="CAT/stylesheets"), name="stylesheets")
-app.mount("/scripts", StaticFiles(directory="CAT/scripts"), name="scripts")
-app.mount("/audio", StaticFiles(directory="CAT/audio"), name="audio")
+app.mount("/stylesheets", StaticFiles(directory=STYLESHEETS_DIR), name="stylesheets")
+app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
+app.mount("/audio", StaticFiles(directory=AUDIO_DIR), name="audio")
 app.mount("/icon", StaticFiles(directory="CAT/icon"), name="icon")
+
+@app.get("/config")
+async def get_config():
+    """Stellt dem Frontend die Basis-URL der API bereit."""
+    base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
+
+    ws_url = base_url.replace("http", "ws")
+
+    return JSONResponse({
+        "apiBaseUrl": base_url,
+        "webSocketUrl": ws_url
+    })
 
 @app.get("/favicon.ico")
 async def get_favicon():
@@ -63,48 +87,55 @@ async def get_favicon():
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():
-    with open("CAT/pages/about.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "about.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/create_lobby", response_class=HTMLResponse)
 async def get_create_lobby():
-    with open("CAT/pages/create_lobby.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "create_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/game", response_class=HTMLResponse)
 async def get_game():
-    with open("CAT/pages/game.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "game.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/join_lobby", response_class=HTMLResponse)
 async def get_join_lobby():
-    with open("CAT/pages/join_lobby.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "join_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/", response_class=HTMLResponse)
 async def get_menu():
-    with open("CAT/pages/menu.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "menu.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/online", response_class=HTMLResponse)
 async def get_online():
-    with open("CAT/pages/online.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "online.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/rules", response_class=HTMLResponse)
 async def get_rules():
-    with open("CAT/pages/rules.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "rules.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/settings", response_class=HTMLResponse)
 async def get_settings():
-    with open("CAT/pages/settings.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "settings.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
+
+load_dotenv()
+if __name__ == "__main__":
+    # Hole Host und Port aus den Umgebungsvariablen
+    host = os.getenv("API_HOST", "127.0.0.1")
+    port = int(os.getenv("API_PORT", 7777))
+    uvicorn.run(app, host=host, port=port)

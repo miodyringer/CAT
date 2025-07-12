@@ -12,7 +12,7 @@ class PlayerService {
     // Die Methode verwendet jetzt direkt die importierte Funktion "sendRequest"
     async playerLogin(name, lobby) {
         try {
-            const response = await sendRequest("http://127.0.0.1:7777/player/login", "POST", {
+            const response = await sendRequest("/player/login", "POST", {
                 "name": name,
                 "lobby": lobby
             });
@@ -21,13 +21,12 @@ class PlayerService {
                 PlayerService.player.uuid = response.uuid;
                 PlayerService.player.name = response.name;
                 PlayerService.player.lobby = response.lobby;
-                console.log('Player logged in:', PlayerService.player);
+                console.log("Player logged in:", PlayerService.player);
             }
         } catch(error) {
-            console.error('Player login failed:', error);
+            console.error("Player login failed:", error);
         }
     }
 }
 
-// Exportiere die Klasse, damit du sie in anderen Dateien verwenden kannst
 export default PlayerService;

@@ -1,4 +1,4 @@
-import sendRequest from './services/server_service.js';
+import sendRequest, { getConfig } from './services/server_service.js';
 import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
 
@@ -236,7 +236,7 @@ async function openJokerModal() {
     modalOverlay.style.display = 'flex';
 
     try {
-        const availableCards = await sendRequest('http://127.0.0.1:7777/game/card_types');
+        const availableCards = await sendRequest('/game/card_types');
         grid.innerHTML = '';
 
         availableCards.forEach(cardData => {
@@ -316,13 +316,11 @@ function renderDiscardPile() {
 }
 
 function startTurnTimer() {
-    // Stoppe einen eventuell laufenden Timer, um Fehler zu vermeiden
     stopTurnTimer();
 
     let timeLeft = TURN_DURATION;
     const timerDisplay = document.getElementById('turn-timer-display');
 
-    // Timer-Anzeige sofort initialisieren
     timerDisplay.textContent = `Time: ${timeLeft}`;
     timerDisplay.classList.remove('low-time');
 
@@ -446,7 +444,7 @@ async function executePlay(extraDetails = {}) {
             action_details: actionDetails
         };
 
-        await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
+        await sendRequest(`/game/${gameId}/play`, 'POST', requestBody);
 
         gameService.resetSelections();
         renderPlayButton();
@@ -470,7 +468,7 @@ async function initializeGame() {
     }
 
     try {
-        const gameStateFromServer = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+        const gameStateFromServer = await sendRequest(`/game/${gameId}/state?player_id=${localPlayerId}`);
 
         if (!gameStateFromServer) {
             alert('Could not load game data from server.');
@@ -481,8 +479,9 @@ async function initializeGame() {
 
         updateUI();
 
-        // NEU: Baue die WebSocket-Verbindung auf
-        const ws_url = `ws://127.0.0.1:7777/game/ws/${gameId}/${localPlayerId}`;
+        const config = await getConfig();
+        const ws_url = `${config.webSocketUrl}/game/ws/${gameId}/${localPlayerId}`;
+        console.log("Connecting to WebSocket:", ws_url);
         socket = new WebSocket(ws_url);
 
         socket.onopen = () => {
@@ -521,8 +520,8 @@ async function initializeGame() {
         if (!startGameBtn.dataset.listenerAttached) {
             startGameBtn.addEventListener('click', async () => {
                 try {
-                    await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
-                    const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+                    await sendRequest(`/game/${gameId}/start`, 'POST');
+                    const updatedState = await sendRequest(`/game/${gameId}/state?player_id=${localPlayerId}`);
                     gameService.updateGameState(updatedState, localPlayerId);
                     updateUI();
                 } catch (error) {
@@ -553,7 +552,7 @@ async function fetchAndUpdateState() {
     if (!gameId || !localPlayerId) return;
 
     try {
-        const newState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+        const newState = await sendRequest(`/game/${gameId}/state?player_id=${localPlayerId}`);
         gameService.updateGameState(newState, localPlayerId);
         updateUI();
     } catch (error) {

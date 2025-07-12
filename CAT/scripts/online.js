@@ -69,7 +69,7 @@ function filterAndRender() {
 // Hauptfunktion zum Laden der Lobbys
 async function fetchAndDisplayLobbies() {
     try {
-        allLobbies = await sendRequest('http://127.0.0.1:7777/lobby/list');
+        allLobbies = await sendRequest('/lobby/list');
         // Zeige die Lobbys initial an (ungefiltert)
         filterAndRender();
     } catch (error) {
