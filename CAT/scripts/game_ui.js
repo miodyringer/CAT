@@ -2,6 +2,9 @@ import sendRequest from './services/server_service.js';
 import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
 
+let socket = null;
+let turnTimerInterval = null;
+const TURN_DURATION = 20;
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
@@ -312,8 +315,44 @@ function renderDiscardPile() {
     container.appendChild(cardElement);
 }
 
+function startTurnTimer() {
+    // Stoppe einen eventuell laufenden Timer, um Fehler zu vermeiden
+    stopTurnTimer();
+
+    let timeLeft = TURN_DURATION;
+    const timerDisplay = document.getElementById('turn-timer-display');
+
+    // Timer-Anzeige sofort initialisieren
+    timerDisplay.textContent = `Time: ${timeLeft}`;
+    timerDisplay.classList.remove('low-time');
+
+    turnTimerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time: ${timeLeft}`;
+
+        if (timeLeft <= 5) {
+            timerDisplay.classList.add('low-time');
+        }
+
+        // Wenn die Zeit abläuft, nur noch die Anzeige ändern
+        if (timeLeft <= 0) {
+            timerDisplay.textContent = "Time's Up!";
+            stopTurnTimer();
+        }
+    }, 1000);
+}
+
+function stopTurnTimer() {
+    const timerDisplay = document.getElementById('turn-timer-display');
+    timerDisplay.textContent = ''; // Leert die Anzeige, wenn man nicht dran ist
+    timerDisplay.classList.remove('low-time');
+    clearInterval(turnTimerInterval);
+    turnTimerInterval = null;
+}
+
 export function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
+    document.getElementById('round-display').textContent = `Round: ${gameService.gameState.round_number}`;
     renderPlayers();
     renderHand();
     renderFigures();
@@ -326,8 +365,12 @@ export function updateUI() {
 
     if (gameService.isLocalPlayerTurn()) {
         document.body.classList.remove('not-my-turn');
+        if (!turnTimerInterval) {
+            startTurnTimer();
+        }
     } else {
         document.body.classList.add('not-my-turn');
+        stopTurnTimer();
     }
 
     if (!gameService.gameState.game_started && isHost) {
@@ -339,6 +382,7 @@ export function updateUI() {
 
 
 async function executePlay(extraDetails = {}) {
+    stopTurnTimer();
     const gameId = gameService.gameState.uuid;
     const playerId = gameService.localPlayerId;
     const cardIndex = gameService.getSelectedCardIndex();
@@ -404,15 +448,12 @@ async function executePlay(extraDetails = {}) {
 
         await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
 
-        const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${playerId}`);
         gameService.resetSelections();
-        gameService.updateGameState(updatedState, playerId);
-
-        updateUI();
+        renderPlayButton();
 
     } catch (error) {
         console.error("Error playing card:", error);
-        alert(`Invalid Move: ${error.message}`);
+        alert(error.message);
     }
 }
 
@@ -440,6 +481,42 @@ async function initializeGame() {
 
         updateUI();
 
+        // NEU: Baue die WebSocket-Verbindung auf
+        const ws_url = `ws://127.0.0.1:7777/game/ws/${gameId}/${localPlayerId}`;
+        socket = new WebSocket(ws_url);
+
+        socket.onopen = () => {
+            console.log("WebSocket connection established.");
+        };
+
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+
+            switch(message.event) {
+                case 'update':
+                    console.log("Update-Nudge from server received. Refetching state.");
+                    fetchAndUpdateState();
+                    break;
+
+                case 'game_closed':
+                    console.log("Game closed by server. Reason:", message.reason);
+                    alert(`The game was closed tue to ${message.reason}.`);
+                    window.location.href = '/';
+                    break
+
+                default:
+                    console.warn("Unknown event type received from server:", message.event);
+            }
+        };
+
+        socket.onclose = () => {
+            console.log("WebSocket connection closed.");
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
         const startGameBtn = document.querySelector('#start-game-btn');
         if (!startGameBtn.dataset.listenerAttached) {
             startGameBtn.addEventListener('click', async () => {
@@ -466,6 +543,21 @@ async function initializeGame() {
     } catch (error) {
         console.error('Failed to get game state:', error);
         alert('Could not load the game.');
+    }
+}
+
+async function fetchAndUpdateState() {
+    const gameId = gameService.gameState.uuid;
+    const localPlayerId = gameService.localPlayerId;
+
+    if (!gameId || !localPlayerId) return;
+
+    try {
+        const newState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+        gameService.updateGameState(newState, localPlayerId);
+        updateUI();
+    } catch (error) {
+        console.error("Failed to refetch state after update:", error);
     }
 }
 

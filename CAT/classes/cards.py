@@ -181,16 +181,62 @@ class InfernoCard(Card):
         super().__init__("Inferno Card", "Split the value of 7 among your cats and burn any enemy cat it passes over.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        moves = kwargs.get("moves")
 
-        if not isinstance(moves, list) or not moves:
+        def sort_moves_asc(moves):
+            """
+            Sorts the moves based on the position of the figures.
+            This is necessary for the Inferno Card to ensure correct burning logic.
+            """
+            for i in range(len(moves)):
+                for j in range(i + 1, len(moves)):
+                    if game_object.get_figure_by_uuid(
+                            moves[i].get("figure_uuid")).get_position() > game_object.get_figure_by_uuid(
+                            moves[j].get("figure_uuid")).get_position():
+                        moves[i], moves[j] = moves[j], moves[i]
+
+            return moves
+
+        def sort_figure_in_front_first(moves):
+            """
+            Sorts the moves based on the distance between the figures.
+            This is necessary for the Inferno Card to ensure correct burning logic.
+            """
+            if not moves:
+                return moves
+
+            # Find the figure with the maximum distance to sort around
+            imax = 0
+            max_distance = 0
+
+            for i, num in enumerate(moves):
+                newmax = (game_object.get_figure_by_uuid(moves[(i + 1) % len(moves)].get("figure_uuid")).get_position() - game_object.get_figure_by_uuid(moves[i].get("figure_uuid")).get_position()) % 56
+                if newmax > max_distance:
+                    imax = i
+                    max_distance = newmax
+
+            #print(f"imax: {imax}, max_distance: {max_distance}")
+            moves = moves[(imax + 1) % len(moves):] + moves[:(imax + 1) % len(moves)]
+            #print(f"distance sorted moves: {moves}")
+            moves.reverse()
+            return moves
+
+        unsorted_moves = kwargs.get("moves")
+
+        if not isinstance(unsorted_moves, list) or not unsorted_moves:
             raise ValueError("A list of moves must be provided for the Inferno Card.")
 
         # Prüft, ob die Summe der Schritte exakt 7 ist
-        if sum(move.get('steps', 0) for move in moves) != 7:
+        if sum(move.get('steps') for move in unsorted_moves) != 7:
             raise ValueError("The steps of all moves for the Inferno Card must sum to 7.")
 
-        moving_figure_uuids = [move.get("figure_uuid") for move in moves]
+        #moving_figure_uuids = [move.get("figure_uuid") for move in unsorted_moves]
+
+        sorted_moves = sort_moves_asc(unsorted_moves)
+        #print(f"Sorted moves: { [game_object.get_figure_by_uuid(move.get('figure_uuid')).to_json() for move in sorted_moves] }")
+
+        moves = sort_figure_in_front_first(sorted_moves)
+        #print(f'distance reversed: {moves}')
+
 
         # Führe jeden einzelnen Zug aus dem "Bauplan" aus
         for move in moves:
@@ -208,7 +254,7 @@ class InfernoCard(Card):
                 raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
 
             # Rufe die spezielle Methode zum Bewegen und Verbrennen auf
-            game_object.move_and_burn(figure, steps, moving_figure_uuids)
+            game_object.move_and_burn(figure, steps)
 
     def to_json(self):
         data = super().to_json()

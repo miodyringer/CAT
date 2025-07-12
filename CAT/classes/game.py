@@ -1,4 +1,5 @@
 import uuid
+import time
 from CAT.classes.player import Player
 from CAT.classes.figure import Figure
 from CAT.classes.deck import Deck
@@ -30,13 +31,16 @@ class Game:
         self.field_occupation: dict[int, Figure] = {}
         self.game_over = False
         self.deck = Deck()
-        self.current_player_index = 0
+        self.current_player_index = -1
         self.round_number = 1
         self.game_started = False
         self.last_played_card = None
+        self.turn_start_time = None
+        self.last_activity_time = time.time()
 
     def start_game_and_deal_cards(self):
         """Starts the game and deals cards for the first time."""
+        self._update_last_activity()
         if self.game_started:
             raise ValueError("The game has already started.")
         if self.number_of_players < 2:
@@ -45,10 +49,12 @@ class Game:
         self.game_started = True
         self.deck.deal_cards(self.players, self.round_number)
         print(f"Game '{self.name}' started. Dealt cards for round {self.round_number}.")
+        self.current_player_index = 0
 
-        self.check_and_skip_turn_if_no_moves()
+        self._start_new_turn()
 
     def add_player(self, name: str):
+        self._update_last_activity()
         if self.number_of_players >= 4:
             raise ValueError("Cannot add more than 4 players to the game.")
         new_player = Player(name, self.number_of_players)
@@ -61,8 +67,18 @@ class Game:
         """
         Executes the entire process of a player playing a card.
         """
+        self._update_last_activity()
+        if self._check_and_handle_timeout():
+            raise ValueError("Your time is up! The turn was passed automatically.")
+
+        if self.players[self.current_player_index] != player:
+            raise ValueError("It's not your turn.")
+
         if card_index >= len(player.cards):
             raise IndexError("Card index is out of bounds.")
+
+        if self.game_over:
+            raise ValueError("The game is already over. No more actions can be performed.")
 
         card_to_play = player.cards[card_index]
         card_to_play.play_card(game_object=self, player=player, **action_details)
@@ -80,7 +96,7 @@ class Game:
             self.start_new_round()
         else:
             self.current_player_index = (self.current_player_index + 1) % self.number_of_players
-            self.check_and_skip_turn_if_no_moves()
+            self._start_new_turn()
 
     def is_round_over(self) -> bool:
         """Checks if all players have played all their cards."""
@@ -91,14 +107,36 @@ class Game:
         self.round_number += 1
         # Der Startspieler rotiert jede Runde
         self.current_player_index = (self.round_number - 1) % self.number_of_players
-        print(f"\n--- Starting Round {self.round_number} ---")
+        print(f"\n--- Starting Round {self.round_number} in game {self.name} ---")
         print(f"New starting player is {self.players[self.current_player_index].name}")
 
         # Teile neue Karten aus (die Logik für die Anzahl ist in deck.py)
         self.deck.deal_cards(self.players, self.round_number)
 
         # Prüfe sofort, ob der neue Startspieler ziehen kann
+        self._start_new_turn()
+
+    def _start_new_turn(self):
+        """Resets the turn timer and checks if the new player can move."""
+        print(f"Starting turn for player {self.players[self.current_player_index].name}")
+        self.turn_start_time = time.time()
         self.check_and_skip_turn_if_no_moves()
+
+    def _check_and_handle_timeout(self) -> bool:
+        """
+        If the current player's time is up, pass their turn and return True.
+        Otherwise, return False.
+        """
+        if self.game_started and self.turn_start_time and (time.time() - self.turn_start_time) > 20:
+            print(f"Server detected timeout for player {self.players[self.current_player_index].name}.")
+            self.pass_turn(self.players[self.current_player_index])
+            self._start_new_turn()
+            return True
+        return False
+
+    def _update_last_activity(self):
+        """Updates the timestamp of the last activity."""
+        self.last_activity_time = time.time()
 
     def _calculate_new_position(self, figure: Figure, value: int) -> int:
         player = self.get_spieler_von_figur(figure)
@@ -140,7 +178,7 @@ class Game:
             dist_to_finish = (finish_entry - old_pos + self.NUMBER_OF_FIELDS) % self.NUMBER_OF_FIELDS
             print(f"Distance to finish: {dist_to_finish}, Old position: {old_pos}, Value: {value}")
             if value > dist_to_finish + 1:
-                if self.field_occupation.get(player.startfield):
+                if self.field_occupation.get(player.startfield) and self.field_occupation[player.startfield].color == player.color:
                     raise ValueError(f"Cannot go in finish-zone when start field is blocked.")
                 steps_into_finish = value - dist_to_finish - 2  # -2 because you move over the start field and the first finishing field
                 if steps_into_finish > 3:
@@ -231,8 +269,10 @@ class Game:
                         # Vereinfachte Prüfung: Gibt es überhaupt andere Figuren zum tauschen?
                         if isinstance(card, SwapCard):
                             for p in self.players:
+                                if p.uuid != player.uuid:
+                                    continue
                                 for f in p.figures:
-                                    if f.uuid != figure.uuid and f.position >= 0:
+                                    if f.uuid != figure.uuid and f.position >= 0 and f.position < 100 and f.position != player.startfield:
                                         return True  # Tausch möglich
                         else:
                             return True
@@ -353,7 +393,7 @@ class Game:
                     return figure
         return None
 
-    def move_and_burn(self, figure: Figure, steps: int, moving_figure_uuids: list[str]):
+    def move_and_burn(self, figure: Figure, steps: int):
         """
         Moves a figure and burns any figures on its path, with corrected logic.
         """
@@ -383,15 +423,14 @@ class Game:
             if tile_pos in self.field_occupation:
                 figure_to_burn = self.field_occupation[tile_pos]
 
-                # moving figures are not burned, because they move out of the way
-                if figure_to_burn.uuid in moving_figure_uuids:
-                    continue
 
                 owner = self.get_spieler_von_figur(figure_to_burn)
                 if tile_pos != owner.startfield:
                     print(f"Figure {figure_to_burn.uuid} was burned at position {tile_pos}!")
                     figure_to_burn.position = -1
                     del self.field_occupation[tile_pos]
+                else:
+                    raise ValueError(f"Path is blocked by a safe figure on tile {tile_pos}.")
 
         self._execute_move(figure, new_position)
 
@@ -404,7 +443,8 @@ class Game:
 
         # Check if the player's own start tile is blocked
         if self.field_occupation.get(start_tile):
-            raise ValueError("The start tile is currently blocked.")
+            if self.field_occupation[start_tile].color == figure.color:
+                raise ValueError("The start tile is currently blocked.")
 
         # Place the figure on the start tile
         self._execute_move(figure, start_tile)
@@ -484,6 +524,5 @@ class Game:
             "current_player_index": self.current_player_index,
             "round_number": self.round_number,
             "game_started": self.game_started,
-
             "last_played_card": self.last_played_card.to_json() if self.last_played_card else None
         }
