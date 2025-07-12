@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-# Füge PlayerInput zu dieser Import-Zeile hinzu
 from CAT.API.schemas import CreateLobbyRequest, PlayerInput
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
