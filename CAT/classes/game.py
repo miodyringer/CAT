@@ -103,7 +103,7 @@ class Game:
         self.round_number += 1
         # Der Startspieler rotiert jede Runde
         self.current_player_index = (self.round_number - 1) % self.number_of_players
-        print(f"\n--- Starting Round {self.round_number} ---")
+        print(f"\n--- Starting Round {self.round_number} in game {self.name} ---")
         print(f"New starting player is {self.players[self.current_player_index].name}")
 
         # Teile neue Karten aus (die Logik für die Anzahl ist in deck.py)
