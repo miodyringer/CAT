@@ -3,6 +3,7 @@ import { applyTranslationsToPage } from "./translator.mjs";
 import {initPageSound, navigateWithFade, playSound} from './audio_manager.mjs';
 
 initPageSound();
+customAlert();
 
 document.addEventListener('DOMContentLoaded', () => {
     const links = document.querySelectorAll('a');
@@ -17,6 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 applyTranslationsToPage();
 applyPageSettings();
+
+function customAlert() {
+    window.alert = function(message){
+        const alert = document.createElement("div");
+        alert.className = "alert-container";
+        alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button orange' id='close-alert'>Close</button></div>`;
+        alert.querySelector("#close-alert").onclick = () => {
+            document.querySelector(".alert-container").remove();
+        }
+        document.body.append(alert);
+    }
+}
 
 export function applyPageSettings(){
     const r = document.querySelector(':root');
@@ -40,6 +53,7 @@ if(getCookie("high_contrast_mode") === "false") {
 if(getCookie("color_theme") === "light") {
     r.style.setProperty('--color-background', '#FFFFFF');
     r.style.setProperty('--color-background-darker', '#F9F9F9');
+    r.style.setProperty('--color-backdrop', 'rgba(0, 0, 0, 0.7)');
     r.style.setProperty('--color-border', '#000000');
     r.style.setProperty('--color-soft-border', '#555555');
     r.style.setProperty('--color-softer-border', '#777777');
@@ -48,9 +62,17 @@ if(getCookie("color_theme") === "light") {
     r.style.setProperty('--color-shadow-darker', '#888888');
     r.style.setProperty('--color-text', '#333333');
     r.style.setProperty('--color-pink', '#E9B8F5');
+    r.style.setProperty('--color-pink-darker', '#DCAAE6');
     r.style.setProperty('--color-blue', '#B8E9F5');
+    r.style.setProperty('--color-blue-darker', '#AADCE6');
     r.style.setProperty('--color-green', '#DDF5B8');
+    r.style.setProperty('--color-green-darker', '#CFE6AC');
     r.style.setProperty('--color-orange', '#F5D5B8');
+    r.style.setProperty('--color-orange-darker', '#E6C8AA');
+    r.style.setProperty('--color-figure', '#FFC300');
+    r.style.setProperty('--color-figure-darker', '#C79F00');
+    r.style.setProperty('--color-target', '#E53935');
+    r.style.setProperty('--color-target-darker', '#B71C1C');
     r.style.setProperty('--color-important', '#C0392B');
     r.style.setProperty('--color-strong', '#D35400');
 }
@@ -135,6 +157,10 @@ if(getCookie("color_theme") === "grayscale") {
     r.style.setProperty('--color-blue-darker', '#999999');
     r.style.setProperty('--color-orange-darker', '#BBBBBB');
     r.style.setProperty('--color-green-darker', '#DDDDDD');
+    r.style.setProperty('--color-figure', '#444444');
+    r.style.setProperty('--color-figure-darker', '#333333');
+    r.style.setProperty('--color-target', '#555555');
+    r.style.setProperty('--color-target-darker', '#666666');
     r.style.setProperty('--color-important', '#111111');
     r.style.setProperty('--color-strong', '#333333');
 }

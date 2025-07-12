@@ -5,6 +5,7 @@ import { renderFigures } from './game_board.js';
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
+    container.style.display = "none";
     container.innerHTML = '';
 
     const cardIndex = gameService.getSelectedCardIndex();
@@ -28,11 +29,13 @@ function renderPlayButton() {
 
     if (!selectedCard) return;
 
+    container.style.display = "flex";
+
     if (selectedCard.type === 'StartCard') {
         if (selectedFigure.position === -1) {
             const startButton = document.createElement('button');
             startButton.className = 'button green';
-            startButton.textContent = 'Figur starten';
+            startButton.textContent = 'Start figure';
             startButton.addEventListener('click', () => executePlay({ action: 'start' }));
             container.appendChild(startButton);
             return;
@@ -42,7 +45,8 @@ function renderPlayButton() {
             selectedCard.move_values.forEach(value => {
                 const moveButton = document.createElement('button');
                 moveButton.className = 'button blue';
-                moveButton.textContent = `${value} Feld(er) ziehen`;
+                moveButton.textContent = `${value} tile`;
+                if(value !== 1){moveButton.textContent += 's'}
                 moveButton.addEventListener('click', () => executePlay({ action: 'move', value: value }));
                 container.appendChild(moveButton);
             });
@@ -53,12 +57,12 @@ function renderPlayButton() {
     if (selectedCard.type === 'FlexCard' && selectedFigure.position !== -1) {
         const forwardButton = document.createElement('button');
         forwardButton.className = 'button green';
-        forwardButton.textContent = '4 Vorwärts';
+        forwardButton.textContent = 'Forth';
         forwardButton.addEventListener('click', () => executePlay({ direction: 'forward' }));
 
         const backwardButton = document.createElement('button');
         backwardButton.className = 'button pink';
-        backwardButton.textContent = '4 Rückwärts';
+        backwardButton.textContent = 'Back';
         backwardButton.addEventListener('click', () => executePlay({ direction: 'backward' }));
 
         container.appendChild(forwardButton);
@@ -71,7 +75,7 @@ function renderPlayButton() {
         if (figureId && targetFigureId) {
             const swapButton = document.createElement('button');
             swapButton.className = 'button purple';
-            swapButton.textContent = 'Figuren tauschen';
+            swapButton.textContent = 'Swap';
             swapButton.addEventListener('click', () => executePlay({
                 own_figure_uuid: figureId,
                 other_figure_uuid: targetFigureId
@@ -85,6 +89,7 @@ function renderPlayButton() {
     playButton.className = 'button orange';
     playButton.textContent = 'Play Card';
     playButton.addEventListener('click', () => executePlay());
+
     container.appendChild(playButton);
 }
 
@@ -185,7 +190,6 @@ function renderInfernoControls() {
     const container = document.querySelector('.inferno-controls-container');
     let selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
 
-    // --- KORREKTUR FÜR INFERNO/JOKER ---
     let isInfernoActive = false;
     if (selectedCard) {
         if (selectedCard.type === 'InfernoCard') {
@@ -201,12 +205,12 @@ function renderInfernoControls() {
     if (isInfernoActive) {
         container.style.display = 'block';
         const pointsLeft = gameService.getInfernoPointsRemaining();
-        container.innerHTML = `<div class="inferno-points-display">${pointsLeft} Punkte übrig</div>`;
+        container.innerHTML = `<div class="inferno-points-display">${pointsLeft} tiles left</div>`;
 
         if (pointsLeft === 0) {
             const confirmButton = document.createElement('button');
             confirmButton.className = 'button red';
-            confirmButton.textContent = 'Inferno-Zug bestätigen';
+            confirmButton.textContent = 'Play';
             confirmButton.onclick = () => {
                 const moves = gameService.getInfernoMovePlan().map(move => ({
                     figure_uuid: move.figureId,

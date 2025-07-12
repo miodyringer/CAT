@@ -144,6 +144,11 @@ html, body {
     pointer-events: auto;
 }
 
+.figure.own-figure:has(.figure-step-controls) > *:not(.figure-step-controls){
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 body:not(.not-my-turn) .figure.own-figure {
     cursor: pointer;
 }

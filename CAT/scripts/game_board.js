@@ -127,7 +127,8 @@ export function renderFigures() {
 
             if (isClickable) {
                 figureElement.classList.add("own-figure");
-                figureElement.addEventListener('click', () => {
+                figureElement.addEventListener('click', (e) => {
+                    if(isInfernoActive) return
                     gameService.selectFigure(figure.uuid);
                     document.dispatchEvent(new Event('selectionChanged'));
                 });
@@ -288,6 +289,43 @@ cameraContainer.addEventListener('mousemove', (e) => {
     updateBoardTransform();
 });
 
+cameraContainer.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+        panState.isPanning = true;
+        panState.lastX = e.touches[0].clientX;
+        panState.lastY = e.touches[0].clientY;
+    }
+}, { passive: false });
+
+cameraContainer.addEventListener('touchmove', (e) => {
+    if (!panState.isPanning || e.touches.length === 0) return;
+
+    e.preventDefault();
+
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const dx = currentX - panState.lastX;
+    const dy = currentY - panState.lastY;
+
+    panState.lastX = currentX;
+    panState.lastY = currentY;
+
+    if (isPortrait) {
+        panX -= dy / scale;
+        panY += dx / scale;
+    } else {
+        panX += dx / scale;
+        panY += dy / scale;
+    }
+    updateBoardTransform();
+}, { passive: false });
+
+
 const stopPanning = () => { if (panState.isPanning) panState.isPanning = false; };
 window.addEventListener('mouseup', stopPanning);
 cameraContainer.addEventListener('mouseleave', stopPanning);
+cameraContainer.addEventListener('touchend', stopPanning);
+cameraContainer.addEventListener('touchcancel', stopPanning);
+
+document.addEventListener('touchmove', (e) => {e.preventDefault()}, {passive: false});
