@@ -16,11 +16,12 @@ from CAT.API.connection_manager import manager
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Erstellt die korrekten, absoluten Pfade für die Static- und Seiten-Verzeichnisse
+# Define paths for static files
 STYLESHEETS_DIR = os.path.join(BASE_DIR, "stylesheets")
 SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
 AUDIO_DIR = os.path.join(BASE_DIR, "audio")
 PAGES_DIR = os.path.join(BASE_DIR, "pages")
+ICON_DIR = os.path.join(BASE_DIR, "icon")
 
 
 @asynccontextmanager
@@ -43,9 +44,7 @@ async def run_game_timer_checks():
                 await manager.broadcast(json.dumps({"event": "update"}), game_id)
             if time.time() - game.last_activity_time > GAME_INACTIVITY_TIMEOUT:
                 print(f"Closing inactive game {game_id} due to inactivity.")
-                # Informiere alle verbundenen Spieler, dass das Spiel geschlossen wird
                 await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
-                # Entferne das Spiel aus dem Manager
                 del game_manager.games[game_id]
 
 
@@ -67,7 +66,7 @@ app.include_router(game.router)
 app.mount("/stylesheets", StaticFiles(directory=STYLESHEETS_DIR), name="stylesheets")
 app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 app.mount("/audio", StaticFiles(directory=AUDIO_DIR), name="audio")
-app.mount("/icon", StaticFiles(directory="CAT/icon"), name="icon")
+app.mount("/icon", StaticFiles(directory=ICON_DIR), name="icon")
 
 @app.get("/config")
 async def get_config():
@@ -75,15 +74,14 @@ async def get_config():
     base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
 
     ws_url = base_url.replace("http", "ws")
-
     return JSONResponse({
         "apiBaseUrl": base_url,
         "webSocketUrl": ws_url
     })
 
-@app.get("/favicon.ico")
+@app.get("/favicon.ico", response_class=FileResponse)
 async def get_favicon():
-    return FileResponse("CAT/icon/favicon.ico", media_type="image/x-icon")
+    return FileResponse(os.path.join(ICON_DIR, "favicon.ico"), media_type="image/x-icon")
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():
