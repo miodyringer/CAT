@@ -4,8 +4,6 @@ CAT is a strategic digital board game based on the classic German game "Dog". In
 
 The game is not just about moving forward; success depends on managing a hand of cards with unique abilities. Players can use special cards to swap places with opponents, burn enemy cats off the board, or even move backward to gain a tactical advantage. Planning your moves, blocking opponents, and knowing when to play the right card are key to victory.
 
-![Game Screenshot](<!-- Link to your game screenshot or GIF here, e.g., /docs/screenshot.png -->)
-
 ---
 
 ## ✨ Contributors
@@ -23,7 +21,7 @@ This project was brought to life by the collaborative efforts of:
 
 This project is licensed under the MIT License.
 
-Copyright (c) 2023 Alexia Adams, Vincent Brück, Finn Renzenbrink, Emilio Dyringer
+Copyright (c) 2025 Alexia Adams, Vincent Brück, Finn Renzenbrink, Emilio Dyringer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
