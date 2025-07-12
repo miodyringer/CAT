@@ -178,7 +178,7 @@ class Game:
             dist_to_finish = (finish_entry - old_pos + self.NUMBER_OF_FIELDS) % self.NUMBER_OF_FIELDS
             print(f"Distance to finish: {dist_to_finish}, Old position: {old_pos}, Value: {value}")
             if value > dist_to_finish + 1:
-                if self.field_occupation.get(player.startfield):
+                if self.field_occupation.get(player.startfield) and self.field_occupation[player.startfield].color == player.color:
                     raise ValueError(f"Cannot go in finish-zone when start field is blocked.")
                 steps_into_finish = value - dist_to_finish - 2  # -2 because you move over the start field and the first finishing field
                 if steps_into_finish > 3:
