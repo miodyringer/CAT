@@ -29,7 +29,7 @@ function renderLobbies(lobbiesToRender) {
         lobbyPlayers.textContent = `Players: ${game.number_of_players}/4`;
         lobbyPlayers.className = "lobby-players";
 
-        const button = document.createElement("button");
+        const button = document.createElement("a");
         button.textContent = "Join Lobby";
         button.className = "button green";
         button.onclick = () => joinLobby(game.uuid, game.name);

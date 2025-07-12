@@ -93,6 +93,16 @@ export function renderFigures() {
         }
     }
 
+    const previouslyHighlighted = document.querySelector('.tile.highlighted');
+    if (previouslyHighlighted) {
+        previouslyHighlighted.classList.remove('highlighted');
+    }
+
+    const previouslyTargetHighlighted = document.querySelector('.tile.target-highlighted');
+    if (previouslyTargetHighlighted) {
+        previouslyTargetHighlighted.classList.remove('target-highlighted');
+    }
+
     players.forEach(player => {
         player.figures.forEach((figure, index) => {
             const figureElement = document.createElement("div");
@@ -117,17 +127,27 @@ export function renderFigures() {
 
             if (isClickable) {
                 figureElement.classList.add("own-figure");
-                figureElement.addEventListener('click', () => {
+                figureElement.addEventListener('click', (e) => {
+                    if(isInfernoActive) return
                     gameService.selectFigure(figure.uuid);
                     document.dispatchEvent(new Event('selectionChanged'));
                 });
             }
-
             if (figure.uuid === gameService.getSelectedFigureId()) {
                 figureElement.classList.add("selected");
+                const figureGridArea = figureElement.style.gridArea;
+                const figureTile = document.querySelector(`.tile[style*="grid-area: ${figureGridArea}"]`);
+                if (figureTile) {
+                    figureTile.classList.add('highlighted');
+                }
             }
             if (figure.uuid === gameService.getSelectedTargetFigureId()) {
                 figureElement.classList.add("target-selection");
+                const targetGridArea = figureElement.style.gridArea;
+                const targetTile = document.querySelector(`.tile[style*="grid-area: ${targetGridArea}"]`);
+                if (targetTile) {
+                    targetTile.classList.add('target-highlighted');
+                }
             }
 
             if (isInfernoActive && isOwn && figure.position !== -1) {
@@ -269,6 +289,43 @@ cameraContainer.addEventListener('mousemove', (e) => {
     updateBoardTransform();
 });
 
+cameraContainer.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+        panState.isPanning = true;
+        panState.lastX = e.touches[0].clientX;
+        panState.lastY = e.touches[0].clientY;
+    }
+}, { passive: false });
+
+cameraContainer.addEventListener('touchmove', (e) => {
+    if (!panState.isPanning || e.touches.length === 0) return;
+
+    e.preventDefault();
+
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const dx = currentX - panState.lastX;
+    const dy = currentY - panState.lastY;
+
+    panState.lastX = currentX;
+    panState.lastY = currentY;
+
+    if (isPortrait) {
+        panX -= dy / scale;
+        panY += dx / scale;
+    } else {
+        panX += dx / scale;
+        panY += dy / scale;
+    }
+    updateBoardTransform();
+}, { passive: false });
+
+
 const stopPanning = () => { if (panState.isPanning) panState.isPanning = false; };
 window.addEventListener('mouseup', stopPanning);
 cameraContainer.addEventListener('mouseleave', stopPanning);
+cameraContainer.addEventListener('touchend', stopPanning);
+cameraContainer.addEventListener('touchcancel', stopPanning);
+
+document.addEventListener('touchmove', (e) => {e.preventDefault()}, {passive: false});
