@@ -49,23 +49,21 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
     player = game.get_player_by_uuid(request.player_uuid)
     if not player:
         raise HTTPException(status_code=404, detail="Player not found in this game")
+    if game.players[game.current_player_index] != player:
+        raise HTTPException(status_code=400, detail="It's not your turn.")
 
     try:
-        # Call the new, centralized method in the Game object
         game.execute_play_card(
             player=player,
             card_index=request.card_index,
             action_details=request.action_details
         )
-        game.check_and_skip_turn_if_no_moves()
 
-        updated_game_state = game.to_json()  # JSON für alle (ohne Perspektive)
         await manager.broadcast(json.dumps({"event": "update"}), game_id)
 
         return {"message": "Action successful."}
     except (ValueError, IndexError) as e:
         raise HTTPException(status_code=400, detail=str(e))
-
 
 @router.post("/{game_id}/start")
 async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manager)):

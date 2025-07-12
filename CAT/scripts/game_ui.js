@@ -3,6 +3,8 @@ import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
 
 let socket = null;
+let turnTimerInterval = null;
+const TURN_DURATION = 20;
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
@@ -309,6 +311,41 @@ function renderDiscardPile() {
     container.appendChild(cardElement);
 }
 
+function startTurnTimer() {
+    // Stoppe einen eventuell laufenden Timer, um Fehler zu vermeiden
+    stopTurnTimer();
+
+    let timeLeft = TURN_DURATION;
+    const timerDisplay = document.getElementById('turn-timer-display');
+
+    // Timer-Anzeige sofort initialisieren
+    timerDisplay.textContent = `Time: ${timeLeft}`;
+    timerDisplay.classList.remove('low-time');
+
+    turnTimerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time: ${timeLeft}`;
+
+        if (timeLeft <= 5) {
+            timerDisplay.classList.add('low-time');
+        }
+
+        // Wenn die Zeit abläuft, nur noch die Anzeige ändern
+        if (timeLeft <= 0) {
+            timerDisplay.textContent = "Time's Up!";
+            stopTurnTimer();
+        }
+    }, 1000);
+}
+
+function stopTurnTimer() {
+    const timerDisplay = document.getElementById('turn-timer-display');
+    timerDisplay.textContent = ''; // Leert die Anzeige, wenn man nicht dran ist
+    timerDisplay.classList.remove('low-time');
+    clearInterval(turnTimerInterval);
+    turnTimerInterval = null;
+}
+
 export function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
     document.getElementById('round-display').textContent = `Round: ${gameService.gameState.round_number}`;
@@ -324,8 +361,12 @@ export function updateUI() {
 
     if (gameService.isLocalPlayerTurn()) {
         document.body.classList.remove('not-my-turn');
+        if (!turnTimerInterval) {
+            startTurnTimer();
+        }
     } else {
         document.body.classList.add('not-my-turn');
+        stopTurnTimer();
     }
 
     if (!gameService.gameState.game_started && isHost) {
@@ -337,6 +378,7 @@ export function updateUI() {
 
 
 async function executePlay(extraDetails = {}) {
+    stopTurnTimer();
     const gameId = gameService.gameState.uuid;
     const playerId = gameService.localPlayerId;
     const cardIndex = gameService.getSelectedCardIndex();

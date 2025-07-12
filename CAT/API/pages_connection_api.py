@@ -1,11 +1,33 @@
+import asyncio
+import json
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from CAT.API.routers import lobby, game
 from fastapi.middleware.cors import CORSMiddleware
+from CAT.API.dependencies import get_game_manager
+from CAT.API.connection_manager import manager
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Application started... start Timer-Background-Task.")
+    task = asyncio.create_task(run_game_timer_checks())
+    yield
+    task.cancel()
+
+app = FastAPI(lifespan=lifespan)
+
+async def run_game_timer_checks():
+    game_manager = get_game_manager()
+    while True:
+        await asyncio.sleep(1)
+        for game_id, game in list(game_manager.games.items()):
+            if game._check_and_handle_timeout():
+                print(f"Broadcasting update for game {game_id} due to timeout.")
+                await manager.broadcast(json.dumps({"event": "update"}), game_id)
+
 
 origins = ["*"]
 
@@ -14,7 +36,7 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],  
+    allow_headers=["*"],
 )
 
 # Include the API routers

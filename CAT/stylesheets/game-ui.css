@@ -114,6 +114,12 @@
     border-right: var(--color-background);
 }
 
+#turn-timer-display.low-time {
+    color: var(--color-important);
+    font-weight: bold;
+    transform: scale(1.1);
+}
+
 .player-list {
     display: grid;
     gap: 1rem;

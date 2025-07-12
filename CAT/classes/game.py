@@ -1,4 +1,5 @@
 import uuid
+import time
 from CAT.classes.player import Player
 from CAT.classes.figure import Figure
 from CAT.classes.deck import Deck
@@ -34,6 +35,7 @@ class Game:
         self.round_number = 1
         self.game_started = False
         self.last_played_card = None
+        self.turn_start_time = None
 
     def start_game_and_deal_cards(self):
         """Starts the game and deals cards for the first time."""
@@ -47,7 +49,7 @@ class Game:
         print(f"Game '{self.name}' started. Dealt cards for round {self.round_number}.")
         self.current_player_index = 0
 
-        self.check_and_skip_turn_if_no_moves()
+        self._start_new_turn()
 
     def add_player(self, name: str):
         if self.number_of_players >= 4:
@@ -62,8 +64,17 @@ class Game:
         """
         Executes the entire process of a player playing a card.
         """
+        if self._check_and_handle_timeout():
+            raise ValueError("Your time is up! The turn was passed automatically.")
+
+        if self.players[self.current_player_index] != player:
+            raise ValueError("It's not your turn.")
+
         if card_index >= len(player.cards):
             raise IndexError("Card index is out of bounds.")
+
+        if self.game_over:
+            raise ValueError("The game is already over. No more actions can be performed.")
 
         card_to_play = player.cards[card_index]
         card_to_play.play_card(game_object=self, player=player, **action_details)
@@ -81,7 +92,7 @@ class Game:
             self.start_new_round()
         else:
             self.current_player_index = (self.current_player_index + 1) % self.number_of_players
-            self.check_and_skip_turn_if_no_moves()
+            self._start_new_turn()
 
     def is_round_over(self) -> bool:
         """Checks if all players have played all their cards."""
@@ -99,7 +110,25 @@ class Game:
         self.deck.deal_cards(self.players, self.round_number)
 
         # Prüfe sofort, ob der neue Startspieler ziehen kann
+        self._start_new_turn()
+
+    def _start_new_turn(self):
+        """Resets the turn timer and checks if the new player can move."""
+        print(f"Starting turn for player {self.players[self.current_player_index].name}")
+        self.turn_start_time = time.time()
         self.check_and_skip_turn_if_no_moves()
+
+    def _check_and_handle_timeout(self) -> bool:
+        """
+        If the current player's time is up, pass their turn and return True.
+        Otherwise, return False.
+        """
+        if self.game_started and self.turn_start_time and (time.time() - self.turn_start_time) > 20:
+            print(f"Server detected timeout for player {self.players[self.current_player_index].name}.")
+            self.pass_turn(self.players[self.current_player_index])
+            self._start_new_turn()
+            return True
+        return False
 
     def _calculate_new_position(self, figure: Figure, value: int) -> int:
         player = self.get_spieler_von_figur(figure)
