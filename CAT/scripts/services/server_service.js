@@ -21,8 +21,10 @@ export async function getConfig() {
 
 export default async function sendRequest(path, method = "GET", data = null) {
     const { apiBaseUrl } = await getConfig();
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    const url = `${apiBaseUrl}${cleanPath}`;
+    const cleanBaseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl.slice(0, -1) : apiBaseUrl;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const url = `${cleanBaseUrl}${cleanPath}`;
+    console.log(`Send Request to: ${url}`);
 
     const options = {
         method: method,
