@@ -31,6 +31,16 @@
         transform: translateX(0%);
     }
 
+    .panel-container .left {
+        justify-content: flex-start;
+    }
+
+    .left .player-list {
+        scale: 0.66;
+        grid-template-rows: repeat(4, 4rem);
+        row-gap: 0.5rem;
+    }
+
     .right .card-hand-container {
         grid-template-columns: repeat(3, 5rem);
         grid-template-rows: repeat(2, 3.75rem);
@@ -45,11 +55,6 @@
     .inferno-controls-container > button {
         scale: 0.66;
     }
-
-    .left > * {
-        scale: 0.66;
-    }
-
 
 }
 
