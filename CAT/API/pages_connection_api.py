@@ -1,5 +1,6 @@
 import asyncio
 import json
+import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -21,12 +22,19 @@ app = FastAPI(lifespan=lifespan)
 
 async def run_game_timer_checks():
     game_manager = get_game_manager()
+    GAME_INACTIVITY_TIMEOUT = 60 * 3  # 3 minutes inactivity timeout
     while True:
         await asyncio.sleep(1)
         for game_id, game in list(game_manager.games.items()):
             if game._check_and_handle_timeout():
                 print(f"Broadcasting update for game {game_id} due to timeout.")
                 await manager.broadcast(json.dumps({"event": "update"}), game_id)
+            if time.time() - game.last_activity_time > GAME_INACTIVITY_TIMEOUT:
+                print(f"Closing inactive game {game_id} due to inactivity.")
+                # Informiere alle verbundenen Spieler, dass das Spiel geschlossen wird
+                await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
+                # Entferne das Spiel aus dem Manager
+                del game_manager.games[game_id]
 
 
 origins = ["*"]

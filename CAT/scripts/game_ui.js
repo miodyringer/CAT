@@ -488,11 +488,20 @@ async function initializeGame() {
         socket.onmessage = (event) => {
             const message = JSON.parse(event.data);
 
-            // Prüfe, ob es eine Update-Nachricht ist
-            if (message.event === 'update') {
-                console.log("Update-Nudge from server received. Refetching state.");
-                // Rufe eine Funktion auf, die den personalisierten Zustand neu lädt
-                fetchAndUpdateState();
+            switch(message.event) {
+                case 'update':
+                    console.log("Update-Nudge from server received. Refetching state.");
+                    fetchAndUpdateState();
+                    break;
+
+                case 'game_closed':
+                    console.log("Game closed by server. Reason:", message.reason);
+                    alert(`The game was closed tue to ${message.reason}.`);
+                    window.location.href = '/';
+                    break
+
+                default:
+                    console.warn("Unknown event type received from server:", message.event);
             }
         };
 

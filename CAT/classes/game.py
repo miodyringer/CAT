@@ -36,9 +36,11 @@ class Game:
         self.game_started = False
         self.last_played_card = None
         self.turn_start_time = None
+        self.last_activity_time = time.time()
 
     def start_game_and_deal_cards(self):
         """Starts the game and deals cards for the first time."""
+        self._update_last_activity()
         if self.game_started:
             raise ValueError("The game has already started.")
         if self.number_of_players < 2:
@@ -52,6 +54,7 @@ class Game:
         self._start_new_turn()
 
     def add_player(self, name: str):
+        self._update_last_activity()
         if self.number_of_players >= 4:
             raise ValueError("Cannot add more than 4 players to the game.")
         new_player = Player(name, self.number_of_players)
@@ -64,6 +67,7 @@ class Game:
         """
         Executes the entire process of a player playing a card.
         """
+        self._update_last_activity()
         if self._check_and_handle_timeout():
             raise ValueError("Your time is up! The turn was passed automatically.")
 
@@ -129,6 +133,10 @@ class Game:
             self._start_new_turn()
             return True
         return False
+
+    def _update_last_activity(self):
+        """Updates the timestamp of the last activity."""
+        self.last_activity_time = time.time()
 
     def _calculate_new_position(self, figure: Figure, value: int) -> int:
         player = self.get_spieler_von_figur(figure)
