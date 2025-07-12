@@ -1,7 +1,9 @@
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from CAT.API.schemas import CreateLobbyRequest, PlayerInput
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
+from CAT.API.connection_manager import manager
 
 router = APIRouter(
     prefix="/lobby",
@@ -27,7 +29,7 @@ def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depend
 
 # Diese Funktion wird jetzt auch korrekt geladen, da PlayerInput bekannt ist
 @router.post("/{game_id}/join")
-def join_lobby(game_id: str, player_input: PlayerInput, game_manager: GameManager = Depends(get_game_manager)):
+async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: GameManager = Depends(get_game_manager)):
     """
     Adds a new player to an existing game lobby.
     """
@@ -37,6 +39,9 @@ def join_lobby(game_id: str, player_input: PlayerInput, game_manager: GameManage
 
     # Füge den Spieler hinzu und erhalte das Objekt zurück
     new_player = game.add_player(player_input.player_name)
+    if not new_player:
+        raise HTTPException(status_code=400, detail="Failed to add player to the game")
+    await manager.broadcast(json.dumps({"event": "update"}), game_id)
     return {
         "message": f"Player '{new_player.name}' joined lobby '{game.name}'",
         "player_id": new_player.uuid  # Wichtig: Die ID des neuen Spielers zurückgeben
