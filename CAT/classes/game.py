@@ -6,11 +6,11 @@ from CAT.classes.player import Player
 from CAT.classes.figure import Figure
 from CAT.classes.deck import Deck
 from CAT.classes.cards import *
+from CAT.config import NUMBER_OF_FIELDS, MAX_PLAYERS, MIN_PLAYERS_TO_START, TURN_DURATION, FIGURES_PER_PLAYER
 
 
 class Game:
-    # don't change these values, they are used in the frontend
-    NUMBER_OF_FIELDS = 56
+    NUMBER_OF_FIELDS = NUMBER_OF_FIELDS
     COLOR_PLAYER_MAPPING = {
         "green": 0,
         "pink": 1,
@@ -23,9 +23,7 @@ class Game:
         2: "orange",
         3: "blue"
     }
-
-    # changeable values
-    TURN_DURATION = 20
+    TURN_DURATION = TURN_DURATION
 
     def __init__(self, name, list_of_players: list[Player]):
         self.uuid = str(uuid.uuid4())
@@ -49,8 +47,8 @@ class Game:
         self._update_last_activity()
         if self.game_started:
             raise ValueError("The game has already started.")
-        if self.number_of_players < 2:
-            raise ValueError("At least two players are required to start the game.")
+        if self.number_of_players < MIN_PLAYERS_TO_START:
+            raise ValueError(f"At least {MIN_PLAYERS_TO_START} players are required to start the game.")
 
         self.game_started = True
         self.deck.deal_cards(self.players, self.round_number)
@@ -61,8 +59,8 @@ class Game:
 
     def add_player(self, name: str):
         self._update_last_activity()
-        if self.number_of_players >= 4:
-            raise ValueError("Cannot add more than 4 players to the game.")
+        if self.number_of_players >= MAX_PLAYERS:
+            raise ValueError(f"Cannot add more than {MAX_PLAYERS} players to the game.")
         new_player = Player(name, self.number_of_players)
         self.players.append(new_player)
         self.number_of_players += 1
@@ -490,7 +488,7 @@ class Game:
         """Checks if any player has all their figures in the finishing zone."""
         for player in self.players:
             figures_in_finish = sum(1 for f in player.figures if f.position >= 100)
-            if figures_in_finish == 4:
+            if figures_in_finish == FIGURES_PER_PLAYER:
                 self.game_over = True
                 return True
         return False

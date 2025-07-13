@@ -1,18 +1,19 @@
 import uuid
 from .cards import *
 from .figure import Figure
+from CAT.config import FIGURES_PER_PLAYER
 
 class Player:
 
-    def __init__(self, name: str, number, color: str = None):
+    def __init__(self, name: str, number):
         self.uuid = str(uuid.uuid4())
         self.name: str = name
         self.number: int = number
         self.color = "green" if number == 0 else "pink" if number == 1 else "orange" if number == 2 else "blue"
         self.cards: list[Card] = []
-        self.figures: list[Figure] = [Figure(self.color) for _ in range(4)]  # Each player starts with 4 figures
-        self.startfield = (number * 14) % 56 # Startfield is determined by the player number
-        self.finishing_field = (self.startfield - 1) % 56 # Finishing field is the last field before the player's start field
+        self.figures: list[Figure] = [Figure(self.color) for _ in range(FIGURES_PER_PLAYER)]
+        self.startfield = (number * 14) % 56
+        self.finishing_field = (self.startfield - 1) % 56
 
 
 

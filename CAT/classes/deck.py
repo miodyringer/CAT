@@ -11,6 +11,7 @@ from .cards import (
     JokerCard
 )
 from .player import Player
+from CAT.config import DECK_COMPOSITION, MAX_CARDS_DEALT, CARD_DEAL_CYCLE_LENGTH
 
 
 class Deck:
@@ -35,17 +36,17 @@ class Deck:
 
         # 1. Standard numeric cards (8 of each)
         for value in [2, 3, 5, 6, 8, 9, 10, 12]:
-            self.cards.extend([StandardCard(value)] * 8)
+            self.cards.extend([StandardCard(value)] * DECK_COMPOSITION["standard_cards_each"])
 
         # 2. Special cards
         # FlexCard (4 +/-): 8 cards
-        self.cards.extend([FlexCard()] * 8)
+        self.cards.extend([FlexCard()] * DECK_COMPOSITION["flex_cards"])
 
         # InfernoCard (7): 8 cards
-        self.cards.extend([InfernoCard()] * 8)
+        self.cards.extend([InfernoCard()] * DECK_COMPOSITION["inferno_cards"])
 
         # SwapCard: 8 cards
-        self.cards.extend([SwapCard()] * 8)
+        self.cards.extend([SwapCard()] * DECK_COMPOSITION["swap_cards"])
 
         # "13/Start" Card: 8 cards
         self.cards.extend([
@@ -54,7 +55,7 @@ class Deck:
                                   move_values=[13],
                                   description="Move a cat from the start area or move 13 fields forward."
                               )
-                          ] * 8)
+                          ] * DECK_COMPOSITION["start_13_cards"])
 
         # "1/11/Start" Card: 8 cards
         self.cards.extend([
@@ -63,10 +64,10 @@ class Deck:
                                   move_values=[1, 11],
                                   description="Move a cat from the start area or move 1 or 11 fields forward."
                               )
-                          ] * 8)
+                          ] * DECK_COMPOSITION["start_1_11_cards"])
 
         # JokerCard: 6 cards
-        self.cards.extend([JokerCard()] * 6)
+        self.cards.extend([JokerCard()] * DECK_COMPOSITION["joker_cards"])
 
         print(f"Deck created with {len(self.cards)} cards.")
 
@@ -89,7 +90,7 @@ class Deck:
         The card count cycles from 6 down to 2.
         """
         # The number of cards decreases each round in a 5-round cycle (6, 5, 4, 3, 2)
-        cards_to_deal = 6 - ((round_number - 1) % 5)
+        cards_to_deal = MAX_CARDS_DEALT - ((round_number - 1) % CARD_DEAL_CYCLE_LENGTH)
 
         print(f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.")
 

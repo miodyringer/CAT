@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from CAT.API.routers import lobby, game
 from CAT.API.dependencies import get_game_manager
 from CAT.API.connection_manager import manager
+from CAT.config import GAME_INACTIVITY_TIMEOUT
 
 
 
@@ -37,7 +38,7 @@ app = FastAPI(lifespan=lifespan)
 
 async def run_game_timer_checks():
     game_manager = get_game_manager()
-    GAME_INACTIVITY_TIMEOUT = 60 * 3  # 3 minutes inactivity timeout
+
     while True:
         await asyncio.sleep(1)
         for game_id, game in list(game_manager.games.items()):
