@@ -142,26 +142,25 @@ class Game:
         player = self.get_spieler_von_figur(figure)
         old_pos = figure.get_position()
 
-        # Erstelle den Pfad, den die Figur zurücklegt
+        # path the figure will take
         path = []
         current_pos_on_path = old_pos
-        for _ in range(value):
-            current_pos_on_path = (current_pos_on_path + 1) % self.NUMBER_OF_FIELDS
+        # abs so -4 works as well (only then the path is backwards)
+        for _ in range(abs(value)):
+            current_pos_on_path = (current_pos_on_path + int(value/abs(value))) % self.NUMBER_OF_FIELDS
             path.append(current_pos_on_path)
 
-        # Prüfe den Pfad auf Blockaden durch sichere Startfelder
-        # Das letzte Feld (das Zielfeld) wird nicht geprüft, da man darauf landen darf.
+
+        # checks the path for blockades
         for tile_pos in path[:-1]:
             if tile_pos in self.field_occupation:
                 occupying_figure = self.field_occupation[tile_pos]
                 owner = self.get_spieler_von_figur(occupying_figure)
-                # Wenn das besetzte Feld das Startfeld des Besitzers ist, ist es eine Blockade
                 if tile_pos == owner.startfield:
                     raise ValueError(f"Path is blocked by a safe figure on tile {tile_pos}.")
 
-        # Die weitere Logik für den Zieleinlauf bleibt erhalten
+        # finish zone handling
         if old_pos >= 100:
-            # ... (Logik für Züge innerhalb der Zielzone)
             current_finish_pos = old_pos % 100
             target_finish_pos = current_finish_pos + value
             if target_finish_pos < 0:
