@@ -259,7 +259,10 @@ class Game:
                             move_values.extend([4, -4])
 
                         for value in move_values:
-                            self._calculate_new_position(figure, value)
+                            try:
+                                self._calculate_new_position(figure, value)
+                            except ValueError:
+                                continue
                             return True  # no error -> valid move
 
 
