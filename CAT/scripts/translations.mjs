@@ -111,7 +111,6 @@ export const translations = {
         "game_closed_alert": "The game was closed due to",
         "start_game_alert": "Could not start the game.",
         "load_game_alert": "Could not load the game."
-
     },
     "de": {
         "about_title": "Cat - Über",
