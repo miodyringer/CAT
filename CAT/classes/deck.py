@@ -108,6 +108,9 @@ class Deck:
         self.discard_pile.append(card)
 
     def to_json(self):
+        """
+        Converts the deck and discard pile to a JSON-compatible format.
+        """
         return {
             "cards": [card.to_json() for card in self.cards],
             "discard_pile": [card.to_json() for card in self.discard_pile]
