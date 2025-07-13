@@ -157,21 +157,42 @@ function renderPlayers() {
     const playerListContainer = document.querySelector(".player-list");
     playerListContainer.innerHTML = '';
 
-    // Hole den Index des aktuellen Spielers vom Service
     const currentPlayerIndex = gameService.gameState.current_player_index;
+    const localPlayerId = gameService.localPlayerId;
 
     players.forEach(player => {
+        if (!player.is_active) return;
+
         const playerEntry = document.createElement("div");
         playerEntry.className = `player-entry ${player.color}`;
 
-        // NEU: Prüfe, ob die Nummer des Spielers mit dem aktuellen Index übereinstimmt
         if (player.number === currentPlayerIndex) {
             playerEntry.classList.add('active-player');
         }
 
+
+        const nameAndKickContainer = document.createElement("div");
+        nameAndKickContainer.style.display = 'flex';
+        nameAndKickContainer.style.alignItems = 'center';
+        nameAndKickContainer.className = "player-name-container";
+
         const playerName = document.createElement("span");
         playerName.className = "player-name";
         playerName.innerText = player.name;
+        nameAndKickContainer.appendChild(playerName);
+
+        if (player.uuid !== localPlayerId) {
+            const kickButton = document.createElement('button');
+            kickButton.className = 'votekick-btn';
+            kickButton.textContent = 'Kick';
+            kickButton.title = `Vote to kick ${player.name}`;
+            kickButton.onclick = () => {
+                if (confirm(`Bist du sicher, dass du dafür stimmen möchtest, ${player.name} zu kicken?`)) {
+                    executeVoteKick(player.number);
+                }
+            };
+            nameAndKickContainer.appendChild(kickButton);
+        }
 
         const cardInfo = document.createElement("div");
         cardInfo.className = "player-card-info";
@@ -190,7 +211,7 @@ function renderPlayers() {
 
         cardInfo.appendChild(infoLabel);
         cardInfo.appendChild(cardCount);
-        playerEntry.appendChild(playerName);
+        playerEntry.appendChild(nameAndKickContainer);
         playerEntry.appendChild(cardInfo);
         playerListContainer.appendChild(playerEntry);
     });
@@ -391,7 +412,6 @@ export function updateUI() {
     }
 }
 
-
 async function executePlay(extraDetails = {}) {
     stopTurnTimer();
     const gameId = gameService.gameState.uuid;
@@ -468,6 +488,26 @@ async function executePlay(extraDetails = {}) {
     }
 }
 
+async function executeVoteKick(playerToKickNumber) {
+    const gameId = gameService.gameState.uuid;
+    const voterId = gameService.localPlayerId;
+
+    if (!gameId || !voterId) {
+        console.error("Game or voter ID is missing.");
+        return;
+    }
+
+    try {
+        await sendRequest(`/game/${gameId}/vote_kick`, 'POST', {
+            voter_uuid: voterId,
+            player_to_kick_number: playerToKickNumber
+        });
+        console.log(`Vote cast to kick player ${playerToKickNumber}`);
+    } catch (error) {
+        console.error("Error voting to kick:", error);
+        alert(`Could not vote: ${error.message}`);
+    }
+}
 
 async function initializeGame() {
     const params = new URLSearchParams(window.location.search);

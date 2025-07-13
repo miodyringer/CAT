@@ -1,7 +1,7 @@
 import uuid
 from .cards import *
 from .figure import Figure
-from CAT.config import FIGURES_PER_PLAYER
+from CAT.config import FIGURES_PER_PLAYER, NUMBER_OF_FIELDS
 
 class Player:
 
@@ -12,8 +12,9 @@ class Player:
         self.color = "green" if number == 0 else "pink" if number == 1 else "orange" if number == 2 else "blue"
         self.cards: list[Card] = []
         self.figures: list[Figure] = [Figure(self.color) for _ in range(FIGURES_PER_PLAYER)]
-        self.startfield = (number * 14) % 56
-        self.finishing_field = (self.startfield - 1) % 56
+        self.startfield = (number * 14) % NUMBER_OF_FIELDS
+        self.finishing_field = (self.startfield - 1) % NUMBER_OF_FIELDS
+        self.is_active = True
 
 
 
@@ -24,11 +25,9 @@ class Player:
         Convert the player object to a JSON serializable dictionary,
         filtering sensitive information based on the requesting player.
         """
-        # Wenn es der eigene Spieler ist, sende alle Kartendetails
         if self.uuid == perspective_player_id:
             cards_data = [card.to_json() for card in self.cards]
             player_uuid = self.uuid
-        # Ansonsten sende nur die Anzahl der Karten
         else:
             cards_data = len(self.cards)
             player_uuid = None
@@ -38,10 +37,9 @@ class Player:
             "name": self.name,
             "number": self.number,
             "color": self.color,
-            "cards": cards_data,  # Enthält entweder die Karten oder nur die Anzahl
+            "cards": cards_data,
             "figures": [figure.to_json() for figure in self.figures],
-            #"startfield": self.startfield,
-            #"finishing_field": self.finishing_field
+            "is_active": self.is_active
         }
 
 
