@@ -110,7 +110,9 @@ export const translations = {
         "load_data_alert": "Could not load game data from server.",
         "game_closed_alert": "The game was closed due to",
         "start_game_alert": "Could not start the game.",
-        "load_game_alert": "Could not load the game."
+        "load_game_alert": "Could not load the game.",
+        "game_over_alert": "The game is over! The winner is {winner}. 🎊Congratulations!🎊",
+        "player_kick_confirm": "Are you sure you want to vote to kick {player}?"
     },
     "de": {
         "about_title": "Cat - Über",
@@ -223,6 +225,8 @@ export const translations = {
         "load_data_alert": "Spieldaten konnten nicht geladen werden.",
         "game_closed_alert": "Spiel wurde geschlossen.",
         "start_game_alert": "Spiel konnte nicht gestartet werden.",
-        "load_game_alert": "Spiel konnte nicht geladen werden."
+        "load_game_alert": "Spiel konnte nicht geladen werden.",
+        "game_over_alert": "Das Spiel ist vorbei! Der Gewinner ist {winner}. 🎊Herzlichen Glückwunsch!🎊",
+        "player_kick_confirm": "Bist du sicher, dass du dafür stimmen möchtest, {player} zu kicken?"
     }
 };

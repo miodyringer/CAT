@@ -2,7 +2,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
 from CAT.manager.game_manager import GameManager
 from CAT.API.dependencies import get_game_manager
-from CAT.API.schemas import PlayCardRequest
+from CAT.API.schemas import PlayCardRequest, VoteKickRequest
 from CAT.classes.cards import *
 from CAT.API.connection_manager import manager
 
@@ -53,7 +53,7 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
         raise HTTPException(status_code=400, detail="It's not your turn.")
 
     try:
-        game.execute_play_card(
+        await game.execute_play_card(
             player=player,
             card_index=request.card_index,
             action_details=request.action_details
@@ -82,6 +82,27 @@ async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_
         game.start_game_and_deal_cards()
         await manager.broadcast(json.dumps({"event": "update"}), game_id)
         return {"message": "Game started and cards dealt successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{game_id}/vote_kick")
+async def vote_kick_player(game_id: str, request: VoteKickRequest, game_manager: GameManager = Depends(get_game_manager)):
+    game = game_manager.get_game(game_id)
+    voter = game.get_player_by_uuid(request.voter_uuid)
+    player_to_kick = game.get_player_by_number(request.player_to_kick_number)
+
+    if not game or not voter or not player_to_kick:
+        raise HTTPException(status_code=404, detail="Game or player not found.")
+
+    try:
+        player_was_kicked = game.register_kick_vote(voter, player_to_kick.uuid)
+        if player_was_kicked:
+            await manager.broadcast(json.dumps({"event": "player_kicked", "kicked_player_uuid": player_to_kick.uuid}),
+                                    game_id)
+            await manager.broadcast(json.dumps({"event": "update"}), game_id)
+
+        return {"message": "Vote registered."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
