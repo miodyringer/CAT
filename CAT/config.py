@@ -5,9 +5,9 @@
 # ==================================
 # GENERELL GAME SETTINGS
 # ==================================
-NUMBER_OF_FIELDS = 56
-FIGURES_PER_PLAYER = 4
-MAX_PLAYERS = 4
+NUMBER_OF_FIELDS = 56 # shouldn't be changed
+FIGURES_PER_PLAYER = 4 # max 4 figures per player are allowed
+MAX_PLAYERS = 4 # max 4 players are allowed
 MIN_PLAYERS_TO_START = 2
 
 # ==================================
