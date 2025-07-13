@@ -513,7 +513,7 @@ async function initializeGame() {
                 case 'game_closed':
                     console.log("Game closed by server. Reason:", message.reason);
                     alert(`${translate(getCookie("language"), "game_closed_alert")} ${message.reason}.`);
-                    window.location.href = '/';
+                    setTimeout(() => {window.location.href = '/'}, 10000);
                     break
 
                 default:
