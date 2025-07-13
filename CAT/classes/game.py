@@ -67,7 +67,7 @@ class Game:
 
         return new_player
 
-    def execute_play_card(self, player: Player, card_index: int, action_details: dict):
+    async def execute_play_card(self, player: Player, card_index: int, action_details: dict):
         """
         Executes the entire process of a player playing a card.
         """
@@ -92,7 +92,7 @@ class Game:
         self.deck.add_to_discard(played_card)
         self.last_played_card = played_card
 
-        if self.check_for_winner():
+        if await self.check_for_winner():
             print(f"Game Over! Player {player.name} has won!")
             return
 
@@ -484,12 +484,18 @@ class Game:
             self.field_occupation[new_position] = figure
         print(f"Moved figure {figure.get_uuid()} from {old_position} to {new_position}.")
 
-    def check_for_winner(self) -> bool:
+    async def check_for_winner(self) -> bool:
         """Checks if any player has all their figures in the finishing zone."""
         for player in self.players:
             figures_in_finish = sum(1 for f in player.figures if f.position >= 100)
             if figures_in_finish == FIGURES_PER_PLAYER:
                 self.game_over = True
+
+                winner_name = player.name
+                payload = {"event": "game_over", "winner": winner_name}
+                print(f"Game Over! Winner is {winner_name}. Broadcasting event.")
+                await manager.broadcast(json.dumps(payload), self.uuid)
+
                 return True
         return False
 
