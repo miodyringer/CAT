@@ -1,3 +1,5 @@
+import {playSound} from "../audio_manager.mjs";
+
 class GameService {
     constructor() {
         this.gameState = null;
@@ -18,6 +20,7 @@ class GameService {
 
     selectFigure(figureId) {
         let selectedCard = gameService.getHand()[this.selectedCardIndex];
+        playSound("/audio/figure-select.mp3");
         // Prüfen, ob ein Joker eine SwapCard imitiert
         if (selectedCard && selectedCard.type === 'JokerCard') {
             const jokerImitation = this.getJokerImitation();
@@ -87,7 +90,12 @@ class GameService {
             this.selectedCardIndex = null;
         } else {
             this.selectedCardIndex = index;
+            if(this.getHand()[index].type === "InfernoCard" || this.getHand()[index].type === "JokerCard"){
+                this.selectedFigureId = null;
+                this.selectedTargetFigureId = null;
+            }
         }
+        playSound("/audio/card-select.mp3");
         console.log(`Selected card index: ${this.selectedCardIndex}`);
     }
 

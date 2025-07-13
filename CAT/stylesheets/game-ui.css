@@ -305,6 +305,7 @@ body.not-my-turn .card-hand-container .card:hover {
     justify-content: center;
     flex-direction: column;
     gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .right button {
