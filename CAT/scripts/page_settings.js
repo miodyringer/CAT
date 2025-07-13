@@ -29,7 +29,6 @@ function customAlert() {
         alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button orange' id='close-alert'>Close</button></div>`;
         alert.querySelector("#close-alert").onclick = () => {
             document.querySelector(".alert-container").remove();
-            alertPreventTransition = false;
         }
         document.body.append(alert);
     }
