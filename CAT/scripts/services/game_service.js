@@ -90,6 +90,10 @@ class GameService {
             this.selectedCardIndex = null;
         } else {
             this.selectedCardIndex = index;
+            if(this.getHand()[index].type === "InfernoCard" || this.getHand()[index].type === "JokerCard"){
+                this.selectedFigureId = null;
+                this.selectedTargetFigureId = null;
+            }
         }
         playSound("/audio/card-select.mp3");
         console.log(`Selected card index: ${this.selectedCardIndex}`);
