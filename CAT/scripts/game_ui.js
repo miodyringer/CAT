@@ -1,6 +1,8 @@
 import sendRequest from './services/server_service.js';
 import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
+import {translate} from "./translator.mjs";
+import getCookie from "./functions.mjs";
 
 let socket = null;
 let turnTimerInterval = null;
@@ -38,7 +40,7 @@ function renderPlayButton() {
         if (selectedFigure.position === -1) {
             const startButton = document.createElement('button');
             startButton.className = 'button green';
-            startButton.textContent = 'Start figure';
+            startButton.textContent = translate(getCookie("language"), "start_figure");
             startButton.addEventListener('click', () => executePlay({ action: 'start' }));
             container.appendChild(startButton);
             return;
@@ -48,8 +50,8 @@ function renderPlayButton() {
             selectedCard.move_values.forEach(value => {
                 const moveButton = document.createElement('button');
                 moveButton.className = 'button blue';
-                moveButton.textContent = `${value} tile`;
-                if(value !== 1){moveButton.textContent += 's'}
+                moveButton.textContent = `${value} ` + translate(getCookie("language"), "tile_button");
+                if(value !== 1){moveButton.textContent = `${value} ` + translate(getCookie("language"), "tile_button_plural")}
                 moveButton.addEventListener('click', () => executePlay({ action: 'move', value: value }));
                 container.appendChild(moveButton);
             });
@@ -60,12 +62,12 @@ function renderPlayButton() {
     if (selectedCard.type === 'FlexCard' && selectedFigure.position !== -1) {
         const forwardButton = document.createElement('button');
         forwardButton.className = 'button green';
-        forwardButton.textContent = 'Forth';
+        forwardButton.textContent = translate(getCookie("language"), "forth_button");
         forwardButton.addEventListener('click', () => executePlay({ direction: 'forward' }));
 
         const backwardButton = document.createElement('button');
         backwardButton.className = 'button pink';
-        backwardButton.textContent = 'Back';
+        backwardButton.textContent = translate(getCookie("language"), "back_button");
         backwardButton.addEventListener('click', () => executePlay({ direction: 'backward' }));
 
         container.appendChild(forwardButton);
@@ -78,7 +80,7 @@ function renderPlayButton() {
         if (figureId && targetFigureId) {
             const swapButton = document.createElement('button');
             swapButton.className = 'button purple';
-            swapButton.textContent = 'Swap';
+            swapButton.textContent = translate(getCookie("language"), "swap_button");
             swapButton.addEventListener('click', () => executePlay({
                 own_figure_uuid: figureId,
                 other_figure_uuid: targetFigureId
@@ -90,7 +92,7 @@ function renderPlayButton() {
 
     const playButton = document.createElement('button');
     playButton.className = 'button orange';
-    playButton.textContent = 'Play Card';
+    playButton.textContent = translate(getCookie("language"), "play_card_button");
     playButton.addEventListener('click', () => executePlay());
 
     container.appendChild(playButton);
@@ -171,7 +173,7 @@ function renderPlayers() {
 
         const infoLabel = document.createElement("span");
         infoLabel.className = "card-info-label";
-        infoLabel.innerText = "Cards";
+        infoLabel.innerText = translate(getCookie("language"), "cards");
 
         const cardCount = document.createElement("span");
         cardCount.className = "card-count";
@@ -208,12 +210,12 @@ function renderInfernoControls() {
     if (isInfernoActive) {
         container.style.display = 'block';
         const pointsLeft = gameService.getInfernoPointsRemaining();
-        container.innerHTML = `<div class="inferno-points-display">${pointsLeft} tiles left</div>`;
+        container.innerHTML = `<div class="inferno-points-display">${pointsLeft} ${translate(getCookie("language"), "inferno_tiles_count")}</div>`;
 
         if (pointsLeft === 0) {
             const confirmButton = document.createElement('button');
             confirmButton.className = 'button red';
-            confirmButton.textContent = 'Play';
+            confirmButton.textContent = translate(getCookie("language"), "play_button");
             confirmButton.onclick = () => {
                 const moves = gameService.getInfernoMovePlan().map(move => ({
                     figure_uuid: move.figureId,
@@ -231,7 +233,7 @@ function renderInfernoControls() {
 async function openJokerModal() {
     const modalOverlay = document.getElementById('joker-modal-overlay');
     const grid = document.getElementById('joker-card-selection-grid');
-    grid.innerHTML = '<h4>Lade Karten...</h4>';
+    grid.innerHTML = `<h4>${translate(getCookie("language"), "loading_cards_text")}</h4>`;
 
     modalOverlay.style.display = 'flex';
 
@@ -272,7 +274,7 @@ async function openJokerModal() {
         });
 
     } catch (error) {
-        grid.innerHTML = '<h4>Fehler beim Laden der Karten.</h4>';
+        grid.innerHTML = `<h4>${translate(getCookie("language"), "load_cards_error")}</h4>`;
         console.error("Could not fetch card types:", error);
     }
 }
@@ -323,12 +325,12 @@ function startTurnTimer() {
     const timerDisplay = document.getElementById('turn-timer-display');
 
     // Timer-Anzeige sofort initialisieren
-    timerDisplay.textContent = `Time: ${timeLeft}`;
+    timerDisplay.textContent = translate(getCookie("language"), "timer_text") + `: ${timeLeft}`;
     timerDisplay.classList.remove('low-time');
 
     turnTimerInterval = setInterval(() => {
         timeLeft--;
-        timerDisplay.textContent = `Time: ${timeLeft}`;
+        timerDisplay.textContent = translate(getCookie("language"), "timer_text") + `: ${timeLeft}`;
 
         if (timeLeft <= 5) {
             timerDisplay.classList.add('low-time');
@@ -336,7 +338,7 @@ function startTurnTimer() {
 
         // Wenn die Zeit abläuft, nur noch die Anzeige ändern
         if (timeLeft <= 0) {
-            timerDisplay.textContent = "Time's Up!";
+            timerDisplay.textContent = translate(getCookie("language"), "times_up");
             stopTurnTimer();
         }
     }, 1000);
@@ -352,7 +354,7 @@ function stopTurnTimer() {
 
 export function updateUI() {
     document.querySelector('.lobby-name h2').textContent = gameService.gameState.name;
-    document.getElementById('round-display').textContent = `Round: ${gameService.gameState.round_number}`;
+    document.getElementById('round-display').textContent = translate(getCookie("language"), "round_text") + `: ${gameService.gameState.round_number}`;
     renderPlayers();
     renderHand();
     renderFigures();
@@ -399,7 +401,7 @@ async function executePlay(extraDetails = {}) {
     if (playedCard.type === 'JokerCard') {
         const jokerImitation = gameService.getJokerImitation();
         if (!jokerImitation) {
-             alert("You must select a card for the Joker to imitate!");
+             alert(translate(getCookie("language"), "joker_card_select_alert"));
              return;
         }
 
@@ -421,7 +423,7 @@ async function executePlay(extraDetails = {}) {
     } else {
         const figureId = gameService.getSelectedFigureId();
         if (!figureId) {
-            alert("Figure not selected!");
+            alert(translate(getCookie("language"), "figure_not_selected_alert"));
             return;
         }
         actionDetails.figure_uuid = figureId;
@@ -452,7 +454,7 @@ async function executePlay(extraDetails = {}) {
         renderPlayButton();
 
     } catch (error) {
-        console.error("Error playing card:", error);
+        console.error(translate(getCookie("language"), "error_play_card_alert") + ": ", error);
         alert(error.message);
     }
 }
@@ -464,7 +466,7 @@ async function initializeGame() {
     const localPlayerId = params.get('player_id');
 
     if (!gameId || !localPlayerId) {
-        alert('Error: Game or Player ID is missing from the URL!');
+        alert(translate(getCookie("language"), "game_url_alert"));
         window.location.href = '/';
         return;
     }
@@ -473,7 +475,7 @@ async function initializeGame() {
         const gameStateFromServer = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
 
         if (!gameStateFromServer) {
-            alert('Could not load game data from server.');
+            alert(translate(getCookie("language"), "load_data_alert"));
             return;
         }
 
@@ -500,7 +502,7 @@ async function initializeGame() {
 
                 case 'game_closed':
                     console.log("Game closed by server. Reason:", message.reason);
-                    alert(`The game was closed tue to ${message.reason}.`);
+                    alert(`${translate(getCookie("language"), "game_closed_alert")} ${message.reason}.`);
                     window.location.href = '/';
                     break
 
@@ -526,7 +528,7 @@ async function initializeGame() {
                     gameService.updateGameState(updatedState, localPlayerId);
                     updateUI();
                 } catch (error) {
-                    alert('Could not start the game.');
+                    alert(translate(getCookie("language"), "start_game_alert"));
                     console.error(error);
                 }
             });
@@ -542,7 +544,7 @@ async function initializeGame() {
 
     } catch (error) {
         console.error('Failed to get game state:', error);
-        alert('Could not load the game.');
+        alert(translate(getCookie("language"), "load_game_alert"));
     }
 }
 

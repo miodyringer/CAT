@@ -1,4 +1,6 @@
 import sendRequest from './services/server_service.js';
+import {translate} from "./translator.mjs";
+import getCookie from "./functions.mjs";
 
 // Eine globale Variable, um die ungefilterte Liste aller Lobbys zu speichern
 let allLobbies = {};
@@ -26,11 +28,11 @@ function renderLobbies(lobbiesToRender) {
         lobbyName.className = "lobby-name";
 
         const lobbyPlayers = document.createElement("p");
-        lobbyPlayers.textContent = `Players: ${game.number_of_players}/4`;
+        lobbyPlayers.textContent = `${translate(getCookie("language"), "players")}: ${game.number_of_players}/4`;
         lobbyPlayers.className = "lobby-players";
 
         const button = document.createElement("a");
-        button.textContent = "Join Lobby";
+        button.textContent = translate(getCookie("language"), "join_lobby_button");
         button.className = "button green";
         button.onclick = () => joinLobby(game.uuid, game.name);
 
