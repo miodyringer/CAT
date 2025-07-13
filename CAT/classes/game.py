@@ -110,10 +110,8 @@ class Game:
         print(f"\n--- Starting Round {self.round_number} in game {self.name} ---")
         print(f"New starting player is {self.players[self.current_player_index].name}")
 
-        # Teile neue Karten aus (die Logik für die Anzahl ist in deck.py)
         self.deck.deal_cards(self.players, self.round_number)
 
-        # Prüfe sofort, ob der neue Startspieler ziehen kann
         self._start_new_turn()
 
     def _start_new_turn(self):
@@ -279,7 +277,7 @@ class Game:
 
                             for opponent_figure in other_player.figures:
                                 if opponent_figure.position >= 0 and opponent_figure.position < 100 and opponent_figure.position != other_player.startfield:
-                                    return True  # Ein gültiges Tauschziel wurde gefunden!
+                                    return True
 
                         continue
 
@@ -296,8 +294,7 @@ class Game:
         discards their hand and moves to the next player recursively.
         Includes a safeguard against infinite recursion.
         """
-        # Sicherheitsnetz: Wenn so viele Spieler übersprungen wurden, wie es Spieler gibt,
-        # ist die Runde blockiert und eine neue muss gestartet werden.
+        # safetynet: so we don't end up in an infinite loop
         if recursion_count >= self.number_of_players:
             print("All players skipped in a row. Force-starting a new round.")
             self.start_new_round()
@@ -310,11 +307,9 @@ class Game:
             print(f"cards of player {current_player.name}: {current_player.cards}")
             self.pass_turn(current_player)
 
-            # Prüfen, ob durch das Passen die Runde regulär beendet wurde
             if self.is_round_over():
                 self.start_new_round()
             else:
-                # Rekursiver Aufruf mit erhöhtem Zähler
                 self.check_and_skip_turn_if_no_moves(recursion_count + 1)
 
     def pass_turn(self, player: Player):
@@ -322,20 +317,16 @@ class Game:
         Discards the player's entire hand and passes the turn to the next player.
         This is used when a player cannot make any legal move.
         """
-        # Überprüfe, ob der Spieler auch wirklich am Zug ist
         if self.players[self.current_player_index] != player:
             raise ValueError("It's not this player's turn.")
 
-        # Lege alle Karten des Spielers auf den Ablagestapel
         for card in player.cards:
             self.deck.add_to_discard(card)
 
-        # Leere die Hand des Spielers
         player.cards = []
 
         print(f"Player {player.name} cannot move and discards their hand.")
 
-        # Gib den Zug an den nächsten Spieler weiter
         self.current_player_index = (self.current_player_index + 1) % self.number_of_players
 
     def move_figure(self, figure: Figure, value: int):
@@ -374,20 +365,18 @@ class Game:
         pos1 = figure1.position
         pos2 = figure2.position
 
-        # Grundlegende Prüfung (nicht im Start/Ziel)
+        # check if both figures are on the board
         if pos1 < 0 or pos2 < 0 or pos1 >= 100 or pos2 >= 100:
             raise ValueError("Figures in the start or finish zone cannot be swapped.")
 
-        # Prüfen, ob eine der Figuren auf ihrem sicheren Startfeld steht
+
         owner1 = self.get_spieler_von_figur(figure1)
         if pos1 == owner1.startfield:
             raise ValueError(f"Cannot swap figure of {owner1.color} from its safe start tile.")
-
         owner2 = self.get_spieler_von_figur(figure2)
         if pos2 == owner2.startfield:
             raise ValueError(f"Cannot swap figure of {owner2.color} from its safe start tile.")
 
-        # Führe den Tausch durch
         figure1.position, figure2.position = pos2, pos1
         self.field_occupation[pos1], self.field_occupation[pos2] = figure2, figure1
         print(f"Figures {figure1.get_uuid()} and {figure2.get_uuid()} have swapped positions.")
@@ -465,23 +454,19 @@ class Game:
         if old_position >= 0:
             self.field_occupation.pop(old_position, None)
 
-        # Prüfe, ob das Zielfeld besetzt ist
         if new_position in self.field_occupation:
             kicked_figure = self.field_occupation[new_position]
             owner_of_kicked = self.get_spieler_von_figur(kicked_figure)
 
-            # Wenn das Zielfeld das sichere Startfeld der daraufstehenden Figur ist...
+            # figure on own start field cannot be kicked
             if new_position == owner_of_kicked.startfield:
-                # Setze die bewegte Figur auf ihre alte Position zurück und wirf einen Fehler
                 if old_position >= 0:
                     self.field_occupation[old_position] = figure
                 raise ValueError("Cannot land on a tile occupied by a safe figure.")
 
-            # Wenn es nicht sicher ist, wird die Figur normal geschlagen
             print(f"Figure {kicked_figure.get_uuid()} ({kicked_figure.get_color()}) was kicked!")
             kicked_figure.position = -1
 
-        # Setze die Figur auf die neue Position
         figure.position = new_position
         if new_position >= 0:
             self.field_occupation[new_position] = figure
@@ -490,7 +475,6 @@ class Game:
     def check_for_winner(self) -> bool:
         """Checks if any player has all their figures in the finishing zone."""
         for player in self.players:
-            # Zähle, wie viele Figuren des Spielers im Ziel sind (Position >= 100)
             figures_in_finish = sum(1 for f in player.figures if f.position >= 100)
             if figures_in_finish == 4:
                 self.game_over = True
