@@ -267,12 +267,22 @@ class Game:
 
 
                     # case 3: swap figure
-                    if isinstance(card, SwapCard) and figure.position >= 0 and figure.position < 100:
-                        for p in self.players:
-                            if p.uuid != player.uuid:
-                                for f in p.figures:
-                                    if f.uuid != figure.uuid and f.position >= 0 and f.position < 100 and f.position != p.startfield:
-                                        return True
+                    if isinstance(card, SwapCard):
+                        # 1. at least one own figure must be able to swap
+                        own_swappable_figures = [f for f in player.figures if f.position >= 0 and f.position < 100 and f.position != player.startfield]
+                        if not own_swappable_figures:
+                            continue  # No swappable figures available
+
+                        # 2. at least one opponent figure must be available
+                        for other_player in self.players:
+                            if other_player.uuid == player.uuid:
+                                continue
+
+                            for opponent_figure in other_player.figures:
+                                if opponent_figure.position >= 0 and opponent_figure.position < 100 and opponent_figure.position != other_player.startfield:
+                                    return True  # Ein gültiges Tauschziel wurde gefunden!
+
+                        continue
 
 
                 except ValueError:
