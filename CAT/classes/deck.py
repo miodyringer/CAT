@@ -96,6 +96,8 @@ class Deck:
 
         for i in range(cards_to_deal):
             for player in players:
+                if not player.is_active:
+                    continue
                 if not self.cards:
                     # Reshuffle if the deck runs out mid-deal
                     self.shuffle()
