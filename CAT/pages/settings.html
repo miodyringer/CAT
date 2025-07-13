@@ -3,65 +3,63 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat - Game Settings</title>
+    <title data-translate="settings_title">Cat - Game Settings</title>
     <link rel="stylesheet" href="../stylesheets/base.css">
     <link rel="stylesheet" href="../stylesheets/submenu.css">
     <link rel="stylesheet" href="../stylesheets/settings.css">
   </head>
   <body>
     <div class="submenu-container">
-      <h1><span class="icon">🛠️</span> Game Settings <span class="icon">🛠️</span></h1>
+      <h1 data-translate="settings_header">Game Settings</h1>
 
-      <h2><span class="icon">⚙️</span> General Settings</h2>
+      <h2 data-translate="general_settings">General Settings</h2>
       <div class="labeled-item">
-        <label for="language-select">Language:</label>
+        <label data-translate="language_label" for="language-select">Language:</label>
         <select id="language-select" name="language">
           <option value="en">English</option>
-          <option value="es">Español</option>
-          <option value="fr">Français</option>
           <option value="de">Deutsch</option>
         </select>
       </div>
       <div class="labeled-item">
-        <label>Theme:</label>
+        <label data-translate="theme_label">Theme:</label>
         <div class="radio-group" id="theme-select">
           <div class="wrap-item">
             <input type="radio" id="theme-light" name="theme" value="light">
-            <label for="theme-light">Light</label>
+            <label data-translate="light_theme" for="theme-light">Light</label>
           </div>
           <div class="wrap-item">
             <input type="radio" id="theme-dark" name="theme" value="dark">
-            <label for="theme-dark">Dark</label>
+            <label data-translate="dark_theme" for="theme-dark">Dark</label>
           </div>
           <div class="wrap-item">
             <input type="radio" id="theme-grayscale" name="theme" value="grayscale">
-            <label for="theme-grayscale">Gray</label>
+            <label data-translate="grayscale_theme" for="theme-grayscale">Gray</label>
           </div>
         </div>
       </div>
 
-      <h2><span class="icon">🔊</span> Audio Settings</h2>
+      <h2 data-translate="audio_settings">Audio Settings</h2>
       <div class="labeled-item">
-        <label for="master-volume">Master Volume:</label>
-        <input type="range" id="master-volume" name="master-volume" min="0" max="100" value="100">
+        <label data-translate="master_volume" for="master_volume">Master Volume:</label>
+        <input type="range" id="master_volume" name="master-volume" min="0" max="100" value="100">
         <span class="range-value">75%</span>
       </div>
       <div class="labeled-item">
-        <label for="music-volume">Music Volume:</label>
-        <input type="range" id="music-volume" name="music-volume" min="0" max="100" value="50">
+        <label data-translate="music_volume" for="music_volume">Music Volume:</label>
+        <input type="range" id="music_volume" name="music-volume" min="0" max="100" value="50">
         <span class="range-value">60%</span>
       </div>
       <div class="labeled-item">
-        <label for="sfx-volume">SFX Volume:</label>
-        <input type="range" id="sfx-volume" name="sfx-volume" min="0" max="100" value="50">
+        <label data-translate="sfx_volume" for="sfx_volume">SFX Volume:</label>
+        <input type="range" id="sfx_volume" name="sfx-volume" min="0" max="100" value="50">
         <span class="range-value">80%</span>
       </div>
       <div class="labeled-item">
         <input type="checkbox" id="mute-all" name="mute-all">
-        <label for="mute-all">Mute All Sounds</label>
+        <label data-translate="mute_all" for="mute-all">Mute All Sounds</label>
       </div>
 
-      <h2><span class="icon">👁️</span> Accessibility Settings</h2>
+      <h2 data-translate="accessibility_settings">Accessibility Settings</h2>
       <div class="color-section">
         <p id="blue-showcase">C</p>
         <p id="orange-showcase">A</p>
@@ -69,9 +67,9 @@
         <p id="pink-showcase">S</p>
       </div>
       <div class="labeled-item">
-        <label for="colorblind-mode">Colorblind Mode:</label>
+        <label data-translate="colorblind_mode" for="colorblind-mode">Colorblind Mode:</label>
         <select id="colorblind-mode" name="colorblind-mode">
-          <option value="off">Off</option>
+          <option data-translate="off" value="off">Off</option>
           <option value="protanopia">Protanopia</option>
           <option value="deuteranopia">Deuteranopia</option>
           <option value="tritanopia">Tritanopia</option>
@@ -79,18 +77,17 @@
       </div>
       <div class="labeled-item">
         <input type="checkbox" id="high-contrast-mode" name="high-contrast-mode">
-        <label for="high-contrast-mode">High Contrast</label>
+        <label data-translate="high_contrast" for="high-contrast-mode">High Contrast</label>
       </div>
       <div class="labeled-item">
-        <label for="text-size">Text Size:</label>
-        <input type="range" id="text-size" name="text-size" min="80" max="150" value="100" step="5">
-        <span class="range-value">100%</span>
+        <label data-translate="text_size" for="text_size">Text Size:</label>
+        <input type="range" id="text_size" name="text-size" min="80" max="150" value="100" step="5">
+        <span class="range-value" id="text-size-value">100%</span>
       </div>
       <div class="labeled-item">
-
         <div class="button-actions">
-          <a href="/about" class="button orange">About</a>
-          <a href="/" class="button orange">Back to Menu</a>
+          <a data-translate="about_button" href="/about" class="button orange">About</a>
+          <a data-translate="back_to_menu" href="/" class="button orange">Back to Menu</a>
         </div>
       </div>
     </div>
