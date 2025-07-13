@@ -186,8 +186,8 @@ function renderPlayers() {
             kickButton.className = 'votekick-btn';
             kickButton.textContent = 'Kick';
             kickButton.title = `Vote to kick ${player.name}`;
-            kickButton.onclick = () => {
-                if (confirm(`Bist du sicher, dass du dafür stimmen möchtest, ${player.name} zu kicken?`)) {
+            kickButton.onclick = async () => {
+                if (await confirm(translate(getCookie("language"), "player_kick_confirm").replace("{player}", player.name))) {
                     executeVoteKick(player.number);
                 }
             };
