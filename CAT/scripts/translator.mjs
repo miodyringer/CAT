@@ -2,7 +2,8 @@ import getCookie from "./functions.mjs";
 import { translations } from "./translations.mjs";
 
 
-export function translate(lang = "en", key) {
+export function translate(lang, key) {
+    if(!lang) lang = "en";
     return translations[lang][key] || `[${key}]`;
 }
 
