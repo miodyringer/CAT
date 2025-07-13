@@ -26,12 +26,41 @@ function customAlert() {
     window.alert = function(message){
         const alert = document.createElement("div");
         alert.className = "alert-container";
-        alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button orange' id='close-alert'>Close</button></div>`;
+        alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button' id='close-alert'>Close</button></div>`;
         alert.querySelector("#close-alert").onclick = () => {
             document.querySelector(".alert-container").remove();
         }
         document.body.append(alert);
     }
+    window.confirm = function(message, reject) {
+    return new Promise((resolve) => {
+        const confirmBox = document.createElement("div");
+        confirmBox.className = "alert-container";
+
+        confirmBox.innerHTML = `
+            <div class='alert-content'>
+                <h3>Bestätigung</h3>
+                <p>${message}</p>
+                <div class='confirm-buttons'>
+                    <button class='button' id='confirm-cancel'>Abbrechen</button>
+                    <button class='button' id='confirm-ok'>Bestätigen</button>
+                </div>
+            </div>`;
+
+        const btnOk = confirmBox.querySelector("#confirm-ok");
+        const btnCancel = confirmBox.querySelector("#confirm-cancel");
+
+        btnOk.onclick = () => {
+            resolve(true);
+            confirmBox.remove();
+        };
+        btnCancel.onclick = () => {
+            resolve(false);
+            confirmBox.remove();
+        };
+        document.body.append(confirmBox);
+    });
+};
 }
 
 export function applyPageSettings(){

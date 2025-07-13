@@ -192,6 +192,7 @@
     border: var(--size-border) solid var(--color-border);
     align-items: center;
     overflow: hidden;
+    justify-content: space-between;
 }
 
 .player-entry.active-player {
@@ -205,12 +206,18 @@
 .player-entry.blue { background-color: var(--color-blue) }
 .player-entry.orange { background-color: var(--color-orange) }
 
+.player-name-container {
+    flex-grow: 1;
+    overflow: hidden;
+    min-width: 0;
+}
+
 .player-name {
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 0;
+    display: block;
 }
 
 .player-card-info {
@@ -220,16 +227,31 @@
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
-    /* Diese Zeile schiebt die Karten-Info zuverlässig ganz nach rechts */
     margin-left: auto;
-    /* Fügt einen Sicherheitsabstand zum Namen hinzu */
     padding-left: 1rem;
 }
 
 .player-name-wrapper {
-    flex-grow: 1; /* Nimmt den verfügbaren Platz ein */
-    overflow: hidden; /* Versteckt alles, was überläuft */
-    min-width: 0; /* Zwingt Flexbox, den Container zu verkleinern */
+    flex-grow: 1;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.votekick-btn {
+    background-color: var(--color-important);
+    color: white;
+    border: none;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.votekick-btn:hover {
+    background-color: #a12f22;
 }
 
 .card-hand-container {

@@ -1,6 +1,7 @@
 import uuid
 import time
 import json
+from typing import Dict, List
 from CAT.API.connection_manager import manager
 from CAT.classes.player import Player
 from CAT.classes.figure import Figure
@@ -8,6 +9,9 @@ from CAT.classes.deck import Deck
 from CAT.classes.cards import *
 from CAT.config import NUMBER_OF_FIELDS, MAX_PLAYERS, MIN_PLAYERS_TO_START, TURN_DURATION, FIGURES_PER_PLAYER
 
+class NoActivePlayersError(Exception):
+    """Custom exception raised when no active players are left in the game."""
+    pass
 
 class Game:
     NUMBER_OF_FIELDS = NUMBER_OF_FIELDS
@@ -41,6 +45,7 @@ class Game:
         self.last_played_card = None
         self.turn_start_time = None
         self.last_activity_time = time.time()
+        self.kick_votes: Dict[str, List[str]] = {}
 
     def start_game_and_deal_cards(self):
         """Starts the game and deals cards for the first time."""
@@ -96,11 +101,15 @@ class Game:
             print(f"Game Over! Player {player.name} has won!")
             return
 
-        if self.is_round_over():
-            self.start_new_round()
-        else:
-            self.current_player_index = (self.current_player_index + 1) % self.number_of_players
-            self._start_new_turn()
+        try:
+            if self.is_round_over():
+                self.start_new_round()
+            else:
+                self.current_player_index = self._find_next_active_player_index(self.current_player_index)
+                self._start_new_turn()
+        except NoActivePlayersError:
+            print("Game Over: No active players left.")
+            self.game_over = True
 
     def is_round_over(self) -> bool:
         """Checks if all players have played all their cards."""
@@ -109,8 +118,12 @@ class Game:
     def start_new_round(self):
         """Starts a new round with the correct number of cards and a new starting player."""
         self.round_number += 1
-        # Der Startspieler rotiert jede Runde
-        self.current_player_index = (self.round_number - 1) % self.number_of_players
+        try:
+            self.current_player_index = self._find_next_active_player_index((self.round_number - 2) % self.number_of_players)
+        except NoActivePlayersError:
+            print("No active players left. Game over.")
+            self.game_over = True
+            return
         print(f"\n--- Starting Round {self.round_number} in game {self.name} ---")
         print(f"New starting player is {self.players[self.current_player_index].name}")
 
@@ -338,8 +351,11 @@ class Game:
         player.cards = []
 
         print(f"Player {player.name} cannot move and discards their hand.")
-
-        self.current_player_index = (self.current_player_index + 1) % self.number_of_players
+        try:
+            self.current_player_index = self._find_next_active_player_index(self.current_player_index)
+        except NoActivePlayersError:
+            print("Game Over: No active players left.")
+            self.game_over = True
 
     def move_figure(self, figure: Figure, value: int):
         if figure.get_position() < 0:
@@ -499,11 +515,64 @@ class Game:
                 return True
         return False
 
+    def register_kick_vote(self, voter: Player, player_to_kick_uuid: str):
+        """Registers a vote to kick a player."""
+        if player_to_kick_uuid not in self.kick_votes:
+            self.kick_votes[player_to_kick_uuid] = []
+
+        if voter.uuid == player_to_kick_uuid:
+            raise ValueError("You cannot vote to kick yourself.")
+
+        if not voter.is_active:
+            raise ValueError("You cannot vote when you are inactive.")
+
+        if voter.uuid not in self.kick_votes[player_to_kick_uuid]:
+            self.kick_votes[player_to_kick_uuid].append(voter.uuid)
+
+
+        required_votes = (self.number_of_players - 1) / 2
+        if len(self.kick_votes[player_to_kick_uuid]) > required_votes:
+            player_to_kick = self.get_player_by_uuid(player_to_kick_uuid)
+            if player_to_kick:
+                print(f"Player {player_to_kick.name} has been kicked by vote.")
+                player_to_kick.is_active = False
+                for fig in player_to_kick.figures:
+                    if fig.position in self.field_occupation:
+                        del self.field_occupation[fig.position]
+                    fig.position = -1
+
+                if self.players[self.current_player_index] == player_to_kick:
+                    try:
+                        self.current_player_index = self._find_next_active_player_index(self.current_player_index)
+                    except NoActivePlayersError:
+                        print("Game Over: No active players left after kick.")
+                        self.game_over = True
+
+                del self.kick_votes[player_to_kick_uuid]
+                return True
+            return False
+
+    def _find_next_active_player_index(self, start_index: int) -> int:
+        """Finds the index of the next active player, starting from a given index."""
+        next_index = (start_index + 1) % self.number_of_players
+        while not self.players[next_index].is_active:
+            next_index = (next_index + 1) % self.number_of_players
+            if next_index == start_index:
+                raise NoActivePlayersError("There are no active players left in the game.")
+        return next_index
+
     def get_spieler_von_figur(self, figure: Figure) -> Player:
         for player in self.players:
             if figure in player.figures:
                 return player
         raise ValueError("Figure not found in any player's figures.")
+
+    def get_player_by_number(self, number: int) -> Player | None:
+        """Returns the player with the given number (0-3)."""
+        for player in self.players:
+            if player.number == number:
+                return player
+        return None
 
     def get_player_by_uuid(self, uuid) -> Player | None:
         """
