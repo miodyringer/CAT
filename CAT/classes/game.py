@@ -1,5 +1,7 @@
 import uuid
 import time
+import json
+from CAT.API.connection_manager import manager
 from CAT.classes.player import Player
 from CAT.classes.figure import Figure
 from CAT.classes.deck import Deck
@@ -131,6 +133,14 @@ class Game:
             self._start_new_turn()
             return True
         return False
+
+    async def check_timeout_and_broadcast(self):
+        """
+        Checks if the current player's time is up and broadcasts an update if so.
+        """
+        if self._check_and_handle_timeout():
+            print(f"Broadcasting update for game {self.uuid} due to timeout (from background task).")
+            await manager.broadcast(json.dumps({"event": "update"}), self.uuid)
 
     def _update_last_activity(self):
         """Updates the timestamp of the last activity."""

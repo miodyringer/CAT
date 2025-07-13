@@ -63,6 +63,10 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
 
         return {"message": "Action successful."}
     except (ValueError, IndexError) as e:
+        if "Your time is up" in str(e):
+            print(f"Broadcasting update for game {game_id} due to an active timeout during play.")
+            await manager.broadcast(json.dumps({"event": "update"}), game_id)
+
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/{game_id}/start")

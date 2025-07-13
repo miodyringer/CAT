@@ -41,9 +41,7 @@ async def run_game_timer_checks():
     while True:
         await asyncio.sleep(1)
         for game_id, game in list(game_manager.games.items()):
-            if game._check_and_handle_timeout():
-                print(f"Broadcasting update for game {game_id} due to timeout.")
-                await manager.broadcast(json.dumps({"event": "update"}), game_id)
+            await game.check_timeout_and_broadcast()
             if time.time() - game.last_activity_time > GAME_INACTIVITY_TIMEOUT:
                 print(f"Closing inactive game {game_id} due to inactivity.")
                 await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
