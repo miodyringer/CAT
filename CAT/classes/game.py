@@ -376,12 +376,15 @@ class Game:
             raise ValueError("New position is out of bounds.")
         if new_position in self.field_occupation:
             occupying_figure = self.field_occupation[new_position]
-            if occupying_figure.get_color() != figure.get_color():
-                print(
-                    f"Figure {occupying_figure.get_uuid()} of color {occupying_figure.get_color()} is on the same field. It will be sent back to its start field.")
-                occupying_figure.position = -1
+            if occupying_figure.get_position() != self.get_spieler_von_figur(occupying_figure).startfield:
+                if occupying_figure.get_color() != figure.get_color():
+                    print(
+                        f"Figure {occupying_figure.get_uuid()} of color {occupying_figure.get_color()} is on the same field. It will be sent back to its start field.")
+                    occupying_figure.position = -1
+                else:
+                    raise ValueError("Cannot move to a field occupied by your own figure.")
             else:
-                raise ValueError("Cannot move to a field occupied by your own figure.")
+                raise ValueError("Cannot move to a field occupied by a safe figure.")
 
         self.field_occupation[new_position] = figure
         figure.position = new_position
