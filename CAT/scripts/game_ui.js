@@ -513,8 +513,19 @@ async function initializeGame() {
                 case 'game_closed':
                     console.log("Game closed by server. Reason:", message.reason);
                     alert(`${translate(getCookie("language"), "game_closed_alert")} ${message.reason}.`);
-                    window.location.href = '/';
-                    break
+                    setTimeout(() => {window.location.href = '/'}, 10000);
+                    break;
+
+                case 'game_over':
+                    const winnerName = message.winner;
+                    console.log(`Game over received from server. Winner: ${winnerName}`);
+
+                    let alertMessage = translate(getCookie("language"), "game_over_alert");
+                    alertMessage = alertMessage.replace('{winner}', winnerName);
+
+                    alert(alertMessage);
+                    setTimeout(() => {window.location.href = '/'}, 10000);
+                    break;
 
                 default:
                     console.warn("Unknown event type received from server:", message.event);

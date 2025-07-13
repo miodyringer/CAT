@@ -53,7 +53,7 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
         raise HTTPException(status_code=400, detail="It's not your turn.")
 
     try:
-        game.execute_play_card(
+        await game.execute_play_card(
             player=player,
             card_index=request.card_index,
             action_details=request.action_details
