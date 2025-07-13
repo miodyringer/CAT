@@ -5,6 +5,7 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,14 +15,15 @@ from CAT.API.dependencies import get_game_manager
 from CAT.API.connection_manager import manager
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Define paths for static files
-STYLESHEETS_DIR = os.path.join(BASE_DIR, "stylesheets")
-SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
-AUDIO_DIR = os.path.join(BASE_DIR, "audio")
-PAGES_DIR = os.path.join(BASE_DIR, "pages")
-ICON_DIR = os.path.join(BASE_DIR, "icon")
+CURRENT_FILE_PATH = Path(__file__).resolve()
+API_DIR = CURRENT_FILE_PATH.parent
+BASE_DIR = API_DIR.parent
+PAGES_DIR = BASE_DIR / "pages"
+STYLESHEETS_DIR = BASE_DIR / "stylesheets"
+SCRIPTS_DIR = BASE_DIR / "scripts"
+AUDIO_DIR = BASE_DIR / "audio"
+ICON_DIR = BASE_DIR / "icon"
 
 
 @asynccontextmanager
@@ -133,7 +135,6 @@ async def get_settings():
 
 load_dotenv()
 if __name__ == "__main__":
-    # Hole Host und Port aus den Umgebungsvariablen
     host = os.getenv("API_HOST", "127.0.0.1")
     port = int(os.getenv("API_PORT", 7777))
     uvicorn.run(app, host=host, port=port)
