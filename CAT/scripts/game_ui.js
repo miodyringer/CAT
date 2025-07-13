@@ -133,8 +133,14 @@ function renderHand() {
             cardElement.addEventListener('click', () => {
                 const card = cards[index];
                 if (card.type === 'JokerCard') {
-                    openJokerModal();
+                    if(gameService.getJokerImitation() == null){
+                        openJokerModal();
+                    }
+                    else{
+                        gameService.setJokerImitation(null);
+                    }
                     gameService.selectCard(index);
+                    renderHand();
                 } else {
                     gameService.selectCard(index);
                     document.dispatchEvent(new Event('selectionChanged'));
