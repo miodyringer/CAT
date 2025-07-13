@@ -4,7 +4,6 @@ import { renderFigures } from './game_board.js';
 
 let socket = null;
 let turnTimerInterval = null;
-const TURN_DURATION = 20;
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
@@ -315,10 +314,11 @@ function renderDiscardPile() {
     container.appendChild(cardElement);
 }
 
-function startTurnTimer() {
+function startTurnTimer(startTime, totalDuration) {
     stopTurnTimer();
 
-    let timeLeft = TURN_DURATION;
+    const turnDuration = totalDuration || 20;
+    let timeLeft = (startTime !== null && startTime !== undefined) ? startTime : turnDuration;
     const timerDisplay = document.getElementById('turn-timer-display');
 
     timerDisplay.textContent = `Time: ${timeLeft}`;
@@ -364,7 +364,10 @@ export function updateUI() {
     if (gameService.isLocalPlayerTurn()) {
         document.body.classList.remove('not-my-turn');
         if (!turnTimerInterval) {
-            startTurnTimer();
+            startTurnTimer(
+                gameService.gameState.remaining_turn_time,
+                gameService.gameState.turn_duration
+            );
         }
     } else {
         document.body.classList.add('not-my-turn');

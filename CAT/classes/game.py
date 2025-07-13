@@ -9,6 +9,7 @@ from CAT.classes.cards import *
 
 
 class Game:
+    # don't change these values, they are used in the frontend
     NUMBER_OF_FIELDS = 56
     COLOR_PLAYER_MAPPING = {
         "green": 0,
@@ -22,6 +23,9 @@ class Game:
         2: "orange",
         3: "blue"
     }
+
+    # changeable values
+    TURN_DURATION = 20
 
     def __init__(self, name, list_of_players: list[Player]):
         self.uuid = str(uuid.uuid4())
@@ -127,7 +131,7 @@ class Game:
         If the current player's time is up, pass their turn and return True.
         Otherwise, return False.
         """
-        if self.game_started and self.turn_start_time and (time.time() - self.turn_start_time) > 20:
+        if self.game_started and self.turn_start_time and (time.time() - self.turn_start_time) > self.TURN_DURATION:
             print(f"Server detected timeout for player {self.players[self.current_player_index].name}.")
             self.pass_turn(self.players[self.current_player_index])
             self._start_new_turn()
@@ -514,6 +518,11 @@ class Game:
         Convert the game object to a JSON serializable dictionary.
         This method ensures that all nested objects are also converted.
         """
+        remaining_time = None
+        if self.game_started and self.turn_start_time is not None:
+            elapsed_time = time.time() - self.turn_start_time
+            remaining_time = max(0, self.TURN_DURATION - int(elapsed_time))
+
         return {
             "uuid": self.uuid,
             "name": self.name,
@@ -525,5 +534,7 @@ class Game:
             "current_player_index": self.current_player_index,
             "round_number": self.round_number,
             "game_started": self.game_started,
-            "last_played_card": self.last_played_card.to_json() if self.last_played_card else None
+            "last_played_card": self.last_played_card.to_json() if self.last_played_card else None,
+            "remaining_turn_time": remaining_time,
+            "turn_duration": self.TURN_DURATION
         }
