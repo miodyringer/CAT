@@ -54,7 +54,6 @@ function customAlert() {
             resolve(true);
             confirmBox.remove();
         };
-
         btnCancel.onclick = () => {
             resolve(false);
             confirmBox.remove();
