@@ -183,7 +183,7 @@ class Game:
                     return (old_pos + value) % self.NUMBER_OF_FIELDS
                 for i in range(steps_into_finish + 1):
                     if ((player.get_number()+1) * 100 + i) in self.field_occupation:
-                        raise ValueError("Path into the finishing area is blocked.")
+                        return (old_pos + value) % self.NUMBER_OF_FIELDS
                 return (player.get_number()+1) * 100 + steps_into_finish
             else:
                 return (old_pos + value) % self.NUMBER_OF_FIELDS
