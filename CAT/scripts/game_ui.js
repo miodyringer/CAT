@@ -1,4 +1,4 @@
-import sendRequest from './services/server_service.js';
+import sendRequest, { getConfig } from './services/server_service.js';
 import gameService from './services/game_service.js';
 import { renderFigures } from './game_board.js';
 import {translate} from "./translator.mjs";
@@ -6,7 +6,6 @@ import getCookie from "./functions.mjs";
 
 let socket = null;
 let turnTimerInterval = null;
-const TURN_DURATION = 20;
 
 function renderPlayButton() {
     const container = document.querySelector('.play-action-container');
@@ -238,7 +237,7 @@ async function openJokerModal() {
     modalOverlay.style.display = 'flex';
 
     try {
-        const availableCards = await sendRequest('http://127.0.0.1:7777/game/card_types');
+        const availableCards = await sendRequest('/game/card_types');
         grid.innerHTML = '';
 
         availableCards.forEach(cardData => {
@@ -317,12 +316,13 @@ function renderDiscardPile() {
     container.appendChild(cardElement);
 }
 
-function startTurnTimer() {
-    // Stoppe einen eventuell laufenden Timer, um Fehler zu vermeiden
+function startTurnTimer(startTime, totalDuration) {
     stopTurnTimer();
 
-    let timeLeft = TURN_DURATION;
+    const turnDuration = totalDuration || 20;
+    let timeLeft = (startTime !== null && startTime !== undefined) ? startTime : turnDuration;
     const timerDisplay = document.getElementById('turn-timer-display');
+
 
     // Timer-Anzeige sofort initialisieren
     timerDisplay.textContent = translate(getCookie("language"), "timer_text") + `: ${timeLeft}`;
@@ -368,7 +368,10 @@ export function updateUI() {
     if (gameService.isLocalPlayerTurn()) {
         document.body.classList.remove('not-my-turn');
         if (!turnTimerInterval) {
-            startTurnTimer();
+            startTurnTimer(
+                gameService.gameState.remaining_turn_time,
+                gameService.gameState.turn_duration
+            );
         }
     } else {
         document.body.classList.add('not-my-turn');
@@ -448,7 +451,7 @@ async function executePlay(extraDetails = {}) {
             action_details: actionDetails
         };
 
-        await sendRequest(`http://127.0.0.1:7777/game/${gameId}/play`, 'POST', requestBody);
+        await sendRequest(`/game/${gameId}/play`, 'POST', requestBody);
 
         gameService.resetSelections();
         renderPlayButton();
@@ -472,7 +475,7 @@ async function initializeGame() {
     }
 
     try {
-        const gameStateFromServer = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+        const gameStateFromServer = await sendRequest(`/game/${gameId}/state?player_id=${localPlayerId}`);
 
         if (!gameStateFromServer) {
             alert(translate(getCookie("language"), "load_data_alert"));
@@ -483,8 +486,9 @@ async function initializeGame() {
 
         updateUI();
 
-        // NEU: Baue die WebSocket-Verbindung auf
-        const ws_url = `ws://127.0.0.1:7777/game/ws/${gameId}/${localPlayerId}`;
+        const config = await getConfig();
+        const ws_url = `${config.webSocketUrl}/game/ws/${gameId}/${localPlayerId}`;
+        console.log("Connecting to WebSocket:", ws_url);
         socket = new WebSocket(ws_url);
 
         socket.onopen = () => {
@@ -523,8 +527,8 @@ async function initializeGame() {
         if (!startGameBtn.dataset.listenerAttached) {
             startGameBtn.addEventListener('click', async () => {
                 try {
-                    await sendRequest(`http://127.0.0.1:7777/game/${gameId}/start`, 'POST');
-                    const updatedState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+                    await sendRequest(`/game/${gameId}/start`, 'POST');
+                    const updatedState = await sendRequest(`/game/${gameId}/state?player_id=${localPlayerId}`);
                     gameService.updateGameState(updatedState, localPlayerId);
                     updateUI();
                 } catch (error) {
@@ -555,7 +559,7 @@ async function fetchAndUpdateState() {
     if (!gameId || !localPlayerId) return;
 
     try {
-        const newState = await sendRequest(`http://127.0.0.1:7777/game/${gameId}/state?player_id=${localPlayerId}`);
+        const newState = await sendRequest(`/game/${gameId}/state?player_id=${localPlayerId}`);
         gameService.updateGameState(newState, localPlayerId);
         updateUI();
     } catch (error) {

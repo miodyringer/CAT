@@ -22,7 +22,7 @@ createLobbyBtn.addEventListener('click', async () => {
     };
 
     try {
-    const response = await sendRequest(`http://127.0.0.1:7777/lobby/create`, 'POST', requestBody);
+    const response = await sendRequest(`/lobby/create`, 'POST', requestBody);
 
     if (response && response.game_id && response.player_id) {
         console.log('Lobby created:', response);

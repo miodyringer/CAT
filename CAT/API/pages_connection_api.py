@@ -1,14 +1,30 @@
 import asyncio
 import json
 import time
+import uvicorn
+import os
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from CAT.API.routers import lobby, game
 from fastapi.middleware.cors import CORSMiddleware
+from CAT.API.routers import lobby, game
 from CAT.API.dependencies import get_game_manager
 from CAT.API.connection_manager import manager
+from CAT.config import GAME_INACTIVITY_TIMEOUT
+
+
+
+CURRENT_FILE_PATH = Path(__file__).resolve()
+API_DIR = CURRENT_FILE_PATH.parent
+BASE_DIR = API_DIR.parent
+PAGES_DIR = BASE_DIR / "pages"
+STYLESHEETS_DIR = BASE_DIR / "stylesheets"
+SCRIPTS_DIR = BASE_DIR / "scripts"
+AUDIO_DIR = BASE_DIR / "audio"
+ICON_DIR = BASE_DIR / "icon"
 
 
 @asynccontextmanager
@@ -22,18 +38,14 @@ app = FastAPI(lifespan=lifespan)
 
 async def run_game_timer_checks():
     game_manager = get_game_manager()
-    GAME_INACTIVITY_TIMEOUT = 60 * 3  # 3 minutes inactivity timeout
+
     while True:
         await asyncio.sleep(1)
         for game_id, game in list(game_manager.games.items()):
-            if game._check_and_handle_timeout():
-                print(f"Broadcasting update for game {game_id} due to timeout.")
-                await manager.broadcast(json.dumps({"event": "update"}), game_id)
+            await game.check_timeout_and_broadcast()
             if time.time() - game.last_activity_time > GAME_INACTIVITY_TIMEOUT:
                 print(f"Closing inactive game {game_id} due to inactivity.")
-                # Informiere alle verbundenen Spieler, dass das Spiel geschlossen wird
                 await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
-                # Entferne das Spiel aus dem Manager
                 del game_manager.games[game_id]
 
 
@@ -52,59 +64,76 @@ app.include_router(lobby.router)
 app.include_router(game.router)
 
 # Mount static directories for CSS and JavaScript files
-app.mount("/stylesheets", StaticFiles(directory="CAT/stylesheets"), name="stylesheets")
-app.mount("/scripts", StaticFiles(directory="CAT/scripts"), name="scripts")
-app.mount("/audio", StaticFiles(directory="CAT/audio"), name="audio")
-app.mount("/icon", StaticFiles(directory="CAT/icon"), name="icon")
+app.mount("/stylesheets", StaticFiles(directory=STYLESHEETS_DIR), name="stylesheets")
+app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
+app.mount("/audio", StaticFiles(directory=AUDIO_DIR), name="audio")
+app.mount("/icon", StaticFiles(directory=ICON_DIR), name="icon")
 
-@app.get("/favicon.ico")
+@app.get("/config")
+async def get_config():
+    """Stellt dem Frontend die Basis-URL der API bereit."""
+    base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
+
+    ws_url = base_url.replace("http", "ws")
+    return JSONResponse({
+        "apiBaseUrl": base_url,
+        "webSocketUrl": ws_url
+    })
+
+@app.get("/favicon.ico", response_class=FileResponse)
 async def get_favicon():
-    return FileResponse("CAT/icon/favicon.ico", media_type="image/x-icon")
+    return FileResponse(os.path.join(ICON_DIR, "favicon.ico"), media_type="image/x-icon")
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():
-    with open("CAT/pages/about.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "about.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/create_lobby", response_class=HTMLResponse)
 async def get_create_lobby():
-    with open("CAT/pages/create_lobby.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "create_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/game", response_class=HTMLResponse)
 async def get_game():
-    with open("CAT/pages/game.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "game.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/join_lobby", response_class=HTMLResponse)
 async def get_join_lobby():
-    with open("CAT/pages/join_lobby.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "join_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/", response_class=HTMLResponse)
 async def get_menu():
-    with open("CAT/pages/menu.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "menu.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/online", response_class=HTMLResponse)
 async def get_online():
-    with open("CAT/pages/online.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "online.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/rules", response_class=HTMLResponse)
 async def get_rules():
-    with open("CAT/pages/rules.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "rules.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/settings", response_class=HTMLResponse)
 async def get_settings():
-    with open("CAT/pages/settings.html", "r", encoding="utf-8") as f:
+    with open(os.path.join(PAGES_DIR, "settings.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
+
+load_dotenv()
+if __name__ == "__main__":
+    host = os.getenv("API_HOST", "127.0.0.1")
+    port = int(os.getenv("API_PORT", 7777))
+    uvicorn.run(app, host=host, port=port)

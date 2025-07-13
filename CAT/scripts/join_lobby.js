@@ -34,7 +34,7 @@ joinGameBtn.addEventListener('click', async () => {
     };
 
     try {
-        const response = await sendRequest(`http://127.0.0.1:7777/lobby/${lobbyId}/join`, 'POST', requestBody);
+        const response = await sendRequest(`/lobby/${lobbyId}/join`, 'POST', requestBody);
 
         if (response && response.player_id) {
             // *** HIER DIE ÄNDERUNG: player_id zur URL hinzufügen ***
