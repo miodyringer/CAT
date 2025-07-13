@@ -173,7 +173,6 @@ class Game:
                     raise ValueError(f"Cannot jump over figure in finish-zone at position {i}.")
             return old_pos + value
         else:
-            # ... (Logik für Züge auf dem Hauptpfad)
             finish_entry = player.finishing_field
             dist_to_finish = (finish_entry - old_pos + self.NUMBER_OF_FIELDS) % self.NUMBER_OF_FIELDS
             print(f"Distance to finish: {dist_to_finish}, Old position: {old_pos}, Value: {value}")
@@ -249,7 +248,7 @@ class Game:
                         if not self.field_occupation.get(player.startfield):
                             return True
 
-                    # Fall 2: move figure
+                    # case 2: move figure
                     if figure.position >= 0:
                         move_values = []
                         if isinstance(card, StandardCard):
@@ -261,24 +260,20 @@ class Game:
 
                         for value in move_values:
                             self._calculate_new_position(figure, value)
-                            return True  # Gültiger Zug gefunden
+                            return True  # no error -> valid move
 
 
-                    # Fall 3: Spezialkarten, die fast immer gehen
-                    if figure.position >= 0 and isinstance(card, SwapCard):
-                        # Vereinfachte Prüfung: Gibt es überhaupt andere Figuren zum tauschen?
-                        if isinstance(card, SwapCard):
-                            for p in self.players:
-                                if p.uuid != player.uuid:
-                                    continue
+                    # case 3: swap figure
+                    if isinstance(card, SwapCard) and figure.position >= 0 and figure.position < 100:
+                        for p in self.players:
+                            if p.uuid != player.uuid:
                                 for f in p.figures:
-                                    if f.uuid != figure.uuid and f.position >= 0 and f.position < 100 and f.position != player.startfield:
-                                        return True  # Tausch möglich
-                        else:
-                            return True
+                                    if f.uuid != figure.uuid and f.position >= 0 and f.position < 100 and f.position != p.startfield:
+                                        return True
+
 
                 except ValueError:
-                    # Dieser spezielle Zug war ungültig, versuche den nächsten
+                    # try next card or figure
                     continue
 
         return False
