@@ -1,6 +1,6 @@
 import getCookie from "./functions.mjs";
 import { applyTranslationsToPage } from "./translator.mjs";
-import {initPageSound, navigateWithFade, playSound} from './audio_manager.mjs';
+import {initPageSound, navigateWithFade} from './audio_manager.mjs';
 
 initPageSound();
 customAlert();
@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     links.forEach(link => {
         link.addEventListener('click', event => {
             event.preventDefault();
-            navigateWithFade(link.href);
+            setTimeout(() => {}, 50);
+            if(!document.querySelector(".alert-container")){
+                navigateWithFade(link.href);
+            }
         });
     });
 });
@@ -26,6 +29,7 @@ function customAlert() {
         alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button orange' id='close-alert'>Close</button></div>`;
         alert.querySelector("#close-alert").onclick = () => {
             document.querySelector(".alert-container").remove();
+            alertPreventTransition = false;
         }
         document.body.append(alert);
     }

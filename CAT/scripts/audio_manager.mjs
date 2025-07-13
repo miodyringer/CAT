@@ -1,6 +1,12 @@
 import getCookie from "./functions.mjs";
 
 export const backgroundMusic = new Audio('/audio/game-theme.mp3');
+backgroundMusic.addEventListener('ended', () => {
+                this.currentTime = 0;
+                this.play();
+            });
+backgroundMusic.loop = true;
+
 
 let isFading = false;
 
