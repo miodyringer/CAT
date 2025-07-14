@@ -35,6 +35,8 @@ class StandardCard(Card):
     """A normal card that moves a figure forward by a fixed value."""
 
     def __init__(self, value: int):
+        if value < 1 or value > 13:
+            raise ValueError("Value must be between 1 and 13.")
         name = str(value)
         description = f"Move your figure {value} fields forward."
         super().__init__(name, description)
