@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import List
 import typing
 
 if typing.TYPE_CHECKING:
@@ -18,12 +19,22 @@ class Card(ABC):
 
     @abstractmethod
     def play_card(self, game_object: Game, player: Player, **kwargs):
+        """
+        Abstract method to play the card.
+        This method must be implemented by all subclasses.
+        Args:
+            game_object: The main `Game` instance containing the game logic.
+            player: The `Player` who is playing the card.
+            **kwargs: Additional arguments needed for the card action.
+        Raises:
+            NotImplementedError: If the method is not implemented in a subclass.
+        """
         raise NotImplementedError
 
     def __repr__(self):
         return f"Card({self.name})"
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """Returns a JSON-serializable dictionary for the card."""
         return {
             "name": self.name,
@@ -43,12 +54,27 @@ class StandardCard(Card):
         self.value = value
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        # Holt die UUID der Figur aus den Argumenten
+        """
+        Plays the card by moving a figure forward by the specified value.
+
+            This method relies on the `kwargs` dictionary to receive the necessary
+                details for the action.
+
+                Args:
+                    game_object: The main `Game` instance containing the game logic.
+                    player: The `Player` who is playing the card.
+                    **kwargs: A dictionary containing the action details.
+                        Expected keys:
+                        - 'figure_uuid' (str): The UUID of the figure to be moved.
+
+                Raises:
+                    ValueError: If 'figure_uuid' is missing from
+                        kwargs, or if the no figure with 'figure_uuid' is found.
+        """
         figure_uuid = kwargs.get("figure_uuid")
         if not figure_uuid:
             raise ValueError("A figure_uuid must be provided to play a StandardCard.")
 
-        # Findet das passende Figur-Objekt im Spiel
         figure_to_move = None
         for p in game_object.players:
             for fig in p.figures:
@@ -61,10 +87,9 @@ class StandardCard(Card):
         if not figure_to_move:
             raise ValueError(f"Figure with UUID {figure_uuid} not found in the game.")
 
-        # Führt die Bewegung mit dem gefundenen Objekt aus
         game_object.move_figure(figure_to_move, self.value)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         data = super().to_json()
         data['value'] = self.value
         data['type'] = 'StandardCard'
@@ -80,13 +105,30 @@ class FlexCard(Card):
         super().__init__("Flex Card", "Choose to move either forward or backward by 4.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
+        """Plays the Flex Card to move a figure 4 fields forward or backward.
+
+                This method relies on the `kwargs` dictionary to receive the necessary
+                details for the action.
+
+                Args:
+                    game_object: The main `Game` instance containing the game logic.
+                    player: The `Player` who is playing the card.
+                    **kwargs: A dictionary containing the action details.
+                        Expected keys:
+                        - 'figure_uuid' (str): The UUID of the figure to be moved.
+                        - 'direction' (str): The direction of movement, either
+                          'forward' or 'backward'.
+
+                Raises:
+                    ValueError: If 'figure_uuid' or 'direction' are missing from
+                        kwargs, or if the direction is invalid.
+                """
         figure_uuid = kwargs.get("figure_uuid")
-        direction = kwargs.get("direction")  # Das Frontend muss "forward" oder "backward" senden
+        direction = kwargs.get("direction")
 
         if not figure_uuid or not direction:
             raise ValueError("A figure_uuid and a direction must be specified.")
 
-        # Finde das passende Figur-Objekt im Spiel
         figure = game_object.get_figure_by_uuid(figure_uuid)
         if not figure:
             raise ValueError(f"Figure with UUID {figure_uuid} not found.")
@@ -98,19 +140,40 @@ class FlexCard(Card):
         else:
             raise ValueError("Invalid direction. Must be 'forward' or 'backward'.")
 
-    def to_json(self):
+    def to_json(self) -> dict:
         data = super().to_json()
         data['type'] = 'FlexCard'
         return data
 
 
 class SwapCard(Card):
-    """Swap Card: Swaps the positions of two figures on the board."""
+    """
+    Swap Card: Swaps the positions of two figures on the board.
+    """
 
     def __init__(self):
         super().__init__("Swap Card", "Choose one of your cats and swap its position with any other cat.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
+        """
+        Plays the Swap Card to swap the positions of two figures.
+
+        This method relies on the `kwargs` dictionary to receive the necessary
+                details for the action.
+
+                Args:
+                    game_object: The main `Game` instance containing the game logic.
+                    player: The `Player` who is playing the card.
+                    **kwargs: A dictionary containing the action details.
+                        Expected keys:
+                        - 'figure_uuid' (str): The UUID of the figure to be moved.
+                        - 'other_figure_uuid' (str): The UUID of the other figure to swap with.
+
+
+                Raises:
+                    ValueError: If 'figure_uuid' or 'other_figure_uuid' are missing from
+                        kwargs, or if the figures are not found in the game or figur1 is do not belong to the player.
+        """
         own_figure_uuid = kwargs.get("figure_uuid")
         other_figure_uuid = kwargs.get("other_figure_uuid")
 
@@ -128,7 +191,7 @@ class SwapCard(Card):
 
         game_object.swap_figures(figure1, figure2)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         data = super().to_json()
         data['type'] = 'SwapCard'
         return data
@@ -147,14 +210,28 @@ class StartCard(Card):
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
         Plays the card by either starting a figure or moving it.
+
+            This method relies on the `kwargs` dictionary to receive the necessary
+                    details for the action.
+
+                    Args:
+                        game_object: The main `Game` instance containing the game logic.
+                        player: The `Player` who is playing the card.
+                        **kwargs: A dictionary containing the action details.
+                            Expected keys:
+                            - 'figure_uuid' (str): The UUID of the figure to be moved.
+                            - 'action' (str): The action to perform, either 'start' or 'move'.
+                                - 'value' (int): The value to move the figure by, if action is 'move'.
+
+                    Raises:
+                        ValueError: If 'figure_uuid' or
         """
         action = kwargs.get("action")
-        figure_uuid = kwargs.get("figure_uuid") # Wir bekommen die UUID
+        figure_uuid = kwargs.get("figure_uuid")
 
         if not action or not figure_uuid:
             raise ValueError("An action and a figure_uuid must be specified.")
 
-        # Finde die Figur basierend auf der UUID
         figure = game_object.get_figure_by_uuid(figure_uuid)
 
         if action == "start":
@@ -169,7 +246,7 @@ class StartCard(Card):
         else:
             raise ValueError("Invalid action. Must be 'start' or 'move'.")
 
-    def to_json(self):
+    def to_json(self) -> dict:
         data = super().to_json()
         data['type'] = 'StartCard'
         data['move_values'] = self.move_values
@@ -183,11 +260,36 @@ class InfernoCard(Card):
         super().__init__("Inferno Card", "Split the value of 7 among your cats and burn any enemy cat it passes over.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
+        """
+        Plays the Inferno Card by moving figures and burning enemy figures.
 
-        def sort_moves_asc(moves):
+            This method relies on the `kwargs` dictionary to receive the necessary
+                details for the action.
+
+                Args:
+                    game_object: The main `Game` instance containing the game logic.
+                    player: The `Player` who is playing the card.
+                    **kwargs: A dictionary containing the action details.
+                        Expected keys:
+                        - 'moves' (list): A list of moves, each containing:
+                            - 'figure_uuid' (str): The UUID of the figure to be moved.
+                            - 'steps' (int): The number of steps to move the figure.
+
+                Raises:
+                    ValueError: If 'moves' are missing from kwargs,
+                        or 'moves' is not a list, if the sum of steps is not 7,
+                        or if any move is missing 'figure_uuid' or 'steps'.
+        """
+
+        def sort_moves_asc(moves : List[dict]) -> List[dict]:
             """
             Sorts the moves based on the position of the figures.
             This is necessary for the Inferno Card to ensure correct burning logic.
+
+            Args:
+                moves (list): A list of moves, each containing 'figure_uuid' and 'steps'.
+            Returns:
+                list: A sorted list of moves based on the position of the figures.
             """
             for i in range(len(moves)):
                 for j in range(i + 1, len(moves)):
@@ -198,15 +300,19 @@ class InfernoCard(Card):
 
             return moves
 
-        def sort_figure_in_front_first(moves):
+        def sort_figure_in_front_first(moves : List[dict]) -> List[dict]:
             """
             Sorts the moves based on the distance between the figures.
             This is necessary for the Inferno Card to ensure correct burning logic.
+
+            Args:
+                moves (list): A list of moves, each containing 'figure_uuid' and 'steps'.
+            Returns:
+                list: A sorted list of moves with the figure in front first.
             """
             if not moves:
                 return moves
 
-            # Find the figure with the maximum distance to sort around
             imax = 0
             max_distance = 0
 
@@ -216,9 +322,7 @@ class InfernoCard(Card):
                     imax = i
                     max_distance = newmax
 
-            #print(f"imax: {imax}, max_distance: {max_distance}")
             moves = moves[(imax + 1) % len(moves):] + moves[:(imax + 1) % len(moves)]
-            #print(f"distance sorted moves: {moves}")
             moves.reverse()
             return moves
 
@@ -227,20 +331,15 @@ class InfernoCard(Card):
         if not isinstance(unsorted_moves, list) or not unsorted_moves:
             raise ValueError("A list of moves must be provided for the Inferno Card.")
 
-        # Prüft, ob die Summe der Schritte exakt 7 ist
         if sum(move.get('steps') for move in unsorted_moves) != 7:
             raise ValueError("The steps of all moves for the Inferno Card must sum to 7.")
 
-        #moving_figure_uuids = [move.get("figure_uuid") for move in unsorted_moves]
 
         sorted_moves = sort_moves_asc(unsorted_moves)
-        #print(f"Sorted moves: { [game_object.get_figure_by_uuid(move.get('figure_uuid')).to_json() for move in sorted_moves] }")
 
         moves = sort_figure_in_front_first(sorted_moves)
-        #print(f'distance reversed: {moves}')
 
 
-        # Führe jeden einzelnen Zug aus dem "Bauplan" aus
         for move in moves:
             figure_uuid = move.get("figure_uuid")
             steps = move.get("steps")
@@ -248,17 +347,14 @@ class InfernoCard(Card):
             if not figure_uuid or steps is None:
                 raise ValueError("Each move must contain a 'figure_uuid' and 'steps'.")
 
-            # Finde die Figur im Spiel, die bewegt werden soll
             figure = game_object.get_figure_by_uuid(figure_uuid)
 
-            # Stelle sicher, dass die Figur existiert und dem Spieler gehört
             if not figure or figure not in player.figures:
                 raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
 
-            # Rufe die spezielle Methode zum Bewegen und Verbrennen auf
             game_object.move_and_burn(figure, steps)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         data = super().to_json()
         data['type'] = 'InfernoCard'
         return data
@@ -271,14 +367,29 @@ class JokerCard(Card):
         super().__init__("Joker Card", "Can be played as a substitute for any other card.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        # The Joker mimics another card.
-        # The frontend must specify what card the Joker is being played as.
-        card_to_imitate = kwargs.get("imitate_card_name")  # e.g., "Swap" or "7"
+        """
+        Plays the Joker Card by imitating another card's action.
+
+            This method relies on the `kwargs` dictionary to receive the necessary
+                details for the action.
+
+
+                Args:
+                    game_object: The main `Game` instance containing the game logic.
+                    player: The `Player` who is playing the card.
+                    **kwargs: A dictionary containing the action details.
+                        Expected keys:
+                        - 'imitate_card_name' (str): The UUID of the figure to be moved.
+                        - '**kwargs': Additional arguments needed for the imitated card action.
+
+                Raises:
+                    ValueError: If 'imitate_card_name' is missing from kwargs, or if the card to imitate is unknown.
+        """
+        card_to_imitate = kwargs.get("imitate_card_name")
 
         if not card_to_imitate:
             raise ValueError("You must specify which card the Joker should imitate.")
 
-        # Create a temporary instance of the target card and play it.
         if card_to_imitate == "Swap Card":
             imitated_card = SwapCard()
         elif card_to_imitate == "Flex Card":
@@ -286,25 +397,21 @@ class JokerCard(Card):
         elif card_to_imitate == "Inferno Card":
             imitated_card = InfernoCard()
         elif card_to_imitate == "Start":
-            # For StartCard, we need to specify the move values.
-            # The frontend should send the move values as a list.
             move_values = kwargs.get("move_values")
             if move_values not in ([1, 11], [13]):
                 raise ValueError("Only [1, 11] or [13] are allowed as move_values.")
             imitated_card = StartCard("Start Card", move_values, "Start a figure or move it by one of the specified values.")
-        # ... add all other special card types here ...
-        else:  # Handle standard number cards
+        else:
             try:
                 value = int(card_to_imitate)
                 imitated_card = StandardCard(value)
             except ValueError:
                 raise ValueError(f"Unknown card type to imitate: {card_to_imitate}")
 
-        # Call the imitated card's play_card method with the same arguments.
-        print(f"Playing Joker as a {card_to_imitate}...")
+        print(f"Playing Joker as a {card_to_imitate}")
         imitated_card.play_card(game_object, player, **kwargs)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         data = super().to_json()
         data['type'] = 'JokerCard'
         return data
