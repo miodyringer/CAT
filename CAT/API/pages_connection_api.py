@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from CAT.API.routers import lobby, game
 from CAT.API.dependencies import get_game_manager
 from CAT.API.connection_manager import manager
-from CAT.config import GAME_INACTIVITY_TIMEOUT
+from CAT.config import GAME_INACTIVITY_TIMEOUT, FINISHED_GAME_CLEANUP_DELAY
 
 
 
@@ -47,6 +47,12 @@ async def run_game_timer_checks():
                 print(f"Closing inactive game {game_id} due to inactivity.")
                 await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
                 del game_manager.games[game_id]
+
+            if game.game_over and game.game_over_time:
+                if time.time() - game.game_over_time > FINISHED_GAME_CLEANUP_DELAY:
+                    print(f"Cleaning up finished game {game_id}.")
+                    await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Game finished"}), game_id)
+                    del game_manager.games[game_id]
 
 
 origins = ["*"]

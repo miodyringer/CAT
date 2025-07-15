@@ -45,6 +45,7 @@ class Game:
         self.last_played_card = None
         self.turn_start_time = None
         self.last_activity_time = time.time()
+        self.game_over_time = None
         self.kick_votes: Dict[str, List[str]] = {}
 
     def start_game_and_deal_cards(self):
@@ -509,6 +510,7 @@ class Game:
             figures_in_finish = sum(1 for f in player.figures if f.position >= 100)
             if figures_in_finish == FIGURES_PER_PLAYER:
                 self.game_over = True
+                self.game_over_time = time.time()
 
                 winner_name = player.name
                 payload = {"event": "game_over", "winner": winner_name}
