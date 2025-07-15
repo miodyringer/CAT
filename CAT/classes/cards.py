@@ -35,7 +35,9 @@ class Card(ABC):
         return f"Card({self.name})"
 
     def to_json(self) -> dict:
-        """Returns a JSON-serializable dictionary for the card."""
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         return {
             "name": self.name,
             "description": self.description
@@ -90,6 +92,9 @@ class StandardCard(Card):
         game_object.move_figure(figure_to_move, self.value)
 
     def to_json(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         data = super().to_json()
         data['value'] = self.value
         data['type'] = 'StandardCard'
@@ -105,7 +110,8 @@ class FlexCard(Card):
         super().__init__("Flex Card", "Choose to move either forward or backward by 4.")
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
-        """Plays the Flex Card to move a figure 4 fields forward or backward.
+        """
+        Plays the Flex Card to move a figure 4 fields forward or backward.
 
                 This method relies on the `kwargs` dictionary to receive the necessary
                 details for the action.
@@ -122,7 +128,7 @@ class FlexCard(Card):
                 Raises:
                     ValueError: If 'figure_uuid' or 'direction' are missing from
                         kwargs, or if the direction is invalid.
-                """
+        """
         figure_uuid = kwargs.get("figure_uuid")
         direction = kwargs.get("direction")
 
@@ -141,6 +147,9 @@ class FlexCard(Card):
             raise ValueError("Invalid direction. Must be 'forward' or 'backward'.")
 
     def to_json(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         data = super().to_json()
         data['type'] = 'FlexCard'
         return data
@@ -192,6 +201,9 @@ class SwapCard(Card):
         game_object.swap_figures(figure1, figure2)
 
     def to_json(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         data = super().to_json()
         data['type'] = 'SwapCard'
         return data
@@ -247,6 +259,9 @@ class StartCard(Card):
             raise ValueError("Invalid action. Must be 'start' or 'move'.")
 
     def to_json(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         data = super().to_json()
         data['type'] = 'StartCard'
         data['move_values'] = self.move_values
@@ -355,6 +370,9 @@ class InfernoCard(Card):
             game_object.move_and_burn(figure, steps)
 
     def to_json(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         data = super().to_json()
         data['type'] = 'InfernoCard'
         return data
@@ -412,6 +430,9 @@ class JokerCard(Card):
         imitated_card.play_card(game_object, player, **kwargs)
 
     def to_json(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary for the card.
+        """
         data = super().to_json()
         data['type'] = 'JokerCard'
         return data
