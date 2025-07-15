@@ -536,7 +536,7 @@ class Game:
 
 
         required_votes = (self.number_of_players - 1) / 2
-        if len(self.kick_votes[player_to_kick_uuid]) > required_votes:
+        if len(self.kick_votes[player_to_kick_uuid]) > required_votes and len(self.players) > MIN_PLAYERS_TO_START:
             player_to_kick = self.get_player_by_uuid(player_to_kick_uuid)
             if player_to_kick:
                 print(f"Player {player_to_kick.name} has been kicked by vote.")
