@@ -15,7 +15,7 @@ MIN_PLAYERS_TO_START = 2
 # ==================================
 TURN_DURATION = 20
 GAME_INACTIVITY_TIMEOUT = 180
-FINISHED_GAME_CLEANUP_DELAY = 30
+FINISHED_GAME_CLEANUP_DELAY = 11
 
 # Card Cycle: Starts with 6 cards, cycle length is 5 rounds (6, 5, 4, 3, 2)
 MAX_CARDS_DEALT = 6
