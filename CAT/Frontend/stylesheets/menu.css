@@ -18,7 +18,7 @@ g, path {
     padding: 2rem;
 }
 
-@media (max-width: 40rem) {
+@media (width <= 40rem) {
     .menu-container {
         flex-direction: column;
     }

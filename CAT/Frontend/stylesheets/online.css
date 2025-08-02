@@ -9,7 +9,7 @@
     gap: 1rem;
 }
 
-@media (max-width: 30rem) {
+@media (width <= 30rem) {
     .lobby-item {
         flex-wrap: wrap;
     }
@@ -27,11 +27,12 @@
 }
 
 .lobby-details { flex-grow: 1; }
+
 .lobby-name {
     font-size: 1.4rem;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
 }
 
 .lobby-item > .button {
-    margin: 1rem 0 1rem 0;
+    margin: 1rem 0;
 }

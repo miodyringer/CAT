@@ -1,5 +1,4 @@
 @media (orientation: portrait) {
-
     html {
         transform: rotate(-90deg);
         transform-origin: left top;
@@ -48,8 +47,8 @@ html, body {
     left: 50%;
 }
 
-/*board shadow*/
-#board:after {
+/* board shadow */
+#board::after {
     content: '';
     position: absolute;
     width: 100%;
@@ -94,20 +93,24 @@ html, body {
     border-radius: 2px;
 }
 
-.top { transform: rotateY(0deg) translateZ(1.5rem) }
-.tile.highlighted > .cube > .top { background-color: var(--color-figure-darker) }
-.tile.target-highlighted > .cube > .top { background-color: var(--color-target-darker) }
+.top {
+    transform: rotateY(0deg) translateZ(1.5rem);
+    background-color: var(--color-background-darker);
+}
+
 .frontl { transform: rotateX(-90deg) translateZ(1.5rem) }
 .frontr{ transform: rotateY(90deg) translateZ(1.5rem) }
 .bottom { transform: rotateY(0deg) translateZ(-1.5rem) }
 .backr { transform: rotateX(90deg) translateZ(1.5rem) }
 .backl{ transform: rotateY(-90deg) translateZ(1.5rem) }
 
-.top { background-color: var(--color-background-darker)}
 .tile.pink .top   { background-color: var(--color-pink) }
 .tile.green .top { background-color: var(--color-green) }
 .tile.blue .top  { background-color: var(--color-blue) }
 .tile.orange .top  { background-color: var(--color-orange) }
+
+.tile.highlighted > .cube > .top { background-color: var(--color-figure-darker) }
+.tile.target-highlighted > .cube > .top { background-color: var(--color-target-darker) }
 
 .cube:has(.side:hover) > .side {
     background-color: var(--color-shadow);
@@ -124,6 +127,11 @@ html, body {
     transform: rotateZ(-45deg) rotateX(-55deg) translateY(-3rem) scaleY(1.5) translateZ(1rem) scale(0.8);
     pointer-events: none;
 }
+
+.figure.green > * { background-color: var(--color-green-darker) }
+.figure.pink > * { background-color: var(--color-pink-darker) }
+.figure.orange > * { background-color: var(--color-orange-darker) }
+.figure.blue > * { background-color: var(--color-blue-darker) }
 
 .figure.selected {
     cursor: pointer;
@@ -152,11 +160,6 @@ html, body {
 body:not(.not-my-turn) .figure.own-figure {
     cursor: pointer;
 }
-
-.figure.green > * { background-color: var(--color-green-darker) }
-.figure.pink > * { background-color: var(--color-pink-darker) }
-.figure.orange > * { background-color: var(--color-orange-darker) }
-.figure.blue > * { background-color: var(--color-blue-darker) }
 
 .body {
     width: 100%;
