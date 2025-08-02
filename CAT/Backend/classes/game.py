@@ -9,6 +9,7 @@ from CAT.Backend.classes.player import Player
 from CAT.Backend.classes.deck import Deck
 from CAT.Backend.classes.cards import *
 from CAT.Backend.config import NUMBER_OF_FIELDS, MAX_PLAYERS, MIN_PLAYERS_TO_START, TURN_DURATION, FIGURES_PER_PLAYER
+from .enums import PlayerColor
 
 class NoActivePlayersError(Exception):
     """Custom exception raised when no active players are left in the game."""
@@ -16,18 +17,6 @@ class NoActivePlayersError(Exception):
 
 class Game:
     NUMBER_OF_FIELDS = NUMBER_OF_FIELDS
-    COLOR_PLAYER_MAPPING = {
-        "green": 0,
-        "pink": 1,
-        "orange": 2,
-        "blue": 3
-    }
-    PLAYER_COLOR_MAPPING = {
-        0: "green",
-        1: "pink",
-        2: "orange",
-        3: "blue"
-    }
     TURN_DURATION = TURN_DURATION
 
     def __init__(self, name, list_of_players: list[Player]):
@@ -368,7 +357,7 @@ class Game:
             self.field_occupation.pop(old_position, None)
 
         new_position = self._calculate_new_position(figure, value)
-        player_number = self.COLOR_PLAYER_MAPPING[figure.color]
+        player_number = PlayerColor[figure.color.upper()].value
         if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) and new_position not in [
             (player_number+1) * 100 + i  for i in range(4)]:
             logging.debug(f"if ({new_position} < 0 or {new_position} >= {self.NUMBER_OF_FIELDS}) and {new_position} not in {[

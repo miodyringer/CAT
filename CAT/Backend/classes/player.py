@@ -1,6 +1,7 @@
 import uuid
 from .cards import *
 from .figure import Figure
+from .enums import PlayerColor
 from CAT.Backend.config import FIGURES_PER_PLAYER, NUMBER_OF_FIELDS
 
 class Player:
@@ -9,9 +10,9 @@ class Player:
         self.uuid = str(uuid.uuid4())
         self.name: str = name
         self.number: int = number
-        self.color = "green" if number == 0 else "pink" if number == 1 else "orange" if number == 2 else "blue"
+        self.color = PlayerColor(number)
         self.cards: list[Card] = []
-        self.figures: list[Figure] = [Figure(self.color) for _ in range(FIGURES_PER_PLAYER)]
+        self.figures: list[Figure] = [Figure(self.color.color_name) for _ in range(FIGURES_PER_PLAYER)]
         self.startfield = (number * 14) % NUMBER_OF_FIELDS
         self.finishing_field = (self.startfield - 1) % NUMBER_OF_FIELDS
         self.is_active = True
@@ -36,7 +37,7 @@ class Player:
             "uuid": player_uuid,
             "name": self.name,
             "number": self.number,
-            "color": self.color,
+            "color": self.color.color_name,
             "cards": cards_data,
             "figures": [figure.to_json() for figure in self.figures],
             "is_active": self.is_active
