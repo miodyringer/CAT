@@ -11,11 +11,6 @@ export async function getConfig() {
         return config;
     } catch (error) {
         console.error("Couldn't load API-configuration", error);
-        // Fallback
-        return {
-            apiBaseUrl: 'http://127.0.0.1:7777',
-            webSocketUrl: 'ws://127.0.0.1:7777'
-        };
     }
 }
 
