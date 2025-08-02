@@ -1,6 +1,7 @@
 import getCookie from "./functions.mjs";
 import { applyTranslationsToPage } from "./translator.mjs";
 import {initPageSound, navigateWithFade} from './audio_manager.mjs';
+import {translations} from "./translations.mjs";
 
 initPageSound();
 customAlert();
@@ -24,16 +25,25 @@ applyPageSettings();
 
 function customAlert() {
     window.alert = function(message){
+        const lang = getCookie("language") || "en"; // Sprache aus Cookie holen, 'en' als Fallback
         const alert = document.createElement("div");
         alert.className = "alert-container";
-        alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button' id='close-alert'>Close</button></div>`;
+
+        alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button' id='close-alert' data-translate="close">Close</button></div>`;
+
+        const closeButton = alert.querySelector("#close-alert");
+        const closeKey = closeButton.dataset.translate; // "close"
+        closeButton.textContent = translations[lang][closeKey] || translations.en[closeKey];
+
         alert.querySelector("#close-alert").onclick = () => {
             document.querySelector(".alert-container").remove();
         }
         document.body.append(alert);
     }
-    window.confirm = function(message, reject) {
+
+    window.confirm = function(message) { // Das 'reject' Argument wird nicht verwendet und kann entfernt werden
         return new Promise((resolve) => {
+            const lang = getCookie("language") || "en"; // Sprache aus Cookie holen
             const confirmBox = document.createElement("div");
             confirmBox.className = "alert-container";
 
@@ -42,13 +52,19 @@ function customAlert() {
                 <h3>Bestätigung</h3>
                 <p>${message}</p>
                 <div class='confirm-buttons'>
-                    <button class='button' id='confirm-cancel'>Abbrechen</button>
-                    <button class='button' id='confirm-ok'>Bestätigen</button>
+                    <button class='button' id='confirm-cancel' data-translate="cancel">Cancel</button>
+                    <button class='button' id='confirm-ok' data-translate="confirm">Confirm</button>
                 </div>
             </div>`;
 
             const btnOk = confirmBox.querySelector("#confirm-ok");
             const btnCancel = confirmBox.querySelector("#confirm-cancel");
+
+            const okKey = btnOk.dataset.translate;
+            const cancelKey = btnCancel.dataset.translate;
+
+            btnOk.textContent = translations[lang][okKey] || translations.en[okKey];
+            btnCancel.textContent = translations[lang][cancelKey] || translations.en[cancelKey];
 
             btnOk.onclick = () => {
                 resolve(true);

@@ -1,4 +1,6 @@
 import sendRequest from './services/server_service.js';
+import {translate} from "./translator.mjs";
+import getCookie from "./functions.mjs";
 
 // 1. Parameter aus der URL auslesen
 const params = new URLSearchParams(document.location.search);
@@ -20,7 +22,7 @@ joinGameBtn.addEventListener('click', async () => {
     const playerName = playerNameInput.value;
 
     if (!playerName) {
-        alert('Please enter a player name.');
+        alert(translate(getCookie("language"), "empty_player_name_alert"));
         return;
     }
     if (!lobbyId) {
@@ -28,7 +30,6 @@ joinGameBtn.addEventListener('click', async () => {
         return;
     }
 
-    // 4. Daten für die API-Anfrage vorbereiten
     const requestBody = {
         player_name: playerName
     };
@@ -37,7 +38,6 @@ joinGameBtn.addEventListener('click', async () => {
         const response = await sendRequest(`/lobby/${lobbyId}/join`, 'POST', requestBody);
 
         if (response && response.player_id) {
-            // *** HIER DIE ÄNDERUNG: player_id zur URL hinzufügen ***
             window.location.href = `/game?game_id=${lobbyId}&player_id=${response.player_id}`;
         } else {
             alert('Failed to get player confirmation from server.');
@@ -45,6 +45,13 @@ joinGameBtn.addEventListener('click', async () => {
     }
     catch (error) {
         console.error('Failed to join lobby:', error);
-        alert('Failed to join lobby. See console for details.');
+        if (error.message.includes('Names cannot be longer than')) {
+            const numberMatch = error.message.match(/\d+/);
+            const maxLength = numberMatch ? numberMatch[0] : '';
+            alert(translate(getCookie("language"), "error_name_too_long").replace("{maxLength}", maxLength));
+        }
+        else {
+            alert(translate(getCookie("language"), "error_generic").replace("{errorMessage}", error.message));
+        }
     }
 });

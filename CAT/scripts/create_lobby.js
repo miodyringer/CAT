@@ -1,4 +1,6 @@
 import sendRequest from './services/server_service.js';
+import {translate} from "./translator.mjs";
+import getCookie from "./functions.mjs";
 
 const lobbyNameInput = document.querySelector('#lobby-name');
 const playerNameInput = document.querySelector('#player-name');
@@ -9,11 +11,10 @@ createLobbyBtn.addEventListener('click', async () => {
     const playerName = playerNameInput.value;
 
     if (!lobbyName || !playerName) {
-        alert('Please enter a lobby and player name.');
+        alert(translate(getCookie("language"), "empty_lobby_or_player_alert"));
         return;
     }
 
-    // Dieses Objekt muss genau der Struktur in CreateLobbyRequest entsprechen
     const requestBody = {
         lobby_name: lobbyName,
         player_input: {
@@ -26,7 +27,6 @@ createLobbyBtn.addEventListener('click', async () => {
 
     if (response && response.game_id && response.player_id) {
         console.log('Lobby created:', response);
-        // *** HIER DIE ÄNDERUNG: player_id zur URL hinzufügen ***
         window.location.href = `/game?game_id=${response.game_id}&player_id=${response.player_id}`;
     } else {
         alert('Error creating lobby.');
@@ -34,6 +34,13 @@ createLobbyBtn.addEventListener('click', async () => {
     } 
     catch (error) {
         console.error('Failed to create lobby:', error);
-        alert('Failed to connect to the server. Check the browser console (F12) for more details.');
+        if (error.message.includes('Names cannot be longer than')) {
+            const numberMatch = error.message.match(/\d+/);
+            const maxLength = numberMatch ? numberMatch[0] : '';
+            alert(translate(getCookie("language"), "error_name_too_long").replace("{maxLength}", maxLength));
+        }
+        else {
+            alert(translate(getCookie("language"), "error_generic").replace("{errorMessage}", error.message));
+        }
     }
 });
