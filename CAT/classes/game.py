@@ -1,3 +1,4 @@
+import logging
 import uuid
 import time
 import json
@@ -38,7 +39,7 @@ class Game:
         # {15: <Figure object of Player green>, 23: <Figure object of player pink> }
         self.field_occupation: dict[int, Figure] = {}
         self.game_over = False
-        self.deck = Deck()
+        self.deck = Deck(self.uuid)
         self.current_player_index = -1
         self.round_number = 1
         self.game_started = False
@@ -58,7 +59,7 @@ class Game:
 
         self.game_started = True
         self.deck.deal_cards(self.players, self.round_number)
-        print(f"Game '{self.name}' started. Dealt cards for round {self.round_number}.")
+        logging.info(f"Game '{self.name}' started.", extra={"game_id": self.uuid})
         self.current_player_index = 0
 
         self._start_new_turn()
@@ -99,7 +100,7 @@ class Game:
         self.last_played_card = played_card
 
         if await self.check_for_winner():
-            print(f"Game Over! Player {player.name} has won!")
+            logging.info(f"Game Over! Player {player.name} has won!", extra={"game_id": self.uuid})
             return
 
         try:
@@ -109,7 +110,7 @@ class Game:
                 self.current_player_index = self._find_next_active_player_index(self.current_player_index)
                 self._start_new_turn()
         except NoActivePlayersError:
-            print("Game Over: No active players left.")
+            logging.info("Game Over: No active players left.", extra={"game_id": self.uuid})
             self.game_over = True
 
     def is_round_over(self) -> bool:
@@ -122,11 +123,10 @@ class Game:
         try:
             self.current_player_index = self._find_next_active_player_index((self.round_number - 2) % self.number_of_players)
         except NoActivePlayersError:
-            print("No active players left. Game over.")
             self.game_over = True
             return
-        print(f"\n--- Starting Round {self.round_number} in game {self.name} ---")
-        print(f"New starting player is {self.players[self.current_player_index].name}")
+        logging.info(f"\n--- Starting Round {self.round_number}---", extra={"game_id": self.uuid})
+        logging.info(f"New starting player is {self.players[self.current_player_index].name}", extra={"game_id": self.uuid})
 
         self.deck.deal_cards(self.players, self.round_number)
 
@@ -134,7 +134,7 @@ class Game:
 
     def _start_new_turn(self):
         """Resets the turn timer and checks if the new player can move."""
-        print(f"Starting turn for player {self.players[self.current_player_index].name}")
+        logging.info(f"Starting turn for player {self.players[self.current_player_index].name}", extra={"game_id": self.uuid})
         self.turn_start_time = time.time()
         self.check_and_skip_turn_if_no_moves()
 
@@ -144,7 +144,7 @@ class Game:
         Otherwise, return False.
         """
         if self.game_started and self.turn_start_time and (time.time() - self.turn_start_time) > self.TURN_DURATION:
-            print(f"Server detected timeout for player {self.players[self.current_player_index].name}.")
+            logging.info(f"Server detected timeout for player {self.players[self.current_player_index].name}.", extra={"game_id": self.uuid})
             self.pass_turn(self.players[self.current_player_index])
             self._start_new_turn()
             return True
@@ -155,7 +155,7 @@ class Game:
         Checks if the current player's time is up and broadcasts an update if so.
         """
         if self._check_and_handle_timeout():
-            print(f"Broadcasting update for game {self.uuid} due to timeout (from background task).")
+            logging.info(f"Broadcasting update for game due to timeout (from background task).", extra={"game_id": self.uuid})
             await manager.broadcast(json.dumps({"event": "update"}), self.uuid)
 
     def _update_last_activity(self):
@@ -198,7 +198,7 @@ class Game:
         else:
             finish_entry = player.finishing_field
             dist_to_finish = (finish_entry - old_pos + self.NUMBER_OF_FIELDS) % self.NUMBER_OF_FIELDS
-            print(f"Distance to finish: {dist_to_finish}, Old position: {old_pos}, Value: {value}")
+            logging.debug(f"Distance to finish: {dist_to_finish}, Old position: {old_pos}, Value: {value}", extra={"game_id": self.uuid})
             if value > dist_to_finish + 1:
                 if self.field_occupation.get(player.startfield) and self.field_occupation[player.startfield].color == player.color:
                     raise ValueError(f"Cannot go in finish-zone when start field is blocked.")
@@ -322,15 +322,15 @@ class Game:
         """
         # safetynet: so we don't end up in an infinite loop
         if recursion_count >= self.number_of_players:
-            print("All players skipped in a row. Force-starting a new round.")
+            logging.info("All players skipped in a row. Force-starting a new round.", extra={"game_id": self.uuid})
             self.start_new_round()
             return
 
         current_player = self.players[self.current_player_index]
 
         if not self.has_any_valid_move(current_player):
-            print(f"Server check: Player {current_player.name} has no valid moves. Skipping turn.")
-            print(f"cards of player {current_player.name}: {current_player.cards}")
+            logging.info(f"Server check: Player {current_player.name} has no valid moves. Skipping turn.", extra={"game_id" : self.uuid})
+            logging.debug(f"cards of player {current_player.name}: {current_player.cards}", extra={"game_id" : self.uuid})
             self.pass_turn(current_player)
 
             if self.is_round_over():
@@ -351,11 +351,10 @@ class Game:
 
         player.cards = []
 
-        print(f"Player {player.name} cannot move and discards their hand.")
         try:
             self.current_player_index = self._find_next_active_player_index(self.current_player_index)
         except NoActivePlayersError:
-            print("Game Over: No active players left.")
+            logging.info("Game Over: No active players left.", extra={"game_id" : self.uuid})
             self.game_over = True
 
     def move_figure(self, figure: Figure, value: int):
@@ -370,17 +369,16 @@ class Game:
         player_number = self.COLOR_PLAYER_MAPPING[figure.color]
         if (new_position < 0 or new_position >= self.NUMBER_OF_FIELDS) and new_position not in [
             (player_number+1) * 100 + i  for i in range(4)]:
-            print(f"if ({new_position} < 0 or {new_position} >= {self.NUMBER_OF_FIELDS}) and {new_position} not in {[
+            logging.debug(f"if ({new_position} < 0 or {new_position} >= {self.NUMBER_OF_FIELDS}) and {new_position} not in {[
             (player_number + 1) * 100 + i  for i in range(4)]}:")
-            print(f"if {new_position < 0 or new_position >= self.NUMBER_OF_FIELDS} and {new_position not in [
+            logging.debug(f"if {new_position < 0 or new_position >= self.NUMBER_OF_FIELDS} and {new_position not in [
                 (player_number + 1) * 100 + i for i in range(4)]}:")
             raise ValueError("New position is out of bounds.")
         if new_position in self.field_occupation:
             occupying_figure = self.field_occupation[new_position]
             if occupying_figure.get_position() != self.get_spieler_von_figur(occupying_figure).startfield:
                 if occupying_figure.get_color() != figure.get_color():
-                    print(
-                        f"Figure {occupying_figure.get_uuid()} of color {occupying_figure.get_color()} is on the same field. It will be sent back to its start field.")
+                    logging.info(f"Figure {occupying_figure.get_uuid()} of color {occupying_figure.get_color()} is on the same field. It will be sent back to its start field.", extra={"game_id" : self.uuid})
                     occupying_figure.position = -1
                 else:
                     raise ValueError("Cannot move to a field occupied by your own figure.")
@@ -389,8 +387,8 @@ class Game:
 
         self.field_occupation[new_position] = figure
         figure.position = new_position
-        print(f"Figure moved from {old_position} to {new_position}.")
-        print(self.field_occupation)
+        logging.info(f"Figure moved from {old_position} to {new_position}.", extra={"game_id" : self.uuid})
+        logging.debug(self.field_occupation, extra={"game_id" : self.uuid})
 
     def swap_figures(self, figure1: Figure, figure2: Figure):
         """Swaps the positions of two figures, respecting safe start tiles."""
@@ -411,7 +409,7 @@ class Game:
 
         figure1.position, figure2.position = pos2, pos1
         self.field_occupation[pos1], self.field_occupation[pos2] = figure2, figure1
-        print(f"Figures {figure1.get_uuid()} and {figure2.get_uuid()} have swapped positions.")
+        logging.info(f"Figures {figure1.get_uuid()} and {figure2.get_uuid()} have swapped positions.", extra={"game_id" : self.uuid})
 
     def get_figure_by_uuid(self, figure_uuid: str) -> Figure | None:
         """Helper to find any figure in the game by its UUID."""
@@ -454,7 +452,7 @@ class Game:
 
                 owner = self.get_spieler_von_figur(figure_to_burn)
                 if tile_pos != owner.startfield:
-                    print(f"Figure {figure_to_burn.uuid} was burned at position {tile_pos}!")
+                    logging.info(f"Figure {figure_to_burn.uuid} was burned at position {tile_pos}.", extra={"game_id" : self.uuid})
                     figure_to_burn.position = -1
                     del self.field_occupation[tile_pos]
                 else:
@@ -476,7 +474,7 @@ class Game:
 
         # Place the figure on the start tile
         self._execute_move(figure, start_tile)
-        print(f"Figure {figure.get_uuid()} is now on start tile {start_tile}.")
+        logging.info(f"Figure {figure.get_uuid()} is now on start tile {start_tile}.", extra={"game_id" : self.uuid})
 
     def _execute_move(self, figure: Figure, new_position: int):
         """
@@ -496,13 +494,13 @@ class Game:
                     self.field_occupation[old_position] = figure
                 raise ValueError("Cannot land on a tile occupied by a safe figure.")
 
-            print(f"Figure {kicked_figure.get_uuid()} ({kicked_figure.get_color()}) was kicked!")
+            logging.info(f"Figure {kicked_figure.get_uuid()} ({kicked_figure.get_color()}) was kicked.", extra={"game_id" : self.uuid})
             kicked_figure.position = -1
 
         figure.position = new_position
         if new_position >= 0:
             self.field_occupation[new_position] = figure
-        print(f"Moved figure {figure.get_uuid()} from {old_position} to {new_position}.")
+        logging.info(f"Figure moved from {old_position} to {new_position}.", extra={"game_id" : self.uuid})
 
     async def check_for_winner(self) -> bool:
         """Checks if any player has all their figures in the finishing zone."""
@@ -514,7 +512,7 @@ class Game:
 
                 winner_name = player.name
                 payload = {"event": "game_over", "winner": winner_name}
-                print(f"Game Over! Winner is {winner_name}. Broadcasting event.")
+                logging.info(f"Game Over! Winner is {winner_name}. Broadcasting event.", extra={"game_id" : self.uuid})
                 await manager.broadcast(json.dumps(payload), self.uuid)
 
                 return True
@@ -539,7 +537,7 @@ class Game:
         if len(self.kick_votes[player_to_kick_uuid]) > required_votes and len(self.players) > MIN_PLAYERS_TO_START:
             player_to_kick = self.get_player_by_uuid(player_to_kick_uuid)
             if player_to_kick:
-                print(f"Player {player_to_kick.name} has been kicked by vote.")
+                logging.info(f"Player {player_to_kick.name} has been kicked by vote.", extra={"game_id" : self.uuid})
                 player_to_kick.is_active = False
                 for fig in player_to_kick.figures:
                     if fig.position in self.field_occupation:
@@ -550,7 +548,7 @@ class Game:
                     try:
                         self.current_player_index = self._find_next_active_player_index(self.current_player_index)
                     except NoActivePlayersError:
-                        print("Game Over: No active players left after kick.")
+                        logging.info("Game Over: No active players left after kick.", extra={"game_id" : self.uuid})
                         self.game_over = True
 
                 del self.kick_votes[player_to_kick_uuid]

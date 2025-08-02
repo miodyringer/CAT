@@ -1,4 +1,5 @@
 import random
+import logging
 from typing import List
 
 from .cards import (
@@ -14,41 +15,36 @@ from .player import Player
 from CAT.config import DECK_COMPOSITION, MAX_CARDS_DEALT, CARD_DEAL_CYCLE_LENGTH
 
 
-class Deck:
+class Deck():
     """
     Manages the game's deck of cards, including creation, shuffling,
     and dealing hands to players.
     """
 
-    def __init__(self):
+    def __init__(self, game_id):
         """Initializes a new deck, creates all cards, and shuffles them."""
         self.cards: List[Card] = []
         self.discard_pile: List[Card] = []
+        self.game_id = game_id
         self._create_deck()
         self.shuffle()
 
     def _create_deck(self):
         """
-        Creates all 110 game cards by instantiating the specific card classes.
-        The composition is based on the official game rules.
+        Creates all game cards by instantiating the specific card classes.
+        The composition is based on the settings in the config file.
         """
         self.cards = []
 
-        # 1. Standard numeric cards (8 of each)
         for value in [2, 3, 5, 6, 8, 9, 10, 12]:
             self.cards.extend([StandardCard(value)] * DECK_COMPOSITION["standard_cards_each"])
 
-        # 2. Special cards
-        # FlexCard (4 +/-): 8 cards
         self.cards.extend([FlexCard()] * DECK_COMPOSITION["flex_cards"])
 
-        # InfernoCard (7): 8 cards
         self.cards.extend([InfernoCard()] * DECK_COMPOSITION["inferno_cards"])
 
-        # SwapCard: 8 cards
         self.cards.extend([SwapCard()] * DECK_COMPOSITION["swap_cards"])
 
-        # "13/Start" Card: 8 cards
         self.cards.extend([
                               StartCard(
                                   name="13/Start",
@@ -57,7 +53,6 @@ class Deck:
                               )
                           ] * DECK_COMPOSITION["start_13_cards"])
 
-        # "1/11/Start" Card: 8 cards
         self.cards.extend([
                               StartCard(
                                   name="1/11/Start",
@@ -66,10 +61,9 @@ class Deck:
                               )
                           ] * DECK_COMPOSITION["start_1_11_cards"])
 
-        # JokerCard: 6 cards
         self.cards.extend([JokerCard()] * DECK_COMPOSITION["joker_cards"])
 
-        print(f"Deck created with {len(self.cards)} cards.")
+        logging.info(f"Deck created with {len(self.cards)} cards.", extra={'game_id': self.game_id})
 
     def shuffle(self):
         """
@@ -77,12 +71,14 @@ class Deck:
         reclaims the discard pile.
         """
         if not self.cards:
-            print("Main deck is empty. Shuffling discard pile.")
+            logging.info("Main deck is empty. Shuffling discard pile.", extra={'game_id': self.game_id})
+            self.cards = self.discard_pile
+            self.discard_pile = []
             self.cards = self.discard_pile
             self.discard_pile = []
 
         random.shuffle(self.cards)
-        print("Deck has been shuffled.")
+        logging.info("Deck has been shuffled.", extra={'game_id': self.game_id})
 
     def deal_cards(self, players: List[Player], round_number: int):
         """
@@ -92,7 +88,7 @@ class Deck:
         # The number of cards decreases each round in a 5-round cycle (6, 5, 4, 3, 2)
         cards_to_deal = MAX_CARDS_DEALT - ((round_number - 1) % CARD_DEAL_CYCLE_LENGTH)
 
-        print(f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.")
+        logging.info(f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.", extra={'game_id': self.game_id})
 
         for i in range(cards_to_deal):
             for player in players:

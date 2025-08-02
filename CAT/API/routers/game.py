@@ -17,11 +17,11 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
     await manager.connect(websocket, game_id)
     try:
         while True:
-            # Warte auf Nachrichten vom Client (aktuell nicht genutzt, aber für die Zukunft nötig)
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket, game_id)
-        print(f"Player {player_id} disconnected from game {game_id}")
+        logging.info(f"Player {player_id} disconnected from game",
+                         extra={'game_id': game_id})
 
 @router.get("/{game_id}/state")
 def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
@@ -36,7 +36,6 @@ def get_game_state(game_id: str, player_id: str = Query(...), game_manager: Game
     return game.to_json(perspective_player_id=player_id)
 
 
-# Example of a future endpoint for playing a card
 @router.post("/{game_id}/play")
 async def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
     """
@@ -64,7 +63,8 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
         return {"message": "Action successful."}
     except (ValueError, IndexError) as e:
         if "Your time is up" in str(e):
-            print(f"Broadcasting update for game {game_id} due to an active timeout during play.")
+            logging.info(f"Broadcasting update for game due to an active timeout during play.",
+                         extra={'game_id': game_id})
             await manager.broadcast(json.dumps({"event": "update"}), game_id)
 
         raise HTTPException(status_code=400, detail=str(e))

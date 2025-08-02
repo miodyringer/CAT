@@ -1,4 +1,5 @@
 import json
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from CAT.API.schemas import CreateLobbyRequest, PlayerInput
 from CAT.manager.game_manager import GameManager
@@ -11,15 +12,13 @@ router = APIRouter(
 )
 
 
-# Diese Funktion ist jetzt korrekt
 @router.post("/create")
 def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depends(get_game_manager)):
-    print("Received request to create lobby with data:", request.model_dump())
+    logging.info(f"Received request to create lobby with data: {request.model_dump()}")
     new_game = game_manager.create_game(
         name=request.lobby_name,
         player_name=request.player_input.player_name
     )
-    # Der erste Spieler in der Liste ist der Host
     host_player = new_game.players[0]
     return {
         "message": f"Lobby '{new_game.name}' created!",
@@ -27,7 +26,6 @@ def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depend
         "player_id": host_player.uuid  # Wichtig: Die ID des Hosts zurückgeben
     }
 
-# Diese Funktion wird jetzt auch korrekt geladen, da PlayerInput bekannt ist
 @router.post("/{game_id}/join")
 async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: GameManager = Depends(get_game_manager)):
     """

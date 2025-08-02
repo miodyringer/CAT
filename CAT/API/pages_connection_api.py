@@ -3,6 +3,7 @@ import json
 import time
 import uvicorn
 import os
+import logging
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -15,6 +16,19 @@ from CAT.API.dependencies import get_game_manager
 from CAT.API.connection_manager import manager
 from CAT.config import GAME_INACTIVITY_TIMEOUT, FINISHED_GAME_CLEANUP_DELAY
 
+
+class GameIdFilter(logging.Filter):
+    def filter(self, record):
+        if not hasattr(record, 'game_id'):
+            record.game_id = 'System' # Standardwert für systemweite Logs
+        return True
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - [%(game_id)s] - %(message)s'
+)
+
+logging.getLogger().addFilter(GameIdFilter())
 
 
 CURRENT_FILE_PATH = Path(__file__).resolve()
@@ -29,7 +43,7 @@ ICON_DIR = BASE_DIR / "icon"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Application started... start Timer-Background-Task.")
+    logging.info("Application started... start Timer-Background-Task.")
     task = asyncio.create_task(run_game_timer_checks())
     yield
     task.cancel()
@@ -44,13 +58,13 @@ async def run_game_timer_checks():
         for game_id, game in list(game_manager.games.items()):
             await game.check_timeout_and_broadcast()
             if time.time() - game.last_activity_time > GAME_INACTIVITY_TIMEOUT:
-                print(f"Closing inactive game {game_id} due to inactivity.")
+                logging.info(f"Closing inactive game {game_id} due to inactivity.")
                 await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
                 del game_manager.games[game_id]
 
             if game.game_over and game.game_over_time:
                 if time.time() - game.game_over_time > FINISHED_GAME_CLEANUP_DELAY:
-                    print(f"Cleaning up finished game {game_id}.")
+                    logging.info(f"Cleaning up finished game {game_id}.")
                     await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Game finished"}), game_id)
                     del game_manager.games[game_id]
 
@@ -77,7 +91,6 @@ app.mount("/icon", StaticFiles(directory=ICON_DIR), name="icon")
 
 @app.get("/config")
 async def get_config():
-    """Stellt dem Frontend die Basis-URL der API bereit."""
     base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
 
     ws_url = base_url.replace("http", "ws")

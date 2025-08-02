@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
 import typing
+import logging
 
 if typing.TYPE_CHECKING:
     from .game import Game
@@ -89,6 +90,8 @@ class StandardCard(Card):
         if not figure_to_move:
             raise ValueError(f"Figure with UUID {figure_uuid} not found in the game.")
 
+        logging.info(f"Player {player.name} plays StandardCard {self.value} on Figure on Position:{figure_to_move.position}",
+                         extra={'game_id': game_object.uuid})
         game_object.move_figure(figure_to_move, self.value)
 
     def to_json(self) -> dict:
@@ -138,6 +141,9 @@ class FlexCard(Card):
         figure = game_object.get_figure_by_uuid(figure_uuid)
         if not figure:
             raise ValueError(f"Figure with UUID {figure_uuid} not found.")
+
+        logging.info(f"Player {player.name} plays FlexCard {direction} on Figure on Position:{figure.position}",
+                         extra={'game_id': game_object.uuid})
 
         if direction == "forward":
             game_object.move_figure(figure, 4)
@@ -198,6 +204,8 @@ class SwapCard(Card):
         if figure1 not in player.figures:
             raise ValueError("You can only initiate a swap with one of your own figures.")
 
+        logging.info(f"Player {player.name} plays SwapCard own Figure on Postion {figure1.position} and Figure on Position {figure2.position}",
+                         extra={'game_id': game_object.uuid})
         game_object.swap_figures(figure1, figure2)
 
     def to_json(self) -> dict:
@@ -247,6 +255,8 @@ class StartCard(Card):
         figure = game_object.get_figure_by_uuid(figure_uuid)
 
         if action == "start":
+            logging.info(f"Player {player.name} plays StartCard.",
+                         extra={'game_id': game_object.uuid})
             game_object.start_figure(player, figure)
 
         elif action == "move":
@@ -254,6 +264,8 @@ class StartCard(Card):
             if chosen_value not in self.move_values:
                 raise ValueError(f"Invalid move value. Must be one of {self.move_values}.")
 
+            logging.info(f"Player {player.name} plays StartCard on Figure on Position:{figure.position} with {chosen_value} steps",
+                         extra={'game_id': game_object.uuid})
             game_object.move_figure(figure, chosen_value)
         else:
             raise ValueError("Invalid action. Must be 'start' or 'move'.")
@@ -367,6 +379,8 @@ class InfernoCard(Card):
             if not figure or figure not in player.figures:
                 raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
 
+            logging.info(f"Player {player.name} plays InfernoCard on Figure on Position {figure.position} for {steps} steps",
+                         extra={'game_id': game_object.uuid})
             game_object.move_and_burn(figure, steps)
 
     def to_json(self) -> dict:
@@ -426,7 +440,8 @@ class JokerCard(Card):
             except ValueError:
                 raise ValueError(f"Unknown card type to imitate: {card_to_imitate}")
 
-        print(f"Playing Joker as a {card_to_imitate}")
+        logging.info(f"Player {player.name} plays Joker as a {card_to_imitate}",
+                     extra={'game_id': game_object.uuid})
         imitated_card.play_card(game_object, player, **kwargs)
 
     def to_json(self) -> dict:
