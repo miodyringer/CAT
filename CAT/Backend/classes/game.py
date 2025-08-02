@@ -1,12 +1,11 @@
 import uuid
 import time
 import json
-from typing import Dict, List
-from CAT.API.connection_manager import manager
-from CAT.classes.player import Player
-from CAT.classes.figure import Figure
-from CAT.classes.deck import Deck
-from CAT.classes.cards import *
+from typing import Dict
+from CAT.Backend.API.connection_manager import manager
+from CAT.Backend.classes.figure import Figure
+from CAT.Backend.classes.deck import Deck
+from CAT.Backend.classes.cards import *
 from CAT.config import NUMBER_OF_FIELDS, MAX_PLAYERS, MIN_PLAYERS_TO_START, TURN_DURATION, FIGURES_PER_PLAYER
 
 class NoActivePlayersError(Exception):

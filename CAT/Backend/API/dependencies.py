@@ -1,4 +1,4 @@
-from CAT.manager.game_manager import GameManager
+from CAT.Backend.manager.game_manager import GameManager
 
 # Create single instances of the managers that can be shared across the application
 game_manager = GameManager()

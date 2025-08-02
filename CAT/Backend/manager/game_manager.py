@@ -1,5 +1,5 @@
-from CAT.classes.game import Game
-from CAT.classes.player import Player
+from CAT.Backend.classes.game import Game
+from CAT.Backend.classes.player import Player
 
 class GameManager:
     """
