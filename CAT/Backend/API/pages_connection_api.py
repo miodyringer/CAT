@@ -18,9 +18,24 @@ from CAT.Backend.config import GAME_INACTIVITY_TIMEOUT, FINISHED_GAME_CLEANUP_DE
 
 
 class GameIdFilter(logging.Filter):
+    """
+    Logging filter that ensures every log record has a 'game_id' attribute.
+
+    If the log record does not already have a 'game_id', it sets it to 'System' as a default value.
+    This helps to distinguish between system-wide logs and game-specific logs.
+    """
     def filter(self, record):
+        """
+        Checks and sets the 'game_id' attribute for a log record.
+
+        Args:
+            record (logging.LogRecord): The log record to filter.
+
+        Returns:
+            bool: Always True to allow the log record to be processed.
+        """
         if not hasattr(record, 'game_id'):
-            record.game_id = 'System' # Standardwert für systemweite Logs
+            record.game_id = 'System' # Default value for system-wide logs
         return True
 
 logging.basicConfig(
@@ -43,6 +58,15 @@ ICON_DIR = BASE_DIR / "Frontend" / "icon"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan context manager that starts and stops the background game timer task.
+
+    Args:
+        app (FastAPI): The FastAPI application instance.
+
+    Yields:
+        None
+    """
     logging.info("Application started... start Timer-Background-Task.")
     task = asyncio.create_task(run_game_timer_checks())
     yield
@@ -51,6 +75,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 async def run_game_timer_checks():
+    """
+    Periodically checks all games for timeouts and performs cleanup of inactive or finished games.
+
+    This function runs in the background and:
+      - Calls check_timeout_and_broadcast on each game every second.
+      - Closes and removes games that are inactive for too long.
+      - Cleans up finished games after a delay.
+    """
     game_manager = get_game_manager()
 
     while True:
@@ -91,8 +123,13 @@ app.mount("/icon", StaticFiles(directory=ICON_DIR), name="icon")
 
 @app.get("/config")
 async def get_config():
-    base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
+    """
+    Returns the API base URL and WebSocket URL for the frontend to use.
 
+    Returns:
+        JSONResponse: Contains 'apiBaseUrl' and 'webSocketUrl' for client configuration.
+    """
+    base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
     ws_url = base_url.replace("http", "ws")
     return JSONResponse({
         "apiBaseUrl": base_url,
@@ -101,52 +138,106 @@ async def get_config():
 
 @app.get("/favicon.ico", response_class=FileResponse)
 async def get_favicon():
+    """
+    Returns the favicon.ico file for the application.
+
+    Returns:
+        FileResponse: The favicon.ico file with the correct media type.
+    """
     return FileResponse(os.path.join(ICON_DIR, "favicon.ico"), media_type="image/x-icon")
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():
+    """
+    Returns the 'about' HTML page.
+
+    Returns:
+        str: The HTML content of the about page.
+    """
     with open(os.path.join(PAGES_DIR, "about.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/create_lobby", response_class=HTMLResponse)
 async def get_create_lobby():
+    """
+    Returns the 'create_lobby' HTML page.
+
+    Returns:
+        str: The HTML content of the create_lobby page.
+    """
     with open(os.path.join(PAGES_DIR, "create_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/game", response_class=HTMLResponse)
 async def get_game():
+    """
+    Returns the 'game' HTML page.
+
+    Returns:
+        str: The HTML content of the game page.
+    """
     with open(os.path.join(PAGES_DIR, "game.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/join_lobby", response_class=HTMLResponse)
 async def get_join_lobby():
+    """
+    Returns the 'join_lobby' HTML page.
+
+    Returns:
+        str: The HTML content of the join_lobby page.
+    """
     with open(os.path.join(PAGES_DIR, "join_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/", response_class=HTMLResponse)
 async def get_menu():
+    """
+    Returns the main menu HTML page.
+
+    Returns:
+        str: The HTML content of the menu page.
+    """
     with open(os.path.join(PAGES_DIR, "menu.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/online", response_class=HTMLResponse)
 async def get_online():
+    """
+    Returns the 'online' HTML page.
+
+    Returns:
+        str: The HTML content of the online page.
+    """
     with open(os.path.join(PAGES_DIR, "online.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/rules", response_class=HTMLResponse)
 async def get_rules():
+    """
+    Returns the 'rules' HTML page.
+
+    Returns:
+        str: The HTML content of the rules page.
+    """
     with open(os.path.join(PAGES_DIR, "rules.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
 
 @app.get("/settings", response_class=HTMLResponse)
 async def get_settings():
+    """
+    Returns the 'settings' HTML page.
+
+    Returns:
+        str: The HTML content of the settings page.
+    """
     with open(os.path.join(PAGES_DIR, "settings.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html

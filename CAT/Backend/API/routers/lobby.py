@@ -15,6 +15,19 @@ router = APIRouter(
 
 @router.post("/create")
 def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depends(get_game_manager)):
+    """
+    Creates a new game lobby and adds the host player.
+
+    Args:
+        request (CreateLobbyRequest): The request containing the lobby and player name.
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: Contains a message, the new game ID, and the host player ID.
+
+    Raises:
+        HTTPException: If the lobby or player name exceeds the maximum allowed length.
+    """
     if len(request.player_input.player_name) > MAX_NAME_LENGTH or len(request.lobby_name) > MAX_NAME_LENGTH:
         raise HTTPException(
             status_code=400,
@@ -37,6 +50,17 @@ def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depend
 async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: GameManager = Depends(get_game_manager)):
     """
     Adds a new player to an existing game lobby.
+
+    Args:
+        game_id (str): The ID of the game lobby to join.
+        player_input (PlayerInput): The joining player's information.
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: Contains a message, the game ID, and the new player ID.
+
+    Raises:
+        HTTPException: If the game is not found, the player name is too long, or the lobby is full.
     """
     game = game_manager.get_game(game_id)
     if not game:
@@ -61,5 +85,11 @@ async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: Game
 def get_all_lobbies(game_manager: GameManager = Depends(get_game_manager)):
     """
     Returns a list of all active game lobbies.
+
+    Args:
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: A dictionary of all active games/lobbies.
     """
     return game_manager.games
