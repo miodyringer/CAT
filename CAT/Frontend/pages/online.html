@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-translate="online_title">Cat - Find Game</title>
-    <link rel="stylesheet" href="../stylesheets/base.css">
-    <link rel="stylesheet" href="../stylesheets/submenu.css">
-    <link rel="stylesheet" href="../stylesheets/online.css">
+    <link rel="stylesheet" href="../stylesheets/base.css" />
+    <link rel="stylesheet" href="../stylesheets/submenu.css" />
+    <link rel="stylesheet" href="../stylesheets/online.css" />
   </head>
   <body>
     <div class="submenu-container">
@@ -15,33 +15,59 @@
       <h2 data-translate="filter_lobbies">Filter Lobbies</h2>
       <div class="labeled-item">
         <label data-translate="lobby_name_label" for="lobby-name-filter">Lobby Name:</label>
-        <input data-translate="lobby_name_placeholder" type="text" id="lobby-name-filter" name="lobby-name-filter" placeholder="Enter lobby name...">
+        <input
+          data-translate="lobby_name_placeholder"
+          type="text"
+          id="lobby-name-filter"
+          name="lobby-name-filter"
+          placeholder="Enter lobby name..."
+        />
       </div>
       <div class="labeled-item">
         <label data-translate="min_players">Min Players:</label>
         <div class="radio-group">
           <div class="wrap-item">
-            <input type="radio" id="one-player" name="players" value="1" checked>
+            <input
+              type="radio"
+              id="one-player"
+              name="players"
+              value="1"
+              checked
+            />
             <label for="one-player">1</label>
           </div>
           <div class="wrap-item">
-            <input type="radio" id="two-players" name="players" value="2">
+            <input type="radio" id="two-players" name="players" value="2" />
             <label for="two-players">2</label>
           </div>
           <div class="wrap-item">
-            <input type="radio" id="three-players" name="players" value="3">
+            <input type="radio" id="three-players" name="players" value="3" />
             <label for="three-players">3</label>
           </div>
         </div>
       </div>
-      <button data-translate="refresh_button" class="button green" id="refresh-lobbies-button">Refresh</button>
+      <button
+        data-translate="refresh_button"
+        class="button green"
+        id="refresh-lobbies-button"
+      >
+        Refresh
+      </button>
 
       <h2 data-translate="available_lobbies">Available Lobbies</h2>
       <div class="lobby-list" id="lobby-list"></div>
 
       <div class="button-actions">
-        <a data-translate="create_new_lobby" href="/create_lobby" class="button green">Create New Lobby</a>
-        <a data-translate="back_to_menu" href="/" class="button green">Back to Menu</a>
+        <a
+          data-translate="create_new_lobby"
+          href="/create_lobby"
+          class="button green"
+          >
+          Create New Lobby
+        </a>
+        <a data-translate="back_to_menu" href="/" class="button green">
+          Back to Menu
+        </a>
       </div>
     </div>
   </body>
