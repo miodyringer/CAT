@@ -88,7 +88,6 @@ export const translations = {
         "leave_game_button": "Leave",
         "card_hand_title": "Your Hand",
         "joker_modal_title": "Select a card to imitate",
-        "cancel_button": "Cancel",
         "start_figure": "Start figure",
         "tile_button": "tile",
         "tile_button_plural": "tiles",
@@ -112,7 +111,14 @@ export const translations = {
         "start_game_alert": "Could not start the game.",
         "load_game_alert": "Could not load the game.",
         "game_over_alert": "The game is over! The winner is {winner}. 🎊Congratulations!🎊",
-        "player_kick_confirm": "Are you sure you want to vote to kick {player}?"
+        "player_kick_confirm": "Are you sure you want to vote to kick {player}?",
+        "empty_lobby_or_player_alert": "Please enter a lobby and player name.",
+        "empty_player_name_alert" : "Please enter a player name.",
+        "error_name_too_long": "Names cannot be longer than {maxLength} characters.",
+        "error_generic": "An error occurred: {errorMessage}",
+        "close": "Close",
+        "confirm": "Confirm",
+        "cancel" : "Cancel"
     },
     "de": {
         "about_title": "Cat - Über",
@@ -203,7 +209,6 @@ export const translations = {
         "leave_game_button": "Verlassen",
         "card_hand_title": "Deine Hand",
         "joker_modal_title": "Wähle eine Karte zum Nachmachen aus",
-        "cancel_button": "Abbrechen",
         "start_figure": "Starten",
         "tile_button": "Feld",
         "tile_button_plural": "Felder",
@@ -227,6 +232,13 @@ export const translations = {
         "start_game_alert": "Spiel konnte nicht gestartet werden.",
         "load_game_alert": "Spiel konnte nicht geladen werden.",
         "game_over_alert": "Das Spiel ist vorbei! Der Gewinner ist {winner}. 🎊Herzlichen Glückwunsch!🎊",
-        "player_kick_confirm": "Bist du sicher, dass du dafür stimmen möchtest, {player} zu kicken?"
+        "player_kick_confirm": "Bist du sicher, dass du dafür stimmen möchtest, {player} zu kicken?",
+        "empty_lobby_or_player_alert": "Bitte gib einen Lobbynamen und einen Spielernamen ein.",
+        "empty_player_name_alert": "Bitte gib einen Spielernamen ein.",
+        "error_name_too_long": "Ein Name darf nicht länger als {maxLength} Zeichen sein.",
+        "error_generic": "Ein Fehler ist aufgetreten: {errorMessage}",
+        "close": "Schließen",
+        "confirm": "Bestätigen",
+        "cancel" : "Abbrechen"
     }
 };

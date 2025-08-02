@@ -14,7 +14,10 @@ class ConnectionManager:
 
     def disconnect(self, websocket: WebSocket, game_id: str):
         if game_id in self.active_connections:
-            self.active_connections[game_id].remove(websocket)
+            try:
+                self.active_connections[game_id].remove(websocket)
+            except ValueError:
+                pass
 
     async def broadcast(self, message: str, game_id: str):
         if game_id in self.active_connections:

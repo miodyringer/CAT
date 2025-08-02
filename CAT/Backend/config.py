@@ -9,6 +9,7 @@ NUMBER_OF_FIELDS = 56 # shouldn't be changed
 FIGURES_PER_PLAYER = 4 # max 4 figures per player are allowed
 MAX_PLAYERS = 4 # max 4 players are allowed
 MIN_PLAYERS_TO_START = 2
+MAX_NAME_LENGTH = 30
 
 # ==================================
 # GAMEPLAY
