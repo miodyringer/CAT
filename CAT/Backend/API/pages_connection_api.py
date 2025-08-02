@@ -19,12 +19,12 @@ from CAT.Backend.config import GAME_INACTIVITY_TIMEOUT, FINISHED_GAME_CLEANUP_DE
 
 CURRENT_FILE_PATH = Path(__file__).resolve()
 API_DIR = CURRENT_FILE_PATH.parent
-BASE_DIR = API_DIR.parent
-PAGES_DIR = BASE_DIR / "pages"
-STYLESHEETS_DIR = BASE_DIR / "stylesheets"
-SCRIPTS_DIR = BASE_DIR / "scripts"
-AUDIO_DIR = BASE_DIR / "audio"
-ICON_DIR = BASE_DIR / "icon"
+BASE_DIR = API_DIR.parent.parent
+PAGES_DIR = BASE_DIR / "Frontend" / "pages"
+STYLESHEETS_DIR = BASE_DIR / "Frontend" / "stylesheets"
+SCRIPTS_DIR = BASE_DIR / "Frontend" / "scripts"
+AUDIO_DIR = BASE_DIR / "Frontend" / "audio"
+ICON_DIR = BASE_DIR / "Frontend" / "icon"
 
 
 @asynccontextmanager
