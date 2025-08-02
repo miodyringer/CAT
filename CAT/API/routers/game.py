@@ -20,8 +20,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket, game_id)
-        logging.info(f"Player {player_id} disconnected from game",
-                         extra={'game_id': game_id})
+        logging.info(f"Player {player_id} disconnected from game", extra={'game_id': game_id})
 
 @router.get("/{game_id}/state")
 def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
