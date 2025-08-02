@@ -1,0 +1,32 @@
+.labeled-item input[type="checkbox"],
+.labeled-item input[type="radio"] {
+    accent-color: var(--color-strong);
+}
+
+.labeled-item input[type="range"] {
+    accent-color: var(--color-strong);
+}
+
+.color-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.color-section p {
+    display: block;
+    width: max-content;
+    margin: -1rem auto 1rem auto;
+    padding: 1rem 2rem;
+    border: var(--size-border) solid var(--color-soft-border);
+    box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+#pink-showcase { background-color: var(--color-pink) }
+#blue-showcase { background-color: var(--color-blue) }
+#orange-showcase { background-color: var(--color-orange) }
+#green-showcase { background-color: var(--color-green) }

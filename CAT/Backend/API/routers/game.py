@@ -1,10 +1,10 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
-from CAT.manager.game_manager import GameManager
-from CAT.API.dependencies import get_game_manager
-from CAT.API.schemas import PlayCardRequest, VoteKickRequest
-from CAT.classes.cards import *
-from CAT.API.connection_manager import manager
+from CAT.Backend.manager.game_manager import GameManager
+from CAT.Backend.API.dependencies import get_game_manager
+from CAT.Backend.API.schemas import PlayCardRequest, VoteKickRequest
+from CAT.Backend.classes.cards import *
+from CAT.Backend.API.connection_manager import manager
 
 
 router = APIRouter(

@@ -11,7 +11,7 @@ from .cards import (
     JokerCard
 )
 from .player import Player
-from CAT.config import DECK_COMPOSITION, MAX_CARDS_DEALT, CARD_DEAL_CYCLE_LENGTH
+from CAT.Backend.config import DECK_COMPOSITION, MAX_CARDS_DEALT, CARD_DEAL_CYCLE_LENGTH
 
 
 class Deck:
