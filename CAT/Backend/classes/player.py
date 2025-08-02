@@ -1,7 +1,7 @@
 import uuid
 from .cards import *
 from .figure import Figure
-from CAT.config import FIGURES_PER_PLAYER, NUMBER_OF_FIELDS
+from CAT.Backend.config import FIGURES_PER_PLAYER, NUMBER_OF_FIELDS
 
 class Player:
 

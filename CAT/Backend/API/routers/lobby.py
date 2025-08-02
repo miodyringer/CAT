@@ -1,9 +1,9 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException
-from CAT.API.schemas import CreateLobbyRequest, PlayerInput
-from CAT.manager.game_manager import GameManager
-from CAT.API.dependencies import get_game_manager
-from CAT.API.connection_manager import manager
+from CAT.Backend.API.schemas import CreateLobbyRequest, PlayerInput
+from CAT.Backend.manager.game_manager import GameManager
+from CAT.Backend.API.dependencies import get_game_manager
+from CAT.Backend.API.connection_manager import manager
 
 router = APIRouter(
     prefix="/lobby",

@@ -10,10 +10,10 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from CAT.API.routers import lobby, game
-from CAT.API.dependencies import get_game_manager
-from CAT.API.connection_manager import manager
-from CAT.config import GAME_INACTIVITY_TIMEOUT, FINISHED_GAME_CLEANUP_DELAY
+from CAT.Backend.API.routers import lobby, game
+from CAT.Backend.API.dependencies import get_game_manager
+from CAT.Backend.API.connection_manager import manager
+from CAT.Backend.config import GAME_INACTIVITY_TIMEOUT, FINISHED_GAME_CLEANUP_DELAY
 
 
 
