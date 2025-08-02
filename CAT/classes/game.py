@@ -223,45 +223,47 @@ class Game:
 
         for card in player.cards:
             if isinstance(card, InfernoCard):
-                moveable_figures = [f for f in player.figures if f.position >= 0]
+                moveable_figures = [f for f in player.figures if
+                                    f.position >= 0]
                 if not moveable_figures:
-                    continue
-                if len(moveable_figures) == 1:
-                        try:
-                            self._calculate_new_position(moveable_figures[0], 7)
-                            return True
-                        except ValueError:
-                            continue
-                elif len(moveable_figures) == 2:
-                    for i in range(0,8):
-                        try:
-                            self._calculate_new_position(moveable_figures[0], i)
-                            self._calculate_new_position(moveable_figures[1], 7-i)
-                            return True
-                        except ValueError:
-                            continue
-                elif len(moveable_figures) == 3:
-                    for i in range(0,8):
-                        for j in range(0,8-i):
-                            try:
-                                self._calculate_new_position(moveable_figures[0], i)
-                                self._calculate_new_position(moveable_figures[1], j)
-                                self._calculate_new_position(moveable_figures[2], 7-i-j)
+                    continue  # No figures on the board, so this card can't be played.
+
+                def can_distribute(figures_to_check, points_left):
+                    """
+                    Recursively checks if a given number of points can be legally
+                    distributed among a list of figures.
+                    """
+                    # BASE CASE 1: All points have been successfully assigned.
+                    if points_left == 0:
+                        return True
+
+                    # BASE CASE 2: Failure. No figures are left, but there are still points to assign.
+                    if not figures_to_check:
+                        return False
+
+                    current_figure = figures_to_check[0]
+                    remaining_figures = figures_to_check[1:]
+
+                    # start with to points_left for better performance
+                    for i in range(points_left, -1, -1):
+                        if i == 0:
+                            if can_distribute(remaining_figures, points_left):
                                 return True
-                            except ValueError:
-                                continue
-                elif len(moveable_figures) == 4:
-                    for i in range(0,8):
-                        for j in range(0,8-i):
-                            for k in range(0,8-i-j):
-                                try:
-                                    self._calculate_new_position(moveable_figures[0], i)
-                                    self._calculate_new_position(moveable_figures[1], j)
-                                    self._calculate_new_position(moveable_figures[2], k)
-                                    self._calculate_new_position(moveable_figures[3], 7-i-j-k)
-                                    return True
-                                except ValueError:
-                                    continue
+                            continue
+
+                        try:
+                            self._calculate_new_position(current_figure, i)
+                            # If the move is valid, recursively check the rest of the figures and points.
+                            if can_distribute(remaining_figures, points_left - i):
+                                return True
+                        except ValueError:
+                            continue
+
+                    # No valid moves found with points_left and remaining_figures
+                    return False
+
+                if can_distribute(moveable_figures, 7):
+                    return True
 
 
             for figure in player.figures:
