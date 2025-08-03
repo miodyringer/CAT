@@ -71,13 +71,11 @@ export function renderFigures() {
 
     let selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()];
 
-    // --- KORREKTUR FÜR SWAP UND INFERNO ---
     let isSwapActive = false;
     let isInfernoActive = false;
 
     if (selectedCard) {
         let activeCard = selectedCard;
-        // Wenn ein Joker gespielt wird, nutze die imitierte Karte für die Logik
         if (selectedCard.type === 'JokerCard') {
             const jokerImitation = gameService.getJokerImitation();
             if (jokerImitation) {

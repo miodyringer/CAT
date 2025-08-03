@@ -21,7 +21,6 @@ class GameService {
     selectFigure(figureId) {
         let selectedCard = gameService.getHand()[this.selectedCardIndex];
         playSound("/audio/figure-select.mp3");
-        // Prüfen, ob ein Joker eine SwapCard imitiert
         if (selectedCard && selectedCard.type === 'JokerCard') {
             const jokerImitation = this.getJokerImitation();
             if (jokerImitation) {
@@ -31,41 +30,40 @@ class GameService {
 
         const isSwapActive = selectedCard && selectedCard.type === 'SwapCard';
 
-        // --- Logik für die Tauschkarte ---
+        // --- Logic for the SwapCard ---
         if (isSwapActive) {
             const isOwnFigure = this.getLocalPlayer().figures.some(f => f.uuid === figureId);
             const figure = this.getFigureById(figureId);
 
-            // Figur muss auf dem Brett sein
+            // Figure must be on the board
             if (!figure || figure.position < 0) return;
 
-            // 1. Klick: Auswahl der EIGENEN Figur.
-            // Dies passiert nur, wenn noch keine Hauptfigur ausgewählt ist.
+            // 1st click: Select own figure.
+            // This only happens if no main figure has been selected yet.
             if (!this.selectedFigureId && isOwnFigure) {
                 this.selectedFigureId = figureId;
-                return; // Beende die Funktion hier, warte auf den nächsten Klick.
+                return;
             }
 
-            // 2. Klick: Auswahl der ZIEL-Figur (darf nicht die eigene sein).
-            // Dies passiert nur, wenn bereits eine Hauptfigur ausgewählt ist.
+            // 2nd click: Select target figure (must not be one's own).
+            // This only happens if a main figure has already been selected.
             if (this.selectedFigureId && !isOwnFigure) {
-                // Erlaube das Ab- und Anwählen der Zielfigur
+                // Allow deselecting and reselecting the target figure
                 this.selectedTargetFigureId = (this.selectedTargetFigureId === figureId) ? null : figureId;
             }
-             // Klick auf die eigene Figur, um sie abzuwählen
+             // Click on own figure to deselect it
             else if (this.selectedFigureId === figureId) {
                 this.selectedFigureId = null;
-                this.selectedTargetFigureId = null; // Setzt auch das Ziel zurück
+                this.selectedTargetFigureId = null; // Also resets the target
             }
         }
-        // --- Normale Auswahl-Logik (für alle anderen Karten) ---
+        // --- Normal selection logic (for all other cards) ---
         else {
-            this.selectedTargetFigureId = null; // Immer sicherstellen, dass die Tauschauswahl weg ist
+            this.selectedTargetFigureId = null; // Always ensure that the swap selection is removed
             this.selectedFigureId = (this.selectedFigureId === figureId) ? null : figureId;
         }
     }
 
-    // Setzt alle Auswahlen zurück
     resetSelections() {
         this.selectedCardIndex = null;
         this.selectedFigureId = null;
@@ -74,7 +72,6 @@ class GameService {
         this.jokerImitation = null;
     }
 
-    // Getter für die Zielfigur
     getSelectedTargetFigureId() {
         return this.selectedTargetFigureId;
     }
@@ -83,9 +80,8 @@ class GameService {
         return this.selectedFigureId;
     }
 
-    // Wählt eine Karte aus oder ab
     selectCard(index) {
-        // Wenn die bereits ausgewählte Karte erneut geklickt wird, wird die Auswahl aufgehoben
+        // If the already selected card is clicked again, the selection is removed
         if (this.selectedCardIndex === index) {
             this.selectedCardIndex = null;
         } else {
@@ -99,7 +95,6 @@ class GameService {
         console.log(`Selected card index: ${this.selectedCardIndex}`);
     }
 
-    // Gibt den Index der ausgewählten Karte zurück
     getSelectedCardIndex() {
         return this.selectedCardIndex;
     }
@@ -109,19 +104,15 @@ class GameService {
         console.log("Client GameService updated:", this.gameState);
     }
 
-    // Gibt alle Spieler zurück
     getPlayers() {
         return this.gameState ? this.gameState.players : [];
     }
 
-    // Gibt den lokalen Spieler zurück
     getLocalPlayer() {
         if (!this.gameState || !this.localPlayerId) return null;
-        // Da nur der lokale Spieler eine UUID hat, können wir danach suchen.
         return this.gameState.players.find(p => p.uuid === this.localPlayerId);
     }
     
-    // Gibt die Handkarten des lokalen Spielers zurück
     getHand() {
         const player = this.getLocalPlayer();
         return player ? player.cards : [];
@@ -143,10 +134,10 @@ class GameService {
     }
 
     updateInfernoMove(figureId, steps) {
-        // Entferne den alten Eintrag für diese Figur, falls vorhanden
+        // Remove the old entry for this figure, if present
         this.infernoMovePlan = this.infernoMovePlan.filter(move => move.figureId !== figureId);
 
-        // Füge den neuen Zug hinzu, wenn die Schritte > 0 sind
+        // Add the new move if steps > 0
         if (steps > 0) {
             this.infernoMovePlan.push({ figureId: figureId, steps: steps });
         }
@@ -179,6 +170,6 @@ class GameService {
 
 }
 
-// Erstelle eine einzige Instanz, die von allen anderen Skripten importiert werden kann
+// Create a single instance that can be imported by all other scripts
 const gameService = new GameService();
 export default gameService;
