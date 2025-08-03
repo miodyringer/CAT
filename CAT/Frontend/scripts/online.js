@@ -5,10 +5,19 @@ import getCookie from './functions.mjs'
 // A global variable to store the unfiltered list of all lobbies
 let allLobbies = {}
 
+/**
+ * Redirects the user to the join lobby page with the given lobby ID and name.
+ * @param {string} lobbyId - The unique identifier of the lobby.
+ * @param {string} lobbyName - The name of the lobby.
+ */
 function joinLobby (lobbyId, lobbyName) {
   window.location.href = `./join_lobby?lobbyId=${lobbyId}&lobbyName=${lobbyName}`
 }
 
+/**
+ * Renders the list of lobbies in the UI.
+ * @param {Object} lobbiesToRender - An object containing the lobbies to render.
+ */
 function renderLobbies (lobbiesToRender) {
   const lobbyListContainer = document.querySelector('#lobby-list')
   lobbyListContainer.innerHTML = ''
@@ -41,6 +50,9 @@ function renderLobbies (lobbiesToRender) {
   }
 }
 
+/**
+ * Filters the lobbies based on the current filter inputs and renders the result.
+ */
 function filterAndRender () {
   const nameFilterValue = document.querySelector('#lobby-name-filter').value.toLowerCase()
   const minPlayersValue = document.querySelector('input[name="players"]:checked').value
@@ -59,6 +71,10 @@ function filterAndRender () {
   renderLobbies(filteredLobbiesObject)
 }
 
+/**
+ * Fetches the list of lobbies from the server and displays them in the UI.
+ * @returns {Promise<void>}
+ */
 async function fetchAndDisplayLobbies () {
   try {
     allLobbies = await sendRequest('/lobby/list')
@@ -68,6 +84,9 @@ async function fetchAndDisplayLobbies () {
   }
 }
 
+/**
+ * Sets up event listeners for lobby filtering and refresh, and fetches the initial lobby list on page load.
+ */
 document.addEventListener('DOMContentLoaded', () => {
   fetchAndDisplayLobbies()
 

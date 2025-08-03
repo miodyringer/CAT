@@ -21,6 +21,10 @@ const board = [
   0, 0, 0, 0, 0, 4, 1, 1, 1, 1, 0, 0, 0, 0, 0
 ]
 
+/**
+ * Renders the board tiles based on the board array and adds them to the board element.
+ * Each tile is styled and positioned according to its type and location.
+ */
 function renderBoardTiles () {
   for (let i = 0; i < board.length; i++) {
     const row = i % sideLength + 1
@@ -61,6 +65,10 @@ const FINISH_COORDINATES = {
   orange: ['14/9', '13/9', '12/9', '11/9']
 }
 
+/**
+ * Renders all player figures on the board, including their positions, selection states,
+ * and interactive controls for special cards (e.g., InfernoCard).
+ */
 export function renderFigures () {
   document.querySelectorAll('.figure').forEach(fig => fig.remove())
 
@@ -206,6 +214,9 @@ let scale = 1.0
 let panX = 0
 let panY = 64
 
+/**
+ * Updates the CSS transform of the board element to reflect current scale and pan values.
+ */
 function updateBoardTransform () {
   const centering = 'translateX(-50%) translateY(-50%)'
   const rotation = 'rotateX(55deg) rotateZ(45deg)'
@@ -218,6 +229,10 @@ function updateBoardTransform () {
 
 updateBoardTransform()
 
+/**
+ * Handles keyboard events for board navigation (panning and zooming).
+ * @param {KeyboardEvent} e - The keyboard event.
+ */
 document.addEventListener('keydown', (e) => {
   e.preventDefault()
   const isPortrait = window.matchMedia('(orientation: portrait)').matches
@@ -250,6 +265,10 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
+/**
+ * Handles mouse wheel events for zooming the board in and out.
+ * @param {WheelEvent} e - The wheel event.
+ */
 document.addEventListener('wheel', (e) => {
   e.preventDefault()
 
@@ -264,6 +283,10 @@ document.addEventListener('wheel', (e) => {
 
 const panState = { isPanning: false, lastX: 0, lastY: 0 }
 
+/**
+ * Handles mouse down events to start panning the board.
+ * @param {MouseEvent} e - The mouse event.
+ */
 cameraContainer.addEventListener('mousedown', (e) => {
   e.preventDefault()
   panState.isPanning = true
@@ -271,6 +294,10 @@ cameraContainer.addEventListener('mousedown', (e) => {
   panState.lastY = e.clientY
 })
 
+/**
+ * Handles mouse move events to pan the board while dragging.
+ * @param {MouseEvent} e - The mouse event.
+ */
 cameraContainer.addEventListener('mousemove', (e) => {
   if (!panState.isPanning) return
   e.preventDefault()
@@ -292,6 +319,10 @@ cameraContainer.addEventListener('mousemove', (e) => {
   updateBoardTransform()
 })
 
+/**
+ * Handles touch start events to begin panning on touch devices.
+ * @param {TouchEvent} e - The touch event.
+ */
 cameraContainer.addEventListener('touchstart', (e) => {
   if (e.touches.length > 0) {
     panState.isPanning = true
@@ -300,6 +331,10 @@ cameraContainer.addEventListener('touchstart', (e) => {
   }
 }, { passive: false })
 
+/**
+ * Handles touch move events to pan the board on touch devices.
+ * @param {TouchEvent} e - The touch event.
+ */
 cameraContainer.addEventListener('touchmove', (e) => {
   if (!panState.isPanning || e.touches.length === 0) return
 
@@ -324,11 +359,22 @@ cameraContainer.addEventListener('touchmove', (e) => {
   updateBoardTransform()
 }, { passive: false })
 
+/**
+ * Stops panning when the mouse or touch interaction ends.
+ */
 const stopPanning = () => { if (panState.isPanning) panState.isPanning = false }
+
+/**
+ * Handles mouse and touch events to stop panning when appropriate.
+ */
 window.addEventListener('mouseup', stopPanning)
 cameraContainer.addEventListener('mouseleave', stopPanning)
 cameraContainer.addEventListener('touchend', stopPanning)
 cameraContainer.addEventListener('touchcancel', stopPanning)
 
+/**
+ * Prevents default touchmove behavior to avoid unwanted scrolling.
+ * @param {TouchEvent} e - The touch event.
+ */
 document.addEventListener('touchmove', (e) => { e.preventDefault() }, { passive: false })
 }

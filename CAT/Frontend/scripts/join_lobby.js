@@ -17,6 +17,10 @@ if (lobbyNameTitle && lobbyName) {
   lobbyNameTitle.textContent += ` "${lobbyName}"`
 }
 
+/**
+ * Handles the join game button click event.
+ * Validates player name and lobby ID, sends join request to the server, and processes the response.
+ */
 joinGameBtn.addEventListener('click', async () => {
   const playerName = playerNameInput.value
 
