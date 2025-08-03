@@ -1,6 +1,7 @@
 from CAT.Backend.classes.game import Game
 from CAT.Backend.classes.player import Player
 
+
 class GameManager:
     """
     Manages the game state and player interactions.

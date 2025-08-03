@@ -3,11 +3,11 @@
 # ==================================
 
 # ==================================
-# GENERELL GAME SETTINGS
+# GENERAL GAME SETTINGS
 # ==================================
-NUMBER_OF_FIELDS = 56 # shouldn't be changed
-FIGURES_PER_PLAYER = 4 # max 4 figures per player are allowed
-MAX_PLAYERS = 4 # max 4 players are allowed
+NUMBER_OF_FIELDS = 56  # shouldn't be changed
+FIGURES_PER_PLAYER = 4  # max 4 figures per player are allowed
+MAX_PLAYERS = 4  # max 4 players are allowed
 MIN_PLAYERS_TO_START = 2
 MAX_NAME_LENGTH = 30
 
@@ -32,5 +32,5 @@ DECK_COMPOSITION = {
     "swap_cards": 8,
     "start_13_cards": 8,
     "start_1_11_cards": 8,
-    "joker_cards": 6
+    "joker_cards": 6,
 }

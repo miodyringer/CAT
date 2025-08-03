@@ -4,6 +4,7 @@ from .figure import Figure
 from .enums import PlayerColor
 from CAT.Backend.config import FIGURES_PER_PLAYER, NUMBER_OF_FIELDS
 
+
 class Player:
     """
     Represents a player in the game, including their cards, figures, color, and state.
@@ -22,7 +23,9 @@ class Player:
         self.number: int = number
         self.color = PlayerColor(number)
         self.cards: list[Card] = []
-        self.figures: list[Figure] = [Figure(self.color.color_name) for _ in range(FIGURES_PER_PLAYER)]
+        self.figures: list[Figure] = [
+            Figure(self.color.color_name) for _ in range(FIGURES_PER_PLAYER)
+        ]
         self.startfield = (number * 14) % NUMBER_OF_FIELDS
         self.finishing_field = (self.startfield - 1) % NUMBER_OF_FIELDS
         self.is_active = True
@@ -52,9 +55,8 @@ class Player:
             "color": self.color.color_name,
             "cards": cards_data,
             "figures": [figure.to_json() for figure in self.figures],
-            "is_active": self.is_active
+            "is_active": self.is_active,
         }
-
 
     def get_cards(self):
         """

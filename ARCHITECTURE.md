@@ -76,3 +76,11 @@ The **Frontend** is the user-facing interface that runs in the browser, built wi
 * **`requirements.txt`**: Lists all the Python dependencies required to run the backend.
 * **`deploy.sh`**: A shell script to automate the deployment of the application.
 * **`README.md`**: The main project documentation.
+
+---
+
+### Linter/Formatter Software
+* **`standard JS`**: JavaScript linter
+* **`Stylelint`**: CSS linter
+* **`Black`**: Python code formatter
+* **`Prettier`**: Universal formatter (Used for HTML)

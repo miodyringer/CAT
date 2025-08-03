@@ -1,5 +1,12 @@
 import json
-from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from CAT.Backend.manager.game_manager import GameManager
 from CAT.Backend.API.dependencies import get_game_manager
 from CAT.Backend.API.schemas import PlayCardRequest, VoteKickRequest
@@ -11,6 +18,7 @@ router = APIRouter(
     prefix="/game",
     tags=["Game"],
 )
+
 
 @router.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
@@ -28,17 +36,24 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         WebSocketDisconnect: If the connection is closed or interrupted.
     """
     await manager.connect(websocket, game_id)
-    logging.info(f"Player {player_id} connected to game", extra={'game_id': game_id})
+    logging.info(f"Player {player_id} connected to game", extra={"game_id": game_id})
 
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket, game_id)
-        logging.info(f"Player {player_id} disconnected from game", extra={'game_id': game_id})
+        logging.info(
+            f"Player {player_id} disconnected from game", extra={"game_id": game_id}
+        )
+
 
 @router.get("/{game_id}/state")
-def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
+def get_game_state(
+    game_id: str,
+    player_id: str = Query(...),
+    game_manager: GameManager = Depends(get_game_manager),
+):
     """
     Retrieves the current state of a specific game.
 
@@ -57,7 +72,11 @@ def get_game_state(game_id: str, player_id: str = Query(...), game_manager: Game
 
 
 @router.post("/{game_id}/play")
-async def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
+async def play_card_action(
+    game_id: str,
+    request: PlayCardRequest,
+    game_manager: GameManager = Depends(get_game_manager),
+):
     """
     Handles a player's action to play a card.
 
@@ -86,7 +105,7 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
         await game.execute_play_card(
             player=player,
             card_index=request.card_index,
-            action_details=request.action_details
+            action_details=request.action_details,
         )
 
         await manager.broadcast(json.dumps({"event": "update"}), game_id)
@@ -94,14 +113,19 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
         return {"message": "Action successful."}
     except (ValueError, IndexError) as e:
         if "Your time is up" in str(e):
-            logging.info(f"Broadcasting update for game due to an active timeout during play.",
-                         extra={'game_id': game_id})
+            logging.info(
+                f"Broadcasting update for game due to an active timeout during play.",
+                extra={"game_id": game_id},
+            )
             await manager.broadcast(json.dumps({"event": "update"}), game_id)
 
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.post("/{game_id}/start")
-async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manager)):
+async def start_game(
+    game_id: str, game_manager: GameManager = Depends(get_game_manager)
+):
     """
     Starts the game and deals the initial hand of cards.
 
@@ -128,7 +152,11 @@ async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_
 
 
 @router.post("/{game_id}/vote_kick")
-async def vote_kick_player(game_id: str, request: VoteKickRequest, game_manager: GameManager = Depends(get_game_manager)):
+async def vote_kick_player(
+    game_id: str,
+    request: VoteKickRequest,
+    game_manager: GameManager = Depends(get_game_manager),
+):
     """
     Handles a player's vote to kick another player from the game.
 
@@ -153,8 +181,15 @@ async def vote_kick_player(game_id: str, request: VoteKickRequest, game_manager:
     try:
         player_was_kicked = game.register_kick_vote(voter, player_to_kick.uuid)
         if player_was_kicked:
-            await manager.broadcast(json.dumps({"event": "player_kicked", "kicked_player_uuid": player_to_kick.uuid}),
-                                    game_id)
+            await manager.broadcast(
+                json.dumps(
+                    {
+                        "event": "player_kicked",
+                        "kicked_player_uuid": player_to_kick.uuid,
+                    }
+                ),
+                game_id,
+            )
             await manager.broadcast(json.dumps({"event": "update"}), game_id)
 
         return {"message": "Vote registered."}
@@ -182,7 +217,15 @@ def get_all_card_types():
         FlexCard().to_json(),
         SwapCard().to_json(),
         InfernoCard().to_json(),
-        StartCard(name="13/Start", move_values=[13], description="Move a cat from the start area or move 13 fields forward.").to_json(),
-        StartCard(name="1/11/Start", move_values=[1, 11], description="Move a cat from the start area or move 1 or 11 fields forward.").to_json()
+        StartCard(
+            name="13/Start",
+            move_values=[13],
+            description="Move a cat from the start area or move 13 fields forward.",
+        ).to_json(),
+        StartCard(
+            name="1/11/Start",
+            move_values=[1, 11],
+            description="Move a cat from the start area or move 1 or 11 fields forward.",
+        ).to_json(),
     ]
     return card_types
