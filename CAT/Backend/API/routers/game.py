@@ -53,8 +53,6 @@ def get_game_state(game_id: str, player_id: str = Query(...), game_manager: Game
     game = game_manager.get_game(game_id)
     if not game:
         return {"error": "Game not found"}
-    # The game object will be automatically converted to JSON by FastAPI.
-    # You might want to create a Pydantic schema for the game state for better control
     return game.to_json(perspective_player_id=player_id)
 
 

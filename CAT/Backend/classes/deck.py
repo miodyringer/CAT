@@ -102,7 +102,7 @@ class Deck():
         Returns:
             None
         """
-        # The number of cards decreases each round in a 5-round cycle (6, 5, 4, 3, 2)
+        # The number of cards decreases each round in a configured cycle
         cards_to_deal = MAX_CARDS_DEALT - ((round_number - 1) % CARD_DEAL_CYCLE_LENGTH)
 
         logging.info(f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.", extra={'game_id': self.game_id})
@@ -112,10 +112,8 @@ class Deck():
                 if not player.is_active:
                     continue
                 if not self.cards:
-                    # Reshuffle if the deck runs out mid-deal
                     self.shuffle()
 
-                # Pop a card from the deck and add it to the player's hand
                 card = self.cards.pop()
                 player.cards.append(card)
 

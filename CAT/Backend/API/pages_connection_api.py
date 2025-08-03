@@ -111,7 +111,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the API routers
 app.include_router(lobby.router)
 app.include_router(game.router)
 

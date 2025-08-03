@@ -35,7 +35,6 @@ class Game:
         self.players = list_of_players
         self.host_id = list_of_players[0].uuid if list_of_players else None
         self.number_of_players = len(self.players)
-        # {15: <Figure object of Player green>, 23: <Figure object of player pink> }
         self.field_occupation: dict[int, Figure] = {}
         self.game_over = False
         self.deck = Deck(self.uuid)
@@ -213,7 +212,6 @@ class Game:
         player = self.get_spieler_von_figur(figure)
         old_pos = figure.get_position()
 
-        # path the figure will take
         path = []
         current_pos_on_path = old_pos
         # abs so -4 works as well (only then the path is backwards)
@@ -307,7 +305,7 @@ class Game:
                     current_figure = figures_to_check[0]
                     remaining_figures = figures_to_check[1:]
 
-                    # start with to points_left for better performance
+                    # start with points_left for better performance
                     for i in range(points_left, -1, -1):
                         if i == 0:
                             if can_distribute(remaining_figures, points_left):
@@ -359,7 +357,7 @@ class Game:
                         # 1. at least one own figure must be able to swap
                         own_swappable_figures = [f for f in player.figures if f.position >= 0 and f.position < 100 and f.position != player.startfield]
                         if not own_swappable_figures:
-                            continue  # No swappable figures available
+                            continue
 
                         # 2. at least one opponent figure must be available
                         for other_player in self.players:
@@ -487,7 +485,6 @@ class Game:
         pos1 = figure1.position
         pos2 = figure2.position
 
-        # check if both figures are on the board
         if pos1 < 0 or pos2 < 0 or pos1 >= 100 or pos2 >= 100:
             raise ValueError("Figures in the start or finish zone cannot be swapped.")
 
@@ -527,7 +524,6 @@ class Game:
             figure (Figure): The figure to move.
             steps (int): The number of steps to move the figure.
         """
-        # normal move when figure is in the finish zone
         if figure.position >= 100:
             new_position = self._calculate_new_position(figure, steps)
             self._execute_move(figure, new_position)
@@ -580,12 +576,10 @@ class Game:
 
         start_tile = player.startfield
 
-        # Check if the player's own start tile is blocked
         if self.field_occupation.get(start_tile):
             if self.field_occupation[start_tile].color == figure.color:
-                raise ValueError("The start tile is currently blocked.")
+                raise ValueError("The start tile is currently blocked by own figure.")
 
-        # Place the figure on the start tile
         self._execute_move(figure, start_tile)
         logging.info(f"Figure {figure.get_uuid()} is now on start tile {start_tile}.", extra={"game_id" : self.uuid})
 
@@ -605,7 +599,6 @@ class Game:
             kicked_figure = self.field_occupation[new_position]
             owner_of_kicked = self.get_spieler_von_figur(kicked_figure)
 
-            # figure on own start field cannot be kicked
             if new_position == owner_of_kicked.startfield:
                 if old_position >= 0:
                     self.field_occupation[old_position] = figure
