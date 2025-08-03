@@ -21,23 +21,33 @@ class Card(ABC):
     @abstractmethod
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
-        Abstract method to play the card.
-        This method must be implemented by all subclasses.
+        Plays the card and executes its effect. Must be implemented by all subclasses.
+
         Args:
-            game_object: The main `Game` instance containing the game logic.
-            player: The `Player` who is playing the card.
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
             **kwargs: Additional arguments needed for the card action.
+
         Raises:
             NotImplementedError: If the method is not implemented in a subclass.
         """
         raise NotImplementedError
 
     def __repr__(self):
+        """
+        Returns a string representation of the card.
+
+        Returns:
+            str: The string representation of the card.
+        """
         return f"Card({self.name})"
 
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         return {
             "name": self.name,
@@ -60,19 +70,16 @@ class StandardCard(Card):
         """
         Plays the card by moving a figure forward by the specified value.
 
-            This method relies on the `kwargs` dictionary to receive the necessary
-                details for the action.
+        This method relies on the `kwargs` dictionary to receive the necessary details for the action.
 
-                Args:
-                    game_object: The main `Game` instance containing the game logic.
-                    player: The `Player` who is playing the card.
-                    **kwargs: A dictionary containing the action details.
-                        Expected keys:
-                        - 'figure_uuid' (str): The UUID of the figure to be moved.
+        Args:
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
+            **kwargs: A dictionary containing the action details. Expected keys:
+                - 'figure_uuid' (str): The UUID of the figure to be moved.
 
-                Raises:
-                    ValueError: If 'figure_uuid' is missing from
-                        kwargs, or if the no figure with 'figure_uuid' is found.
+        Raises:
+            ValueError: If 'figure_uuid' is missing from kwargs, or if no figure with 'figure_uuid' is found.
         """
         figure_uuid = kwargs.get("figure_uuid")
         if not figure_uuid:
@@ -97,6 +104,9 @@ class StandardCard(Card):
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         data = super().to_json()
         data['value'] = self.value
@@ -116,21 +126,17 @@ class FlexCard(Card):
         """
         Plays the Flex Card to move a figure 4 fields forward or backward.
 
-                This method relies on the `kwargs` dictionary to receive the necessary
-                details for the action.
+        This method relies on the `kwargs` dictionary to receive the necessary details for the action.
 
-                Args:
-                    game_object: The main `Game` instance containing the game logic.
-                    player: The `Player` who is playing the card.
-                    **kwargs: A dictionary containing the action details.
-                        Expected keys:
-                        - 'figure_uuid' (str): The UUID of the figure to be moved.
-                        - 'direction' (str): The direction of movement, either
-                          'forward' or 'backward'.
+        Args:
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
+            **kwargs: A dictionary containing the action details. Expected keys:
+                - 'figure_uuid' (str): The UUID of the figure to be moved.
+                - 'direction' (str): The direction of movement, either 'forward' or 'backward'.
 
-                Raises:
-                    ValueError: If 'figure_uuid' or 'direction' are missing from
-                        kwargs, or if the direction is invalid.
+        Raises:
+            ValueError: If 'figure_uuid' or 'direction' are missing from kwargs, or if the direction is invalid.
         """
         figure_uuid = kwargs.get("figure_uuid")
         direction = kwargs.get("direction")
@@ -155,6 +161,9 @@ class FlexCard(Card):
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         data = super().to_json()
         data['type'] = 'FlexCard'
@@ -173,21 +182,17 @@ class SwapCard(Card):
         """
         Plays the Swap Card to swap the positions of two figures.
 
-        This method relies on the `kwargs` dictionary to receive the necessary
-                details for the action.
+        This method relies on the `kwargs` dictionary to receive the necessary details for the action.
 
-                Args:
-                    game_object: The main `Game` instance containing the game logic.
-                    player: The `Player` who is playing the card.
-                    **kwargs: A dictionary containing the action details.
-                        Expected keys:
-                        - 'figure_uuid' (str): The UUID of the figure to be moved.
-                        - 'other_figure_uuid' (str): The UUID of the other figure to swap with.
+        Args:
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
+            **kwargs: A dictionary containing the action details. Expected keys:
+                - 'figure_uuid' (str): The UUID of the figure to be moved.
+                - 'other_figure_uuid' (str): The UUID of the other figure to swap with.
 
-
-                Raises:
-                    ValueError: If 'figure_uuid' or 'other_figure_uuid' are missing from
-                        kwargs, or if the figures are not found in the game or figur1 is do not belong to the player.
+        Raises:
+            ValueError: If 'figure_uuid' or 'other_figure_uuid' are missing from kwargs, or if the figures are not found in the game or the first figure does not belong to the player.
         """
         own_figure_uuid = kwargs.get("figure_uuid")
         other_figure_uuid = kwargs.get("other_figure_uuid")
@@ -211,6 +216,9 @@ class SwapCard(Card):
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         data = super().to_json()
         data['type'] = 'SwapCard'
@@ -219,8 +227,7 @@ class SwapCard(Card):
 
 class StartCard(Card):
     """
-    Represents a card that can either start a figure or move it
-    by one of several possible values (e.g., [1, 11] or [13]).
+    Represents a card that can either start a figure or move it by one of several possible values (e.g., [1, 11] or [13]).
     """
 
     def __init__(self, name: str, move_values: list[int], description: str):
@@ -231,20 +238,18 @@ class StartCard(Card):
         """
         Plays the card by either starting a figure or moving it.
 
-            This method relies on the `kwargs` dictionary to receive the necessary
-                    details for the action.
+        This method relies on the `kwargs` dictionary to receive the necessary details for the action.
 
-                    Args:
-                        game_object: The main `Game` instance containing the game logic.
-                        player: The `Player` who is playing the card.
-                        **kwargs: A dictionary containing the action details.
-                            Expected keys:
-                            - 'figure_uuid' (str): The UUID of the figure to be moved.
-                            - 'action' (str): The action to perform, either 'start' or 'move'.
-                                - 'value' (int): The value to move the figure by, if action is 'move'.
+        Args:
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
+            **kwargs: A dictionary containing the action details. Expected keys:
+                - 'figure_uuid' (str): The UUID of the figure to be moved.
+                - 'action' (str): The action to perform, either 'start' or 'move'.
+                - 'value' (int): The value to move the figure by, if action is 'move'.
 
-                    Raises:
-                        ValueError: If 'figure_uuid' or
+        Raises:
+            ValueError: If 'figure_uuid' or 'action' are missing from kwargs, or if the value is invalid.
         """
         action = kwargs.get("action")
         figure_uuid = kwargs.get("figure_uuid")
@@ -273,6 +278,9 @@ class StartCard(Card):
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         data = super().to_json()
         data['type'] = 'StartCard'
@@ -290,22 +298,18 @@ class InfernoCard(Card):
         """
         Plays the Inferno Card by moving figures and burning enemy figures.
 
-            This method relies on the `kwargs` dictionary to receive the necessary
-                details for the action.
+        This method relies on the `kwargs` dictionary to receive the necessary details for the action.
 
-                Args:
-                    game_object: The main `Game` instance containing the game logic.
-                    player: The `Player` who is playing the card.
-                    **kwargs: A dictionary containing the action details.
-                        Expected keys:
-                        - 'moves' (list): A list of moves, each containing:
-                            - 'figure_uuid' (str): The UUID of the figure to be moved.
-                            - 'steps' (int): The number of steps to move the figure.
+        Args:
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
+            **kwargs: A dictionary containing the action details. Expected keys:
+                - 'moves' (list): A list of moves, each containing:
+                    - 'figure_uuid' (str): The UUID of the figure to be moved.
+                    - 'steps' (int): The number of steps to move the figure.
 
-                Raises:
-                    ValueError: If 'moves' are missing from kwargs,
-                        or 'moves' is not a list, if the sum of steps is not 7,
-                        or if any move is missing 'figure_uuid' or 'steps'.
+        Raises:
+            ValueError: If 'moves' are missing from kwargs, or 'moves' is not a list, if the sum of steps is not 7, or if any move is missing 'figure_uuid' or 'steps'.
         """
 
         def sort_moves_asc(moves : List[dict]) -> List[dict]:
@@ -386,6 +390,9 @@ class InfernoCard(Card):
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         data = super().to_json()
         data['type'] = 'InfernoCard'
@@ -402,23 +409,19 @@ class JokerCard(Card):
         """
         Plays the Joker Card by imitating another card's action.
 
-            This method relies on the `kwargs` dictionary to receive the necessary
-                details for the action.
+        This method relies on the `kwargs` dictionary to receive the necessary details for the action.
 
+        Args:
+            game_object (Game): The main Game instance containing the game logic.
+            player (Player): The Player who is playing the card.
+            **kwargs: A dictionary containing the action details. Expected keys:
+                - 'imitate_card_name' (str): The name of the card to imitate.
+                - Additional arguments needed for the imitated card action.
 
-                Args:
-                    game_object: The main `Game` instance containing the game logic.
-                    player: The `Player` who is playing the card.
-                    **kwargs: A dictionary containing the action details.
-                        Expected keys:
-                        - 'imitate_card_name' (str): The UUID of the figure to be moved.
-                        - '**kwargs': Additional arguments needed for the imitated card action.
-
-                Raises:
-                    ValueError: If 'imitate_card_name' is missing from kwargs, or if the card to imitate is unknown.
+        Raises:
+            ValueError: If 'imitate_card_name' is missing from kwargs, or if the card to imitate is unknown.
         """
         card_to_imitate = kwargs.get("imitate_card_name")
-
         if not card_to_imitate:
             raise ValueError("You must specify which card the Joker should imitate.")
 
@@ -447,6 +450,9 @@ class JokerCard(Card):
     def to_json(self) -> dict:
         """
         Returns a JSON-serializable dictionary for the card.
+
+        Returns:
+            dict: The card represented as a dictionary.
         """
         data = super().to_json()
         data['type'] = 'JokerCard'

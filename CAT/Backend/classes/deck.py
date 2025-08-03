@@ -22,7 +22,12 @@ class Deck():
     """
 
     def __init__(self, game_id):
-        """Initializes a new deck, creates all cards, and shuffles them."""
+        """
+        Initializes a new deck, creates all cards, and shuffles them.
+
+        Args:
+            game_id (str): The unique identifier for the game this deck belongs to.
+        """
         self.cards: List[Card] = []
         self.discard_pile: List[Card] = []
         self.game_id = game_id
@@ -33,6 +38,9 @@ class Deck():
         """
         Creates all game cards by instantiating the specific card classes.
         The composition is based on the settings in the config file.
+
+        Returns:
+            None
         """
         self.cards = []
 
@@ -67,8 +75,10 @@ class Deck():
 
     def shuffle(self):
         """
-        Shuffles the main deck. If the deck is empty, it first
-        reclaims the discard pile.
+        Shuffles the main deck. If the deck is empty, it first reclaims the discard pile.
+
+        Returns:
+            None
         """
         if not self.cards:
             logging.info("Main deck is empty. Shuffling discard pile.", extra={'game_id': self.game_id})
@@ -84,8 +94,15 @@ class Deck():
         """
         Deals the correct number of cards to each player based on the round.
         The card count cycles from 6 down to 2.
+
+        Args:
+            players (List[Player]): The list of players to deal cards to.
+            round_number (int): The current round number.
+
+        Returns:
+            None
         """
-        # The number of cards decreases each round in a 5-round cycle (6, 5, 4, 3, 2)
+        # The number of cards decreases each round in a configured cycle
         cards_to_deal = MAX_CARDS_DEALT - ((round_number - 1) % CARD_DEAL_CYCLE_LENGTH)
 
         logging.info(f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.", extra={'game_id': self.game_id})
@@ -95,20 +112,29 @@ class Deck():
                 if not player.is_active:
                     continue
                 if not self.cards:
-                    # Reshuffle if the deck runs out mid-deal
                     self.shuffle()
 
-                # Pop a card from the deck and add it to the player's hand
                 card = self.cards.pop()
                 player.cards.append(card)
 
     def add_to_discard(self, card: Card):
-        """Adds a played card to the discard pile."""
+        """
+        Adds a played card to the discard pile.
+
+        Args:
+            card (Card): The card to add to the discard pile.
+
+        Returns:
+            None
+        """
         self.discard_pile.append(card)
 
     def to_json(self):
         """
         Converts the deck and discard pile to a JSON-compatible format.
+
+        Returns:
+            dict: A dictionary with the current deck and discard pile as lists of card dicts.
         """
         return {
             "cards": [card.to_json() for card in self.cards],
