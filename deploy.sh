@@ -36,7 +36,7 @@ ssh $REMOTE_USER@$REMOTE_HOST << EOF
   source venv/bin/activate
 
   # Starte den Server im Hintergrund
-  python3 -m CAT.API.pages_connection_api > backend.log 2>&1 &
+  python3 -m CAT.Backend.API.pages_connection_api > backend.log 2>&1 &
 
   # Speichere die neue Prozess-ID
   echo \$! > backend.pid
