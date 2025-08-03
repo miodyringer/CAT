@@ -89,14 +89,6 @@ export function renderFigures () {
         activeCard = jokerImitation
       }
     }
-    if (selectedCard) {
-        let activeCard = selectedCard;
-        if (selectedCard.type === 'JokerCard') {
-            const jokerImitation = gameService.getJokerImitation();
-            if (jokerImitation) {
-                activeCard = jokerImitation;
-            }
-        }
 
     if (activeCard.type === 'SwapCard') {
       isSwapActive = true
@@ -106,113 +98,114 @@ export function renderFigures () {
     }
   }
 
-  const previouslyHighlighted = document.querySelector('.tile.highlighted')
-  if (previouslyHighlighted) {
-    previouslyHighlighted.classList.remove('highlighted')
-  }
+    const previouslyHighlighted = document.querySelector('.tile.highlighted');
+    if (previouslyHighlighted) {
+        previouslyHighlighted.classList.remove('highlighted');
+    }
 
-  const previouslyTargetHighlighted = document.querySelector('.tile.target-highlighted')
-  if (previouslyTargetHighlighted) {
-    previouslyTargetHighlighted.classList.remove('target-highlighted')
-  }
+    const previouslyTargetHighlighted = document.querySelector('.tile.target-highlighted');
+    if (previouslyTargetHighlighted) {
+        previouslyTargetHighlighted.classList.remove('target-highlighted');
+    }
 
-  players.forEach(player => {
-    player.figures.forEach((figure, index) => {
-      const figureElement = document.createElement('div')
-      figureElement.className = `figure ${figure.color}`
-      figureElement.id = figure.uuid
+    players.forEach(player => {
+        player.figures.forEach((figure, index) => {
+            const figureElement = document.createElement("div");
+            figureElement.className = `figure ${figure.color}`;
+            figureElement.id = figure.uuid;
 
-      let gridPosition = ''
-      if (figure.position === -1) {
-        gridPosition = HOME_COORDINATES[figure.color][index]
-      } else if (figure.position >= 100) {
-        const finishIndex = figure.position % 100
-        gridPosition = FINISH_COORDINATES[figure.color][finishIndex]
-      } else {
-        gridPosition = PATH_COORDINATES[figure.position]
-      }
-      figureElement.style.gridArea = gridPosition
+            let gridPosition = "";
+            if (figure.position === -1) {
+                gridPosition = HOME_COORDINATES[figure.color][index];
+            } else if (figure.position >= 100) {
+                const finishIndex = figure.position % 100;
+                gridPosition = FINISH_COORDINATES[figure.color][finishIndex];
+            } else {
+                gridPosition = PATH_COORDINATES[figure.position];
+            }
+            figureElement.style.gridArea = gridPosition;
 
-      figureElement.innerHTML = '<div class="body"></div><div class="ears"></div><div class="head"></div>'
+            figureElement.innerHTML = `<div class="body"></div><div class="ears"></div><div class="head"></div>`;
 
-      const isOwn = player.uuid === localPlayer.uuid
-      const isClickable = (isOwn && gameService.isLocalPlayerTurn()) || (isSwapActive && figure.position >= 0)
+            const isOwn = player.uuid === localPlayer.uuid;
+            const isClickable = (isOwn && gameService.isLocalPlayerTurn()) || (isSwapActive && figure.position >= 0);
 
-      if (isClickable) {
-        figureElement.classList.add('own-figure')
-        figureElement.addEventListener('click', (e) => {
-          if (isInfernoActive) return
-          gameService.selectFigure(figure.uuid)
-          document.dispatchEvent(new Event('selectionChanged'))
-        })
-      }
-      if (figure.uuid === gameService.getSelectedFigureId()) {
-        figureElement.classList.add('selected')
-        const figureGridArea = figureElement.style.gridArea
-        const figureTile = document.querySelector(`.tile[style*="grid-area: ${figureGridArea}"]`)
-        if (figureTile) {
-          figureTile.classList.add('highlighted')
-        }
-      }
-      if (figure.uuid === gameService.getSelectedTargetFigureId()) {
-        figureElement.classList.add('target-selection')
-        const targetGridArea = figureElement.style.gridArea
-        const targetTile = document.querySelector(`.tile[style*="grid-area: ${targetGridArea}"]`)
-        if (targetTile) {
-          targetTile.classList.add('target-highlighted')
-        }
-      }
+            if (isClickable) {
+                figureElement.classList.add("own-figure");
+                figureElement.addEventListener('click', (e) => {
+                    if(isInfernoActive) return
+                    gameService.selectFigure(figure.uuid);
+                    document.dispatchEvent(new Event('selectionChanged'));
+                });
+            }
+            if (figure.uuid === gameService.getSelectedFigureId()) {
+                figureElement.classList.add("selected");
+                const figureGridArea = figureElement.style.gridArea;
+                const figureTile = document.querySelector(`.tile[style*="grid-area: ${figureGridArea}"]`);
+                if (figureTile) {
+                    figureTile.classList.add('highlighted');
+                }
+            }
+            if (figure.uuid === gameService.getSelectedTargetFigureId()) {
+                figureElement.classList.add("target-selection");
+                const targetGridArea = figureElement.style.gridArea;
+                const targetTile = document.querySelector(`.tile[style*="grid-area: ${targetGridArea}"]`);
+                if (targetTile) {
+                    targetTile.classList.add('target-highlighted');
+                }
+            }
 
-      if (isInfernoActive && isOwn && figure.position !== -1) {
-        const controls = document.createElement('div')
-        controls.className = 'figure-step-controls'
+            if (isInfernoActive && isOwn && figure.position !== -1) {
+                const controls = document.createElement('div');
+                controls.className = 'figure-step-controls';
 
-        const minusBtn = document.createElement('button')
-        minusBtn.className = 'step-button'
-        minusBtn.textContent = '-'
-        minusBtn.onclick = (e) => {
-          e.stopPropagation()
-          const steps = gameService.getStepsForFigure(figure.uuid)
-          if (steps > 0) {
-            gameService.updateInfernoMove(figure.uuid, steps - 1)
-            document.dispatchEvent(new Event('selectionChanged'))
-          }
-        }
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'step-button';
+                minusBtn.textContent = '-';
+                minusBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    let steps = gameService.getStepsForFigure(figure.uuid);
+                    if (steps > 0) {
+                        gameService.updateInfernoMove(figure.uuid, steps - 1);
+                        document.dispatchEvent(new Event('selectionChanged'));
+                    }
+                };
 
-        const plusBtn = document.createElement('button')
-        plusBtn.className = 'step-button'
-        plusBtn.textContent = '+'
-        plusBtn.onclick = (e) => {
-          e.stopPropagation()
-          const pointsLeft = gameService.getInfernoPointsRemaining()
-          if (pointsLeft > 0) {
-            const steps = gameService.getStepsForFigure(figure.uuid)
-            gameService.updateInfernoMove(figure.uuid, steps + 1)
-            document.dispatchEvent(new Event('selectionChanged'))
-          }
-        }
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'step-button';
+                plusBtn.textContent = '+';
+                plusBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    let pointsLeft = gameService.getInfernoPointsRemaining();
+                    if (pointsLeft > 0) {
+                        let steps = gameService.getStepsForFigure(figure.uuid);
+                        gameService.updateInfernoMove(figure.uuid, steps + 1);
+                        document.dispatchEvent(new Event('selectionChanged'));
+                    }
+                };
 
-        const stepsDisplay = document.createElement('span')
-        stepsDisplay.textContent = gameService.getStepsForFigure(figure.uuid)
+                const stepsDisplay = document.createElement('span');
+                stepsDisplay.textContent = gameService.getStepsForFigure(figure.uuid);
 
-        controls.appendChild(minusBtn)
-        controls.appendChild(stepsDisplay)
-        controls.appendChild(plusBtn)
-        figureElement.appendChild(controls)
-      }
+                controls.appendChild(minusBtn);
+                controls.appendChild(stepsDisplay);
+                controls.appendChild(plusBtn);
+                figureElement.appendChild(controls);
+            }
 
-      boardElement.appendChild(figureElement)
-    })
-  })
-}
+            boardElement.appendChild(figureElement);
+        });
+    });
 
-renderBoardTiles()
 
-const cameraContainer = document.querySelector('#camera-container')
+renderBoardTiles();
 
-let scale = 1.0
-let panX = 0
-let panY = 64
+
+const cameraContainer = document.querySelector("#camera-container");
+
+let scale = 1.0;
+let panX = 0;
+let panY = 64;
 
 /**
  * Updates the CSS transform of the board element to reflect current scale and pan values.

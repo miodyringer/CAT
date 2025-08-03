@@ -54,7 +54,7 @@ function renderPlayButton () {
         moveButton.className = 'button blue'
         moveButton.textContent = `${value} ` + translate(getCookie('language'), 'tile_button')
         if (value !== 1) { moveButton.textContent = `${value} ` + translate(getCookie('language'), 'tile_button_plural') }
-        moveButton.addEventListener('click', () => executePlay({ action: 'move', value }))
+        moveButton.addEventListener('click', () => executePlay({ action: 'move', value: value }))
         container.appendChild(moveButton)
       })
       return
