@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-    --color-background: #FFFFFF;
+    --color-background: #FFF;
     --color-background-darker: #F9F9F9;
-    --color-backdrop: rgba(0, 0, 0, 0.7);
-    --color-border: #000000;
-    --color-soft-border: #555555;
-    --color-softer-border: #777777;
-    --color-icon: #000000;
-    --color-shadow: #AAAAAA;
-    --color-shadow-darker: #888888;
-    --color-text: #333333;
+    --color-backdrop: rgb(0 0 0 / 70%);
+    --color-border: #000;
+    --color-soft-border: #555;
+    --color-softer-border: #777;
+    --color-icon: #000;
+    --color-shadow: #AAA;
+    --color-shadow-darker: #888;
+    --color-text: #333;
     --color-pink: #E9B8F5;
     --color-blue: #B8E9F5;
     --color-orange: #F5D5B8;
@@ -46,7 +46,7 @@ body {
     min-height: 100vh;
 }
 
-*, *:before, *:after {
+*, *::before, *::after {
     box-sizing: border-box;
 }
 

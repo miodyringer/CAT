@@ -1,20 +1,20 @@
-import sendRequest from './services/server_service.js';
-import {translate} from "./translator.mjs";
-import getCookie from "./functions.mjs";
+import sendRequest from './services/server_service.js'
+import { translate } from './translator.mjs'
+import getCookie from './functions.mjs'
 
 // 1. Parameter aus der URL auslesen
-const params = new URLSearchParams(document.location.search);
-const lobbyId = params.get('lobbyId');
-const lobbyName = params.get('lobbyName');
+const params = new URLSearchParams(document.location.search)
+const lobbyId = params.get('lobbyId')
+const lobbyName = params.get('lobbyName')
 
 // 2. HTML-Elemente holen
-const lobbyNameTitle = document.querySelector('#lobby-name');
-const playerNameInput = document.querySelector('#player-name');
-const joinGameBtn = document.querySelector('#join-game-btn');
+const lobbyNameTitle = document.querySelector('#lobby-name')
+const playerNameInput = document.querySelector('#player-name')
+const joinGameBtn = document.querySelector('#join-game-btn')
 
 // Lobby-Namen im Titel anzeigen
 if (lobbyNameTitle && lobbyName) {
-    lobbyNameTitle.textContent += ` "${lobbyName}"`;
+  lobbyNameTitle.textContent += ` "${lobbyName}"`
 }
 
 // 3. Klick-Listener für den Join-Button hinzufügen
@@ -54,4 +54,8 @@ joinGameBtn.addEventListener('click', async () => {
             alert(translate(getCookie("language"), "error_generic").replace("{errorMessage}", error.message));
         }
     }
-});
+  } catch (error) {
+    console.error('Failed to join lobby:', error)
+    window.alert('Failed to join lobby. See console for details.')
+  }
+})

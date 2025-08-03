@@ -18,7 +18,7 @@
 .color-section p {
     display: block;
     width: max-content;
-    margin: -1rem auto 1rem auto;
+    margin: -1rem auto 1rem;
     padding: 1rem 2rem;
     border: var(--size-border) solid var(--color-soft-border);
     box-shadow: var(--size-shadow) var(--size-shadow) var(--color-shadow);
