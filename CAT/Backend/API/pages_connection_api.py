@@ -24,6 +24,7 @@ class GameIdFilter(logging.Filter):
     If the log record does not already have a 'game_id', it sets it to 'System' as a default value.
     This helps to distinguish between system-wide logs and game-specific logs.
     """
+
     def filter(self, record):
         """
         Checks and sets the 'game_id' attribute for a log record.
@@ -34,13 +35,14 @@ class GameIdFilter(logging.Filter):
         Returns:
             bool: Always True to allow the log record to be processed.
         """
-        if not hasattr(record, 'game_id'):
-            record.game_id = 'System' # Default value for system-wide logs
+        if not hasattr(record, "game_id"):
+            record.game_id = "System"  # Default value for system-wide logs
         return True
+
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - [%(game_id)s] - %(message)s'
+    format="%(asctime)s - %(levelname)s - [%(game_id)s] - %(message)s",
 )
 
 logging.getLogger().addFilter(GameIdFilter())
@@ -72,7 +74,9 @@ async def lifespan(app: FastAPI):
     yield
     task.cancel()
 
+
 app = FastAPI(lifespan=lifespan)
+
 
 async def run_game_timer_checks():
     """
@@ -91,13 +95,19 @@ async def run_game_timer_checks():
             await game.check_timeout_and_broadcast()
             if time.time() - game.last_activity_time > GAME_INACTIVITY_TIMEOUT:
                 logging.info(f"Closing inactive game {game_id} due to inactivity.")
-                await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Inactivity"}), game_id)
+                await manager.broadcast(
+                    json.dumps({"event": "game_closed", "reason": "Inactivity"}),
+                    game_id,
+                )
                 del game_manager.games[game_id]
 
             if game.game_over and game.game_over_time:
                 if time.time() - game.game_over_time > FINISHED_GAME_CLEANUP_DELAY:
                     logging.info(f"Cleaning up finished game {game_id}.")
-                    await manager.broadcast(json.dumps({"event": "game_closed", "reason": "Game finished"}), game_id)
+                    await manager.broadcast(
+                        json.dumps({"event": "game_closed", "reason": "Game finished"}),
+                        game_id,
+                    )
                     del game_manager.games[game_id]
 
 
@@ -120,6 +130,7 @@ app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 app.mount("/audio", StaticFiles(directory=AUDIO_DIR), name="audio")
 app.mount("/icon", StaticFiles(directory=ICON_DIR), name="icon")
 
+
 @app.get("/config")
 async def get_config():
     """
@@ -130,10 +141,8 @@ async def get_config():
     """
     base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:7777")
     ws_url = base_url.replace("http", "ws")
-    return JSONResponse({
-        "apiBaseUrl": base_url,
-        "webSocketUrl": ws_url
-    })
+    return JSONResponse({"apiBaseUrl": base_url, "webSocketUrl": ws_url})
+
 
 @app.get("/favicon.ico", response_class=FileResponse)
 async def get_favicon():
@@ -143,7 +152,10 @@ async def get_favicon():
     Returns:
         FileResponse: The favicon.ico file with the correct media type.
     """
-    return FileResponse(os.path.join(ICON_DIR, "favicon.ico"), media_type="image/x-icon")
+    return FileResponse(
+        os.path.join(ICON_DIR, "favicon.ico"), media_type="image/x-icon"
+    )
+
 
 @app.get("/about", response_class=HTMLResponse)
 async def get_about():
@@ -157,6 +169,7 @@ async def get_about():
         html = f.read()
     return html
 
+
 @app.get("/create_lobby", response_class=HTMLResponse)
 async def get_create_lobby():
     """
@@ -168,6 +181,7 @@ async def get_create_lobby():
     with open(os.path.join(PAGES_DIR, "create_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
+
 
 @app.get("/game", response_class=HTMLResponse)
 async def get_game():
@@ -181,6 +195,7 @@ async def get_game():
         html = f.read()
     return html
 
+
 @app.get("/join_lobby", response_class=HTMLResponse)
 async def get_join_lobby():
     """
@@ -192,6 +207,7 @@ async def get_join_lobby():
     with open(os.path.join(PAGES_DIR, "join_lobby.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
+
 
 @app.get("/", response_class=HTMLResponse)
 async def get_menu():
@@ -205,6 +221,7 @@ async def get_menu():
         html = f.read()
     return html
 
+
 @app.get("/online", response_class=HTMLResponse)
 async def get_online():
     """
@@ -216,6 +233,7 @@ async def get_online():
     with open(os.path.join(PAGES_DIR, "online.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
+
 
 @app.get("/rules", response_class=HTMLResponse)
 async def get_rules():
@@ -229,6 +247,7 @@ async def get_rules():
         html = f.read()
     return html
 
+
 @app.get("/settings", response_class=HTMLResponse)
 async def get_settings():
     """
@@ -240,6 +259,7 @@ async def get_settings():
     with open(os.path.join(PAGES_DIR, "settings.html"), "r", encoding="utf-8") as f:
         html = f.read()
     return html
+
 
 load_dotenv()
 if __name__ == "__main__":

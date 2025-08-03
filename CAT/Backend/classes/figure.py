@@ -1,9 +1,11 @@
 import uuid
 
-class Figure():
+
+class Figure:
     """
     Represents a game figure with a unique identifier, color, and position.
     """
+
     def __init__(self, color: str):
         """
         Initializes a new Figure instance with a unique UUID, color, and default position.
@@ -49,8 +51,4 @@ class Figure():
         Returns:
             dict: A dictionary representation of the figure.
         """
-        return {
-            'uuid': self.uuid,
-            'color': self.color,
-            'position': self.position
-        }
+        return {"uuid": self.uuid, "color": self.color, "position": self.position}

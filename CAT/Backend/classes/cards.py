@@ -49,10 +49,7 @@ class Card(ABC):
         Returns:
             dict: The card represented as a dictionary.
         """
-        return {
-            "name": self.name,
-            "description": self.description
-        }
+        return {"name": self.name, "description": self.description}
 
 
 class StandardCard(Card):
@@ -97,8 +94,10 @@ class StandardCard(Card):
         if not figure_to_move:
             raise ValueError(f"Figure with UUID {figure_uuid} not found in the game.")
 
-        logging.info(f"Player {player.name} plays StandardCard {self.value} on Figure on Position:{figure_to_move.position}",
-                         extra={'game_id': game_object.uuid})
+        logging.info(
+            f"Player {player.name} plays StandardCard {self.value} on Figure on Position:{figure_to_move.position}",
+            extra={"game_id": game_object.uuid},
+        )
         game_object.move_figure(figure_to_move, self.value)
 
     def to_json(self) -> dict:
@@ -109,12 +108,13 @@ class StandardCard(Card):
             dict: The card represented as a dictionary.
         """
         data = super().to_json()
-        data['value'] = self.value
-        data['type'] = 'StandardCard'
+        data["value"] = self.value
+        data["type"] = "StandardCard"
         return data
 
 
 # ----------- SPECIAL CARDS START HERE -----------
+
 
 class FlexCard(Card):
     """Flex Card (4 +/-): Moves 4 fields forward or backward."""
@@ -148,8 +148,10 @@ class FlexCard(Card):
         if not figure:
             raise ValueError(f"Figure with UUID {figure_uuid} not found.")
 
-        logging.info(f"Player {player.name} plays FlexCard {direction} on Figure on Position:{figure.position}",
-                         extra={'game_id': game_object.uuid})
+        logging.info(
+            f"Player {player.name} plays FlexCard {direction} on Figure on Position:{figure.position}",
+            extra={"game_id": game_object.uuid},
+        )
 
         if direction == "forward":
             game_object.move_figure(figure, 4)
@@ -166,7 +168,7 @@ class FlexCard(Card):
             dict: The card represented as a dictionary.
         """
         data = super().to_json()
-        data['type'] = 'FlexCard'
+        data["type"] = "FlexCard"
         return data
 
 
@@ -176,7 +178,10 @@ class SwapCard(Card):
     """
 
     def __init__(self):
-        super().__init__("Swap Card", "Choose one of your cats and swap its position with any other cat.")
+        super().__init__(
+            "Swap Card",
+            "Choose one of your cats and swap its position with any other cat.",
+        )
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
@@ -207,10 +212,14 @@ class SwapCard(Card):
             raise ValueError("One or both figures for the swap not found.")
 
         if figure1 not in player.figures:
-            raise ValueError("You can only initiate a swap with one of your own figures.")
+            raise ValueError(
+                "You can only initiate a swap with one of your own figures."
+            )
 
-        logging.info(f"Player {player.name} plays SwapCard own Figure on Postion {figure1.position} and Figure on Position {figure2.position}",
-                         extra={'game_id': game_object.uuid})
+        logging.info(
+            f"Player {player.name} plays SwapCard own Figure on Postion {figure1.position} and Figure on Position {figure2.position}",
+            extra={"game_id": game_object.uuid},
+        )
         game_object.swap_figures(figure1, figure2)
 
     def to_json(self) -> dict:
@@ -221,7 +230,7 @@ class SwapCard(Card):
             dict: The card represented as a dictionary.
         """
         data = super().to_json()
-        data['type'] = 'SwapCard'
+        data["type"] = "SwapCard"
         return data
 
 
@@ -260,17 +269,23 @@ class StartCard(Card):
         figure = game_object.get_figure_by_uuid(figure_uuid)
 
         if action == "start":
-            logging.info(f"Player {player.name} plays StartCard.",
-                         extra={'game_id': game_object.uuid})
+            logging.info(
+                f"Player {player.name} plays StartCard.",
+                extra={"game_id": game_object.uuid},
+            )
             game_object.start_figure(player, figure)
 
         elif action == "move":
             chosen_value = kwargs.get("value")
             if chosen_value not in self.move_values:
-                raise ValueError(f"Invalid move value. Must be one of {self.move_values}.")
+                raise ValueError(
+                    f"Invalid move value. Must be one of {self.move_values}."
+                )
 
-            logging.info(f"Player {player.name} plays StartCard on Figure on Position:{figure.position} with {chosen_value} steps",
-                         extra={'game_id': game_object.uuid})
+            logging.info(
+                f"Player {player.name} plays StartCard on Figure on Position:{figure.position} with {chosen_value} steps",
+                extra={"game_id": game_object.uuid},
+            )
             game_object.move_figure(figure, chosen_value)
         else:
             raise ValueError("Invalid action. Must be 'start' or 'move'.")
@@ -283,8 +298,8 @@ class StartCard(Card):
             dict: The card represented as a dictionary.
         """
         data = super().to_json()
-        data['type'] = 'StartCard'
-        data['move_values'] = self.move_values
+        data["type"] = "StartCard"
+        data["move_values"] = self.move_values
         return data
 
 
@@ -292,7 +307,10 @@ class InfernoCard(Card):
     """Inferno Card (7): Can be split and 'burns' passed enemy figures."""
 
     def __init__(self):
-        super().__init__("Inferno Card", "Split the value of 7 among your cats and burn any enemy cat it passes over.")
+        super().__init__(
+            "Inferno Card",
+            "Split the value of 7 among your cats and burn any enemy cat it passes over.",
+        )
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
@@ -312,7 +330,7 @@ class InfernoCard(Card):
             ValueError: If 'moves' are missing from kwargs, or 'moves' is not a list, if the sum of steps is not 7, or if any move is missing 'figure_uuid' or 'steps'.
         """
 
-        def sort_moves_asc(moves : List[dict]) -> List[dict]:
+        def sort_moves_asc(moves: List[dict]) -> List[dict]:
             """
             Sorts the moves based on the position of the figures.
             This is necessary for the Inferno Card to ensure correct burning logic.
@@ -324,14 +342,19 @@ class InfernoCard(Card):
             """
             for i in range(len(moves)):
                 for j in range(i + 1, len(moves)):
-                    if game_object.get_figure_by_uuid(
-                            moves[i].get("figure_uuid")).get_position() > game_object.get_figure_by_uuid(
-                            moves[j].get("figure_uuid")).get_position():
+                    if (
+                        game_object.get_figure_by_uuid(
+                            moves[i].get("figure_uuid")
+                        ).get_position()
+                        > game_object.get_figure_by_uuid(
+                            moves[j].get("figure_uuid")
+                        ).get_position()
+                    ):
                         moves[i], moves[j] = moves[j], moves[i]
 
             return moves
 
-        def sort_figure_in_front_first(moves : List[dict]) -> List[dict]:
+        def sort_figure_in_front_first(moves: List[dict]) -> List[dict]:
             """
             Sorts the moves based on the distance between the figures.
             This is necessary for the Inferno Card to ensure correct burning logic.
@@ -348,12 +371,19 @@ class InfernoCard(Card):
             max_distance = 0
 
             for i, num in enumerate(moves):
-                newmax = (game_object.get_figure_by_uuid(moves[(i + 1) % len(moves)].get("figure_uuid")).get_position() - game_object.get_figure_by_uuid(moves[i].get("figure_uuid")).get_position()) % 56
+                newmax = (
+                    game_object.get_figure_by_uuid(
+                        moves[(i + 1) % len(moves)].get("figure_uuid")
+                    ).get_position()
+                    - game_object.get_figure_by_uuid(
+                        moves[i].get("figure_uuid")
+                    ).get_position()
+                ) % 56
                 if newmax > max_distance:
                     imax = i
                     max_distance = newmax
 
-            moves = moves[(imax + 1) % len(moves):] + moves[:(imax + 1) % len(moves)]
+            moves = moves[(imax + 1) % len(moves) :] + moves[: (imax + 1) % len(moves)]
             moves.reverse()
             return moves
 
@@ -362,14 +392,14 @@ class InfernoCard(Card):
         if not isinstance(unsorted_moves, list) or not unsorted_moves:
             raise ValueError("A list of moves must be provided for the Inferno Card.")
 
-        if sum(move.get('steps') for move in unsorted_moves) != 7:
-            raise ValueError("The steps of all moves for the Inferno Card must sum to 7.")
-
+        if sum(move.get("steps") for move in unsorted_moves) != 7:
+            raise ValueError(
+                "The steps of all moves for the Inferno Card must sum to 7."
+            )
 
         sorted_moves = sort_moves_asc(unsorted_moves)
 
         moves = sort_figure_in_front_first(sorted_moves)
-
 
         for move in moves:
             figure_uuid = move.get("figure_uuid")
@@ -381,10 +411,14 @@ class InfernoCard(Card):
             figure = game_object.get_figure_by_uuid(figure_uuid)
 
             if not figure or figure not in player.figures:
-                raise ValueError(f"Invalid or non-own figure selected for Inferno move: {figure_uuid}")
+                raise ValueError(
+                    f"Invalid or non-own figure selected for Inferno move: {figure_uuid}"
+                )
 
-            logging.info(f"Player {player.name} plays InfernoCard on Figure on Position {figure.position} for {steps} steps",
-                         extra={'game_id': game_object.uuid})
+            logging.info(
+                f"Player {player.name} plays InfernoCard on Figure on Position {figure.position} for {steps} steps",
+                extra={"game_id": game_object.uuid},
+            )
             game_object.move_and_burn(figure, steps)
 
     def to_json(self) -> dict:
@@ -395,7 +429,7 @@ class InfernoCard(Card):
             dict: The card represented as a dictionary.
         """
         data = super().to_json()
-        data['type'] = 'InfernoCard'
+        data["type"] = "InfernoCard"
         return data
 
 
@@ -403,7 +437,9 @@ class JokerCard(Card):
     """Joker Card: Can substitute for any other card."""
 
     def __init__(self):
-        super().__init__("Joker Card", "Can be played as a substitute for any other card.")
+        super().__init__(
+            "Joker Card", "Can be played as a substitute for any other card."
+        )
 
     def play_card(self, game_object: Game, player: Player, **kwargs):
         """
@@ -435,7 +471,11 @@ class JokerCard(Card):
             move_values = kwargs.get("move_values")
             if move_values not in ([1, 11], [13]):
                 raise ValueError("Only [1, 11] or [13] are allowed as move_values.")
-            imitated_card = StartCard("Start Card", move_values, "Start a figure or move it by one of the specified values.")
+            imitated_card = StartCard(
+                "Start Card",
+                move_values,
+                "Start a figure or move it by one of the specified values.",
+            )
         else:
             try:
                 value = int(card_to_imitate)
@@ -443,8 +483,10 @@ class JokerCard(Card):
             except ValueError:
                 raise ValueError(f"Unknown card type to imitate: {card_to_imitate}")
 
-        logging.info(f"Player {player.name} plays Joker as a {card_to_imitate}",
-                     extra={'game_id': game_object.uuid})
+        logging.info(
+            f"Player {player.name} plays Joker as a {card_to_imitate}",
+            extra={"game_id": game_object.uuid},
+        )
         imitated_card.play_card(game_object, player, **kwargs)
 
     def to_json(self) -> dict:
@@ -455,5 +497,5 @@ class JokerCard(Card):
             dict: The card represented as a dictionary.
         """
         data = super().to_json()
-        data['type'] = 'JokerCard'
+        data["type"] = "JokerCard"
         return data

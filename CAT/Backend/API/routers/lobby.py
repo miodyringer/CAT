@@ -14,7 +14,9 @@ router = APIRouter(
 
 
 @router.post("/create")
-def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depends(get_game_manager)):
+def create_lobby(
+    request: CreateLobbyRequest, game_manager: GameManager = Depends(get_game_manager)
+):
     """
     Creates a new game lobby and adds the host player.
 
@@ -28,26 +30,33 @@ def create_lobby(request: CreateLobbyRequest, game_manager: GameManager = Depend
     Raises:
         HTTPException: If the lobby or player name exceeds the maximum allowed length.
     """
-    if len(request.player_input.player_name) > MAX_NAME_LENGTH or len(request.lobby_name) > MAX_NAME_LENGTH:
+    if (
+        len(request.player_input.player_name) > MAX_NAME_LENGTH
+        or len(request.lobby_name) > MAX_NAME_LENGTH
+    ):
         raise HTTPException(
             status_code=400,
-            detail=f"Names cannot be longer than {MAX_NAME_LENGTH} characters."
+            detail=f"Names cannot be longer than {MAX_NAME_LENGTH} characters.",
         )
 
     logging.info(f"Received request to create lobby with data: {request.model_dump()}")
     new_game = game_manager.create_game(
-        name=request.lobby_name,
-        player_name=request.player_input.player_name
+        name=request.lobby_name, player_name=request.player_input.player_name
     )
     host_player = new_game.players[0]
     return {
         "message": f"Lobby '{new_game.name}' created!",
         "game_id": new_game.uuid,
-        "player_id": host_player.uuid
+        "player_id": host_player.uuid,
     }
 
+
 @router.post("/{game_id}/join")
-async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: GameManager = Depends(get_game_manager)):
+async def join_lobby(
+    game_id: str,
+    player_input: PlayerInput,
+    game_manager: GameManager = Depends(get_game_manager),
+):
     """
     Adds a new player to an existing game lobby.
 
@@ -66,11 +75,10 @@ async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: Game
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
 
-
     if len(player_input.player_name) > MAX_NAME_LENGTH:
         raise HTTPException(
             status_code=400,
-            detail=f"Names cannot be longer than {MAX_NAME_LENGTH} characters."
+            detail=f"Names cannot be longer than {MAX_NAME_LENGTH} characters.",
         )
     new_player = game.add_player(player_input.player_name)
     if not new_player:
@@ -78,8 +86,9 @@ async def join_lobby(game_id: str, player_input: PlayerInput, game_manager: Game
     await manager.broadcast(json.dumps({"event": "update"}), game_id)
     return {
         "message": f"Player '{new_player.name}' joined lobby '{game.name}'",
-        "player_id": new_player.uuid
+        "player_id": new_player.uuid,
     }
+
 
 @router.get("/list")
 def get_all_lobbies(game_manager: GameManager = Depends(get_game_manager)):

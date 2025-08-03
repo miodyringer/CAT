@@ -1,10 +1,12 @@
 from fastapi import WebSocket
 from typing import Dict, List
 
+
 class ConnectionManager:
     """
     Manages WebSocket connections for multiple games, allowing broadcasting and tracking of active connections.
     """
+
     def __init__(self):
         """
         Initializes the ConnectionManager with an empty dictionary for active connections.
@@ -49,5 +51,6 @@ class ConnectionManager:
         if game_id in self.active_connections:
             for connection in self.active_connections[game_id]:
                 await connection.send_text(message)
+
 
 manager = ConnectionManager()
