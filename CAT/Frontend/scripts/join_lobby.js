@@ -2,22 +2,21 @@ import sendRequest from './services/server_service.js'
 import { translate } from './translator.mjs'
 import getCookie from './functions.mjs'
 
-// 1. Parameter aus der URL auslesen
+// Read parameters from the URL
 const params = new URLSearchParams(document.location.search)
 const lobbyId = params.get('lobbyId')
 const lobbyName = params.get('lobbyName')
 
-// 2. HTML-Elemente holen
+// Get HTML elements
 const lobbyNameTitle = document.querySelector('#lobby-name')
 const playerNameInput = document.querySelector('#player-name')
 const joinGameBtn = document.querySelector('#join-game-btn')
 
-// Lobby-Namen im Titel anzeigen
+// Display lobby name in the title
 if (lobbyNameTitle && lobbyName) {
   lobbyNameTitle.textContent += ` "${lobbyName}"`
 }
 
-// 3. Klick-Listener für den Join-Button hinzufügen
 joinGameBtn.addEventListener('click', async () => {
   const playerName = playerNameInput.value
 

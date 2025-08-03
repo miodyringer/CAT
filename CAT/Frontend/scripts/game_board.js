@@ -70,19 +70,25 @@ export function renderFigures () {
 
   const selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()]
 
-  // --- KORREKTUR FÜR SWAP UND INFERNO ---
   let isSwapActive = false
   let isInfernoActive = false
 
   if (selectedCard) {
     let activeCard = selectedCard
-    // Wenn ein Joker gespielt wird, nutze die imitierte Karte für die Logik
     if (selectedCard.type === 'JokerCard') {
       const jokerImitation = gameService.getJokerImitation()
       if (jokerImitation) {
         activeCard = jokerImitation
       }
     }
+    if (selectedCard) {
+        let activeCard = selectedCard;
+        if (selectedCard.type === 'JokerCard') {
+            const jokerImitation = gameService.getJokerImitation();
+            if (jokerImitation) {
+                activeCard = jokerImitation;
+            }
+        }
 
     if (activeCard.type === 'SwapCard') {
       isSwapActive = true
@@ -325,3 +331,4 @@ cameraContainer.addEventListener('touchend', stopPanning)
 cameraContainer.addEventListener('touchcancel', stopPanning)
 
 document.addEventListener('touchmove', (e) => { e.preventDefault() }, { passive: false })
+}

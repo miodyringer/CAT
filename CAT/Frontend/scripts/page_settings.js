@@ -25,14 +25,14 @@ applyPageSettings()
 
 function customAlert () {
   window.alert = function (message) {
-    const lang = getCookie('language') || 'en' // Sprache aus Cookie holen, 'en' als Fallback
+    const lang = getCookie('language') || 'en'
     const alert = document.createElement('div')
     alert.className = 'alert-container'
 
     alert.innerHTML = `<div class='alert-content'><h3>Oh, no!</h3><p>${message}</p><button class='button' id='close-alert' data-translate="close">Close</button></div>`
 
     const closeButton = alert.querySelector('#close-alert')
-    const closeKey = closeButton.dataset.translate // "close"
+    const closeKey = closeButton.dataset.translate
     closeButton.textContent = translations[lang][closeKey] || translations.en[closeKey]
 
     alert.querySelector('#close-alert').onclick = () => {
@@ -41,7 +41,7 @@ function customAlert () {
     document.body.append(alert)
   }
 
-  window.confirm = function (message) { // Das 'reject' Argument wird nicht verwendet und kann entfernt werden
+  window.confirm = function (message) {
     return new Promise((resolve) => {
       const lang = getCookie('language') || 'en' // Sprache aus Cookie holen
       const confirmBox = document.createElement('div')

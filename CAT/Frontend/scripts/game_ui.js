@@ -24,10 +24,9 @@ function renderPlayButton () {
   const selectedFigure = localPlayer.figures.find(f => f.uuid === figureId)
   if (!selectedFigure) return
 
-  // Wenn ein Joker gespielt wird, ist die "ausgewählte Karte" die, die imitiert wird
   if (selectedCard.type === 'JokerCard') {
     const jokerImitation = gameService.getJokerImitation()
-    if (!jokerImitation) return // Wenn noch keine Auswahl getroffen, keinen Button zeigen
+    if (!jokerImitation) return
     selectedCard = jokerImitation
   }
 
@@ -311,11 +310,10 @@ function renderDiscardPile () {
     return
   }
 
-  container.innerHTML = '' // Leere den alten Inhalt
+  container.innerHTML = ''
   container.style.display = 'block'
 
   const cardElement = document.createElement('div')
-  // Nutze exakt dieselbe Logik wie in renderHand, um die Karte zu erstellen
   let iconSymbol = ''
   let cardNumber = ''
 
@@ -347,7 +345,6 @@ function startTurnTimer (startTime, totalDuration) {
   let timeLeft = (startTime !== null && startTime !== undefined) ? startTime : turnDuration
   const timerDisplay = document.getElementById('turn-timer-display')
 
-  // Timer-Anzeige sofort initialisieren
   timerDisplay.textContent = translate(getCookie('language'), 'timer_text') + `: ${timeLeft}`
   timerDisplay.classList.remove('low-time')
 
@@ -359,7 +356,6 @@ function startTurnTimer (startTime, totalDuration) {
       timerDisplay.classList.add('low-time')
     }
 
-    // Wenn die Zeit abläuft, nur noch die Anzeige ändern
     if (timeLeft <= 0) {
       timerDisplay.textContent = translate(getCookie('language'), 'times_up')
       stopTurnTimer()
@@ -369,7 +365,7 @@ function startTurnTimer (startTime, totalDuration) {
 
 function stopTurnTimer () {
   const timerDisplay = document.getElementById('turn-timer-display')
-  timerDisplay.textContent = '' // Leert die Anzeige, wenn man nicht dran ist
+  timerDisplay.textContent = ''
   timerDisplay.classList.remove('low-time')
   clearInterval(turnTimerInterval)
   turnTimerInterval = null
@@ -422,7 +418,6 @@ async function executePlay (extraDetails = {}) {
 
   const actionDetails = { ...extraDetails }
 
-  // KORREKTE JOKER-LOGIK
   if (playedCard.type === 'JokerCard') {
     const jokerImitation = gameService.getJokerImitation()
     if (!jokerImitation) {
@@ -430,18 +425,15 @@ async function executePlay (extraDetails = {}) {
       return
     }
 
-    // Backend erwartet für Startkarten den Namen "Start", nicht "13/Start"
     actionDetails.imitate_card_name = jokerImitation.type === 'StartCard' ? 'Start' : jokerImitation.name
 
     if (jokerImitation.type === 'StartCard') {
       actionDetails.move_values = jokerImitation.move_values
     }
 
-    // Wechsle die Referenz, damit die restliche Logik mit der imitierten Karte arbeitet
     playedCard = jokerImitation
   }
 
-  // Für die Inferno-Karte benötigen wir keine einzelne Figur
   if (playedCard.type === 'InfernoCard') {
     actionDetails.action = 'inferno'
     actionDetails.moves = extraDetails.moves
@@ -453,7 +445,6 @@ async function executePlay (extraDetails = {}) {
     }
     actionDetails.figure_uuid = figureId
 
-    // Logik für die anderen Karten
     if (playedCard.type === 'StartCard' && !actionDetails.action) {
       actionDetails.action = 'move'
       actionDetails.value = playedCard.move_values[0]
@@ -591,7 +582,6 @@ async function initializeGame () {
       startGameBtn.dataset.listenerAttached = 'true'
     }
 
-    // KORREKTE PLATZIERUNG DES EVENT-LISTENERS
     document.getElementById('joker-cancel-btn').addEventListener('click', () => {
       document.getElementById('joker-modal-overlay').style.display = 'none'
       gameService.resetSelections()
