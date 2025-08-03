@@ -98,276 +98,274 @@ export function renderFigures () {
     }
   }
 
-    const previouslyHighlighted = document.querySelector('.tile.highlighted');
-    if (previouslyHighlighted) {
-        previouslyHighlighted.classList.remove('highlighted');
-    }
+  const previouslyHighlighted = document.querySelector('.tile.highlighted')
+  if (previouslyHighlighted) {
+    previouslyHighlighted.classList.remove('highlighted')
+  }
 
-    const previouslyTargetHighlighted = document.querySelector('.tile.target-highlighted');
-    if (previouslyTargetHighlighted) {
-        previouslyTargetHighlighted.classList.remove('target-highlighted');
-    }
+  const previouslyTargetHighlighted = document.querySelector('.tile.target-highlighted')
+  if (previouslyTargetHighlighted) {
+    previouslyTargetHighlighted.classList.remove('target-highlighted')
+  }
 
-    players.forEach(player => {
-        player.figures.forEach((figure, index) => {
-            const figureElement = document.createElement("div");
-            figureElement.className = `figure ${figure.color}`;
-            figureElement.id = figure.uuid;
+  players.forEach(player => {
+    player.figures.forEach((figure, index) => {
+      const figureElement = document.createElement('div')
+      figureElement.className = `figure ${figure.color}`
+      figureElement.id = figure.uuid
 
-            let gridPosition = "";
-            if (figure.position === -1) {
-                gridPosition = HOME_COORDINATES[figure.color][index];
-            } else if (figure.position >= 100) {
-                const finishIndex = figure.position % 100;
-                gridPosition = FINISH_COORDINATES[figure.color][finishIndex];
-            } else {
-                gridPosition = PATH_COORDINATES[figure.position];
-            }
-            figureElement.style.gridArea = gridPosition;
+      let gridPosition = ''
+      if (figure.position === -1) {
+        gridPosition = HOME_COORDINATES[figure.color][index]
+      } else if (figure.position >= 100) {
+        const finishIndex = figure.position % 100
+        gridPosition = FINISH_COORDINATES[figure.color][finishIndex]
+      } else {
+        gridPosition = PATH_COORDINATES[figure.position]
+      }
+      figureElement.style.gridArea = gridPosition
 
-            figureElement.innerHTML = `<div class="body"></div><div class="ears"></div><div class="head"></div>`;
+      figureElement.innerHTML = '<div class="body"></div><div class="ears"></div><div class="head"></div>'
 
-            const isOwn = player.uuid === localPlayer.uuid;
-            const isClickable = (isOwn && gameService.isLocalPlayerTurn()) || (isSwapActive && figure.position >= 0);
+      const isOwn = player.uuid === localPlayer.uuid
+      const isClickable = (isOwn && gameService.isLocalPlayerTurn()) || (isSwapActive && figure.position >= 0)
 
-            if (isClickable) {
-                figureElement.classList.add("own-figure");
-                figureElement.addEventListener('click', (e) => {
-                    if(isInfernoActive) return
-                    gameService.selectFigure(figure.uuid);
-                    document.dispatchEvent(new Event('selectionChanged'));
-                });
-            }
-            if (figure.uuid === gameService.getSelectedFigureId()) {
-                figureElement.classList.add("selected");
-                const figureGridArea = figureElement.style.gridArea;
-                const figureTile = document.querySelector(`.tile[style*="grid-area: ${figureGridArea}"]`);
-                if (figureTile) {
-                    figureTile.classList.add('highlighted');
-                }
-            }
-            if (figure.uuid === gameService.getSelectedTargetFigureId()) {
-                figureElement.classList.add("target-selection");
-                const targetGridArea = figureElement.style.gridArea;
-                const targetTile = document.querySelector(`.tile[style*="grid-area: ${targetGridArea}"]`);
-                if (targetTile) {
-                    targetTile.classList.add('target-highlighted');
-                }
-            }
+      if (isClickable) {
+        figureElement.classList.add('own-figure')
+        figureElement.addEventListener('click', (e) => {
+          if (isInfernoActive) return
+          gameService.selectFigure(figure.uuid)
+          document.dispatchEvent(new Event('selectionChanged'))
+        })
+      }
+      if (figure.uuid === gameService.getSelectedFigureId()) {
+        figureElement.classList.add('selected')
+        const figureGridArea = figureElement.style.gridArea
+        const figureTile = document.querySelector(`.tile[style*="grid-area: ${figureGridArea}"]`)
+        if (figureTile) {
+          figureTile.classList.add('highlighted')
+        }
+      }
+      if (figure.uuid === gameService.getSelectedTargetFigureId()) {
+        figureElement.classList.add('target-selection')
+        const targetGridArea = figureElement.style.gridArea
+        const targetTile = document.querySelector(`.tile[style*="grid-area: ${targetGridArea}"]`)
+        if (targetTile) {
+          targetTile.classList.add('target-highlighted')
+        }
+      }
 
-            if (isInfernoActive && isOwn && figure.position !== -1) {
-                const controls = document.createElement('div');
-                controls.className = 'figure-step-controls';
+      if (isInfernoActive && isOwn && figure.position !== -1) {
+        const controls = document.createElement('div')
+        controls.className = 'figure-step-controls'
 
-                const minusBtn = document.createElement('button');
-                minusBtn.className = 'step-button';
-                minusBtn.textContent = '-';
-                minusBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    let steps = gameService.getStepsForFigure(figure.uuid);
-                    if (steps > 0) {
-                        gameService.updateInfernoMove(figure.uuid, steps - 1);
-                        document.dispatchEvent(new Event('selectionChanged'));
-                    }
-                };
+        const minusBtn = document.createElement('button')
+        minusBtn.className = 'step-button'
+        minusBtn.textContent = '-'
+        minusBtn.onclick = (e) => {
+          e.stopPropagation()
+          const steps = gameService.getStepsForFigure(figure.uuid)
+          if (steps > 0) {
+            gameService.updateInfernoMove(figure.uuid, steps - 1)
+            document.dispatchEvent(new Event('selectionChanged'))
+          }
+        }
 
-                const plusBtn = document.createElement('button');
-                plusBtn.className = 'step-button';
-                plusBtn.textContent = '+';
-                plusBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    let pointsLeft = gameService.getInfernoPointsRemaining();
-                    if (pointsLeft > 0) {
-                        let steps = gameService.getStepsForFigure(figure.uuid);
-                        gameService.updateInfernoMove(figure.uuid, steps + 1);
-                        document.dispatchEvent(new Event('selectionChanged'));
-                    }
-                };
+        const plusBtn = document.createElement('button')
+        plusBtn.className = 'step-button'
+        plusBtn.textContent = '+'
+        plusBtn.onclick = (e) => {
+          e.stopPropagation()
+          const pointsLeft = gameService.getInfernoPointsRemaining()
+          if (pointsLeft > 0) {
+            const steps = gameService.getStepsForFigure(figure.uuid)
+            gameService.updateInfernoMove(figure.uuid, steps + 1)
+            document.dispatchEvent(new Event('selectionChanged'))
+          }
+        }
 
-                const stepsDisplay = document.createElement('span');
-                stepsDisplay.textContent = gameService.getStepsForFigure(figure.uuid);
+        const stepsDisplay = document.createElement('span')
+        stepsDisplay.textContent = gameService.getStepsForFigure(figure.uuid)
 
-                controls.appendChild(minusBtn);
-                controls.appendChild(stepsDisplay);
-                controls.appendChild(plusBtn);
-                figureElement.appendChild(controls);
-            }
+        controls.appendChild(minusBtn)
+        controls.appendChild(stepsDisplay)
+        controls.appendChild(plusBtn)
+        figureElement.appendChild(controls)
+      }
 
-            boardElement.appendChild(figureElement);
-        });
-    });
+      boardElement.appendChild(figureElement)
+    })
+  })
 
+  renderBoardTiles()
 
-renderBoardTiles();
+  const cameraContainer = document.querySelector('#camera-container')
 
+  let scale = 1.0
+  let panX = 0
+  let panY = 64
 
-const cameraContainer = document.querySelector("#camera-container");
-
-let scale = 1.0;
-let panX = 0;
-let panY = 64;
-
-/**
+  /**
  * Updates the CSS transform of the board element to reflect current scale and pan values.
  */
-function updateBoardTransform () {
-  const centering = 'translateX(-50%) translateY(-50%)'
-  const rotation = 'rotateX(55deg) rotateZ(45deg)'
+  function updateBoardTransform () {
+    const centering = 'translateX(-50%) translateY(-50%)'
+    const rotation = 'rotateX(55deg) rotateZ(45deg)'
 
-  const panning = `translate3d(${panX}px, ${panY}px, 0)`
-  const zooming = `scale(${scale})`
+    const panning = `translate3d(${panX}px, ${panY}px, 0)`
+    const zooming = `scale(${scale})`
 
-  boardElement.style.transform = `${centering} ${zooming} ${panning} ${rotation}`
-}
+    boardElement.style.transform = `${centering} ${zooming} ${panning} ${rotation}`
+  }
 
-updateBoardTransform()
+  updateBoardTransform()
 
-/**
+  /**
  * Handles keyboard events for board navigation (panning and zooming).
  * @param {KeyboardEvent} e - The keyboard event.
  */
-document.addEventListener('keydown', (e) => {
-  e.preventDefault()
-  const isPortrait = window.matchMedia('(orientation: portrait)').matches
-  const moveSpeed = 20 / scale ** 1.5
+  document.addEventListener('keydown', (e) => {
+    e.preventDefault()
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches
+    const moveSpeed = 20 / scale ** 1.5
 
-  let dx = 0; let dy = 0
-  let zoomIn = false; let zoomOut = false
+    let dx = 0; let dy = 0
+    let zoomIn = false; let zoomOut = false
 
-  switch (e.code) {
-    case 'BracketRight': case 'KeyP': if (scale < 2.0) { scale = Math.min(2.0, scale + 0.1); zoomIn = true } break
-    case 'Slash': case 'KeyM': if (scale > 0.5) { scale = Math.max(0.5, scale - 0.1); zoomOut = true } break
-    case 'ArrowUp': case 'KeyW': dy = -moveSpeed; break
-    case 'ArrowDown': case 'KeyS': dy = moveSpeed; break
-    case 'ArrowLeft': case 'KeyA': dx = -moveSpeed; break
-    case 'ArrowRight': case 'KeyD': dx = moveSpeed; break
-    case 'KeyR':
-      scale = 1.0; panX = 0; panY = 64
+    switch (e.code) {
+      case 'BracketRight': case 'KeyP': if (scale < 2.0) { scale = Math.min(2.0, scale + 0.1); zoomIn = true } break
+      case 'Slash': case 'KeyM': if (scale > 0.5) { scale = Math.max(0.5, scale - 0.1); zoomOut = true } break
+      case 'ArrowUp': case 'KeyW': dy = -moveSpeed; break
+      case 'ArrowDown': case 'KeyS': dy = moveSpeed; break
+      case 'ArrowLeft': case 'KeyA': dx = -moveSpeed; break
+      case 'ArrowRight': case 'KeyD': dx = moveSpeed; break
+      case 'KeyR':
+        scale = 1.0; panX = 0; panY = 64
+        updateBoardTransform()
+        return
+    }
+    if (isPortrait) {
+      panX -= dx
+      panY -= dy
+    } else {
+      panX += dx
+      panY += dy
+    }
+    if (dx !== 0 || dy !== 0 || zoomIn || zoomOut) {
       updateBoardTransform()
-      return
-  }
-  if (isPortrait) {
-    panX -= dx
-    panY -= dy
-  } else {
-    panX += dx
-    panY += dy
-  }
-  if (dx !== 0 || dy !== 0 || zoomIn || zoomOut) {
-    updateBoardTransform()
-  }
-})
+    }
+  })
 
-/**
+  /**
  * Handles mouse wheel events for zooming the board in and out.
  * @param {WheelEvent} e - The wheel event.
  */
-document.addEventListener('wheel', (e) => {
-  e.preventDefault()
+  document.addEventListener('wheel', (e) => {
+    e.preventDefault()
 
-  if (e.deltaY < 0 && scale < 2.0) {
-    scale = Math.min(2.0, scale + 0.1)
-  } else if (e.deltaY > 0 && scale > 0.5) {
-    scale = Math.max(0.5, scale - 0.1)
-  }
+    if (e.deltaY < 0 && scale < 2.0) {
+      scale = Math.min(2.0, scale + 0.1)
+    } else if (e.deltaY > 0 && scale > 0.5) {
+      scale = Math.max(0.5, scale - 0.1)
+    }
 
-  updateBoardTransform()
-}, { passive: false })
+    updateBoardTransform()
+  }, { passive: false })
 
-const panState = { isPanning: false, lastX: 0, lastY: 0 }
+  const panState = { isPanning: false, lastX: 0, lastY: 0 }
 
-/**
+  /**
  * Handles mouse down events to start panning the board.
  * @param {MouseEvent} e - The mouse event.
  */
-cameraContainer.addEventListener('mousedown', (e) => {
-  e.preventDefault()
-  panState.isPanning = true
-  panState.lastX = e.clientX
-  panState.lastY = e.clientY
-})
+  cameraContainer.addEventListener('mousedown', (e) => {
+    e.preventDefault()
+    panState.isPanning = true
+    panState.lastX = e.clientX
+    panState.lastY = e.clientY
+  })
 
-/**
+  /**
  * Handles mouse move events to pan the board while dragging.
  * @param {MouseEvent} e - The mouse event.
  */
-cameraContainer.addEventListener('mousemove', (e) => {
-  if (!panState.isPanning) return
-  e.preventDefault()
-  const isPortrait = window.matchMedia('(orientation: portrait)').matches
+  cameraContainer.addEventListener('mousemove', (e) => {
+    if (!panState.isPanning) return
+    e.preventDefault()
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches
 
-  const dx = e.clientX - panState.lastX
-  const dy = e.clientY - panState.lastY
+    const dx = e.clientX - panState.lastX
+    const dy = e.clientY - panState.lastY
 
-  panState.lastX = e.clientX
-  panState.lastY = e.clientY
+    panState.lastX = e.clientX
+    panState.lastY = e.clientY
 
-  if (isPortrait) {
-    panX -= dy / scale
-    panY += dx / scale
-  } else {
-    panX += dx / scale
-    panY += dy / scale
-  }
-  updateBoardTransform()
-})
+    if (isPortrait) {
+      panX -= dy / scale
+      panY += dx / scale
+    } else {
+      panX += dx / scale
+      panY += dy / scale
+    }
+    updateBoardTransform()
+  })
 
-/**
+  /**
  * Handles touch start events to begin panning on touch devices.
  * @param {TouchEvent} e - The touch event.
  */
-cameraContainer.addEventListener('touchstart', (e) => {
-  if (e.touches.length > 0) {
-    panState.isPanning = true
-    panState.lastX = e.touches[0].clientX
-    panState.lastY = e.touches[0].clientY
-  }
-}, { passive: false })
+  cameraContainer.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+      panState.isPanning = true
+      panState.lastX = e.touches[0].clientX
+      panState.lastY = e.touches[0].clientY
+    }
+  }, { passive: false })
 
-/**
+  /**
  * Handles touch move events to pan the board on touch devices.
  * @param {TouchEvent} e - The touch event.
  */
-cameraContainer.addEventListener('touchmove', (e) => {
-  if (!panState.isPanning || e.touches.length === 0) return
+  cameraContainer.addEventListener('touchmove', (e) => {
+    if (!panState.isPanning || e.touches.length === 0) return
 
-  e.preventDefault()
+    e.preventDefault()
 
-  const currentX = e.touches[0].clientX
-  const currentY = e.touches[0].clientY
-  const isPortrait = window.matchMedia('(orientation: portrait)').matches
-  const dx = currentX - panState.lastX
-  const dy = currentY - panState.lastY
+    const currentX = e.touches[0].clientX
+    const currentY = e.touches[0].clientY
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches
+    const dx = currentX - panState.lastX
+    const dy = currentY - panState.lastY
 
-  panState.lastX = currentX
-  panState.lastY = currentY
+    panState.lastX = currentX
+    panState.lastY = currentY
 
-  if (isPortrait) {
-    panX -= dy / scale
-    panY += dx / scale
-  } else {
-    panX += dx / scale
-    panY += dy / scale
-  }
-  updateBoardTransform()
-}, { passive: false })
+    if (isPortrait) {
+      panX -= dy / scale
+      panY += dx / scale
+    } else {
+      panX += dx / scale
+      panY += dy / scale
+    }
+    updateBoardTransform()
+  }, { passive: false })
 
-/**
+  /**
  * Stops panning when the mouse or touch interaction ends.
  */
-const stopPanning = () => { if (panState.isPanning) panState.isPanning = false }
+  const stopPanning = () => { if (panState.isPanning) panState.isPanning = false }
 
-/**
+  /**
  * Handles mouse and touch events to stop panning when appropriate.
  */
-window.addEventListener('mouseup', stopPanning)
-cameraContainer.addEventListener('mouseleave', stopPanning)
-cameraContainer.addEventListener('touchend', stopPanning)
-cameraContainer.addEventListener('touchcancel', stopPanning)
+  window.addEventListener('mouseup', stopPanning)
+  cameraContainer.addEventListener('mouseleave', stopPanning)
+  cameraContainer.addEventListener('touchend', stopPanning)
+  cameraContainer.addEventListener('touchcancel', stopPanning)
 
-/**
+  /**
  * Prevents default touchmove behavior to avoid unwanted scrolling.
  * @param {TouchEvent} e - The touch event.
  */
-document.addEventListener('touchmove', (e) => { e.preventDefault() }, { passive: false })
+  document.addEventListener('touchmove', (e) => { e.preventDefault() }, { passive: false })
 }
