@@ -195,9 +195,15 @@ This project was brought to life by the collaborative efforts of:
 The background music for the game was generated using **suno AI**. 
 Code comments and documentation were enhanced with the help of **Gemini**. Also it helped to validate code logic and improve the overall code quality.
 
+
+---
+
+
 ## 🧑‍💻 Division of tasks
 Finn Renzenbrink was responsible for the backend development, while Emilio Dyringer focused on the frontend implementation. Vincent Brück made logo designs, translations, and the game rules. 
 
+
+---
 
 
 ## 🚀 Getting Started
