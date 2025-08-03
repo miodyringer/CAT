@@ -14,33 +14,63 @@ router = APIRouter(
 
 @router.websocket("/ws/{game_id}/{player_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str):
+    """
+    WebSocket endpoint for real-time game updates.
+
+    Allows players to connect and receive real-time updates for a specific game.
+
+    Args:
+        websocket (WebSocket): The WebSocket connection instance from the client.
+        game_id (str): The ID of the game to join.
+        player_id (str): The ID of the player connecting.
+
+    Raises:
+        WebSocketDisconnect: If the connection is closed or interrupted.
+    """
     await manager.connect(websocket, game_id)
+    logging.info(f"Player {player_id} connected to game", extra={'game_id': game_id})
+
     try:
         while True:
-            # Warte auf Nachrichten vom Client (aktuell nicht genutzt, aber für die Zukunft nötig)
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket, game_id)
-        print(f"Player {player_id} disconnected from game {game_id}")
+        logging.info(f"Player {player_id} disconnected from game", extra={'game_id': game_id})
 
 @router.get("/{game_id}/state")
 def get_game_state(game_id: str, player_id: str = Query(...), game_manager: GameManager = Depends(get_game_manager)):
     """
     Retrieves the current state of a specific game.
+
+    Args:
+        game_id (str): The ID of the game.
+        player_id (str): The ID of the requesting player (perspective).
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: The game state from the player's perspective or an error message.
     """
     game = game_manager.get_game(game_id)
     if not game:
         return {"error": "Game not found"}
-    # The game object will be automatically converted to JSON by FastAPI.
-    # You might want to create a Pydantic schema for the game state for better control
     return game.to_json(perspective_player_id=player_id)
 
 
-# Example of a future endpoint for playing a card
 @router.post("/{game_id}/play")
 async def play_card_action(game_id: str, request: PlayCardRequest, game_manager: GameManager = Depends(get_game_manager)):
     """
     Handles a player's action to play a card.
+
+    Args:
+        game_id (str): The ID of the game.
+        request (PlayCardRequest): The details of the played card and action.
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: Success message if the action was successful.
+
+    Raises:
+        HTTPException: If the game or player is not found, it's not the player's turn, or the action is invalid.
     """
     game = game_manager.get_game(game_id)
     if not game:
@@ -64,7 +94,8 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
         return {"message": "Action successful."}
     except (ValueError, IndexError) as e:
         if "Your time is up" in str(e):
-            print(f"Broadcasting update for game {game_id} due to an active timeout during play.")
+            logging.info(f"Broadcasting update for game due to an active timeout during play.",
+                         extra={'game_id': game_id})
             await manager.broadcast(json.dumps({"event": "update"}), game_id)
 
         raise HTTPException(status_code=400, detail=str(e))
@@ -73,6 +104,16 @@ async def play_card_action(game_id: str, request: PlayCardRequest, game_manager:
 async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_manager)):
     """
     Starts the game and deals the initial hand of cards.
+
+    Args:
+        game_id (str): The ID of the game to start.
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: Success message if the game was started.
+
+    Raises:
+        HTTPException: If the game is not found or an error occurs during start.
     """
     game = game_manager.get_game(game_id)
     if not game:
@@ -88,6 +129,20 @@ async def start_game(game_id: str, game_manager: GameManager = Depends(get_game_
 
 @router.post("/{game_id}/vote_kick")
 async def vote_kick_player(game_id: str, request: VoteKickRequest, game_manager: GameManager = Depends(get_game_manager)):
+    """
+    Handles a player's vote to kick another player from the game.
+
+    Args:
+        game_id (str): The ID of the game.
+        request (VoteKickRequest): The details of the vote (who votes, who is to be kicked).
+        game_manager (GameManager): The GameManager instance (dependency injection).
+
+    Returns:
+        dict: Success message if the vote was registered.
+
+    Raises:
+        HTTPException: If the game or players are not found or the vote is invalid.
+    """
     game = game_manager.get_game(game_id)
     voter = game.get_player_by_uuid(request.voter_uuid)
     player_to_kick = game.get_player_by_number(request.player_to_kick_number)
@@ -111,6 +166,9 @@ async def vote_kick_player(game_id: str, request: VoteKickRequest, game_manager:
 def get_all_card_types():
     """
     Returns a list of all unique, imitable card types in the game.
+
+    Returns:
+        list: A list of dictionaries representing the card types.
     """
     card_types = [
         StandardCard(2).to_json(),
