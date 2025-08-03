@@ -19,43 +19,37 @@ if (lobbyNameTitle && lobbyName) {
 
 // 3. Klick-Listener für den Join-Button hinzufügen
 joinGameBtn.addEventListener('click', async () => {
-    const playerName = playerNameInput.value;
+  const playerName = playerNameInput.value
 
-    if (!playerName) {
-        alert(translate(getCookie("language"), "empty_player_name_alert"));
-        return;
-    }
-    if (!lobbyId) {
-        alert('Error: No Lobby ID found!');
-        return;
-    }
+  if (!playerName) {
+    window.alert(translate(getCookie('language'), 'empty_player_name_alert'))
+    return
+  }
+  if (!lobbyId) {
+    window.alert('Error: No Lobby ID found!')
+    return
+  }
 
-    const requestBody = {
-        player_name: playerName
-    };
+  const requestBody = {
+    player_name: playerName
+  }
 
-    try {
-        const response = await sendRequest(`/lobby/${lobbyId}/join`, 'POST', requestBody);
+  try {
+    const response = await sendRequest(`/lobby/${lobbyId}/join`, 'POST', requestBody)
 
-        if (response && response.player_id) {
-            window.location.href = `/game?game_id=${lobbyId}&player_id=${response.player_id}`;
-        } else {
-            alert('Failed to get player confirmation from server.');
-        }
-    }
-    catch (error) {
-        console.error('Failed to join lobby:', error);
-        if (error.message.includes('Names cannot be longer than')) {
-            const numberMatch = error.message.match(/\d+/);
-            const maxLength = numberMatch ? numberMatch[0] : '';
-            alert(translate(getCookie("language"), "error_name_too_long").replace("{maxLength}", maxLength));
-        }
-        else {
-            alert(translate(getCookie("language"), "error_generic").replace("{errorMessage}", error.message));
-        }
+    if (response && response.player_id) {
+      window.location.href = `/game?game_id=${lobbyId}&player_id=${response.player_id}`
+    } else {
+      window.alert('Failed to get player confirmation from server.')
     }
   } catch (error) {
     console.error('Failed to join lobby:', error)
-    window.alert('Failed to join lobby. See console for details.')
+    if (error.message.includes('Names cannot be longer than')) {
+      const numberMatch = error.message.match(/\d+/)
+      const maxLength = numberMatch ? numberMatch[0] : ''
+      window.alert(translate(getCookie('language'), 'error_name_too_long').replace('{maxLength}', maxLength))
+    } else {
+      window.alert(translate(getCookie('language'), 'error_generic').replace('{errorMessage}', error.message))
+    }
   }
 })

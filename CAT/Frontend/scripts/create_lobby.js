@@ -27,25 +27,19 @@ createLobbyBtn.addEventListener('click', async () => {
     const response = await sendRequest('/lobby/create', 'POST', requestBody)
 
     if (response && response.game_id && response.player_id) {
-        console.log('Lobby created:', response);
-        window.location.href = `/game?game_id=${response.game_id}&player_id=${response.player_id}`;
+      console.log('Lobby created:', response)
+      window.location.href = `/game?game_id=${response.game_id}&player_id=${response.player_id}`
     } else {
-        alert('Error creating lobby.');
-    }
-    } 
-    catch (error) {
-        console.error('Failed to create lobby:', error);
-        if (error.message.includes('Names cannot be longer than')) {
-            const numberMatch = error.message.match(/\d+/);
-            const maxLength = numberMatch ? numberMatch[0] : '';
-            alert(translate(getCookie("language"), "error_name_too_long").replace("{maxLength}", maxLength));
-        }
-        else {
-            alert(translate(getCookie("language"), "error_generic").replace("{errorMessage}", error.message));
-        }
+      window.alert('Error creating lobby.')
     }
   } catch (error) {
     console.error('Failed to create lobby:', error)
-    window.alert('Failed to connect to the server. Check the browser console (F12) for more details.')
+    if (error.message.includes('Names cannot be longer than')) {
+      const numberMatch = error.message.match(/\d+/)
+      const maxLength = numberMatch ? numberMatch[0] : ''
+      window.alert(translate(getCookie('language'), 'error_name_too_long').replace('{maxLength}', maxLength))
+    } else {
+      window.alert(translate(getCookie('language'), 'error_generic').replace('{errorMessage}', error.message))
+    }
   }
 })
