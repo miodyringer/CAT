@@ -578,7 +578,7 @@ class Game:
 
         if self.field_occupation.get(start_tile):
             if self.field_occupation[start_tile].color == figure.color:
-                raise ValueError("The start tile is currently blocked by own figure.")
+                raise ValueError("The start tile is currently blocked by your own figure.")
 
         self._execute_move(figure, start_tile)
         logging.info(f"Figure {figure.get_uuid()} is now on start tile {start_tile}.", extra={"game_id" : self.uuid})
