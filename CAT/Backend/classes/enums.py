@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class PlayerColor(Enum):
     GREEN = 0
     PINK = 1

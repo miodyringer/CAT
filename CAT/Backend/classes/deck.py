@@ -9,13 +9,13 @@ from .cards import (
     SwapCard,
     StartCard,
     InfernoCard,
-    JokerCard
+    JokerCard,
 )
 from .player import Player
 from CAT.Backend.config import DECK_COMPOSITION, MAX_CARDS_DEALT, CARD_DEAL_CYCLE_LENGTH
 
 
-class Deck():
+class Deck:
     """
     Manages the game's deck of cards, including creation, shuffling,
     and dealing hands to players.
@@ -45,7 +45,9 @@ class Deck():
         self.cards = []
 
         for value in [2, 3, 5, 6, 8, 9, 10, 12]:
-            self.cards.extend([StandardCard(value)] * DECK_COMPOSITION["standard_cards_each"])
+            self.cards.extend(
+                [StandardCard(value)] * DECK_COMPOSITION["standard_cards_each"]
+            )
 
         self.cards.extend([FlexCard()] * DECK_COMPOSITION["flex_cards"])
 
@@ -53,25 +55,34 @@ class Deck():
 
         self.cards.extend([SwapCard()] * DECK_COMPOSITION["swap_cards"])
 
-        self.cards.extend([
-                              StartCard(
-                                  name="13/Start",
-                                  move_values=[13],
-                                  description="Move a cat from the start area or move 13 fields forward."
-                              )
-                          ] * DECK_COMPOSITION["start_13_cards"])
+        self.cards.extend(
+            [
+                StartCard(
+                    name="13/Start",
+                    move_values=[13],
+                    description="Move a cat from the start area or move 13 fields forward.",
+                )
+            ]
+            * DECK_COMPOSITION["start_13_cards"]
+        )
 
-        self.cards.extend([
-                              StartCard(
-                                  name="1/11/Start",
-                                  move_values=[1, 11],
-                                  description="Move a cat from the start area or move 1 or 11 fields forward."
-                              )
-                          ] * DECK_COMPOSITION["start_1_11_cards"])
+        self.cards.extend(
+            [
+                StartCard(
+                    name="1/11/Start",
+                    move_values=[1, 11],
+                    description="Move a cat from the start area or move 1 or 11 fields forward.",
+                )
+            ]
+            * DECK_COMPOSITION["start_1_11_cards"]
+        )
 
         self.cards.extend([JokerCard()] * DECK_COMPOSITION["joker_cards"])
 
-        logging.info(f"Deck created with {len(self.cards)} cards.", extra={'game_id': self.game_id})
+        logging.info(
+            f"Deck created with {len(self.cards)} cards.",
+            extra={"game_id": self.game_id},
+        )
 
     def shuffle(self):
         """
@@ -81,14 +92,17 @@ class Deck():
             None
         """
         if not self.cards:
-            logging.info("Main deck is empty. Shuffling discard pile.", extra={'game_id': self.game_id})
+            logging.info(
+                "Main deck is empty. Shuffling discard pile.",
+                extra={"game_id": self.game_id},
+            )
             self.cards = self.discard_pile
             self.discard_pile = []
             self.cards = self.discard_pile
             self.discard_pile = []
 
         random.shuffle(self.cards)
-        logging.info("Deck has been shuffled.", extra={'game_id': self.game_id})
+        logging.info("Deck has been shuffled.", extra={"game_id": self.game_id})
 
     def deal_cards(self, players: List[Player], round_number: int):
         """
@@ -105,7 +119,10 @@ class Deck():
         # The number of cards decreases each round in a configured cycle
         cards_to_deal = MAX_CARDS_DEALT - ((round_number - 1) % CARD_DEAL_CYCLE_LENGTH)
 
-        logging.info(f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.", extra={'game_id': self.game_id})
+        logging.info(
+            f"Round {round_number}: Dealing {cards_to_deal} cards to each of {len(players)} players.",
+            extra={"game_id": self.game_id},
+        )
 
         for i in range(cards_to_deal):
             for player in players:
@@ -138,5 +155,5 @@ class Deck():
         """
         return {
             "cards": [card.to_json() for card in self.cards],
-            "discard_pile": [card.to_json() for card in self.discard_pile]
+            "discard_pile": [card.to_json() for card in self.discard_pile],
         }
