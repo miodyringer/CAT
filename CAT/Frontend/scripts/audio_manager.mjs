@@ -55,33 +55,27 @@ function getTargetVolume () {
 }
 
 export function initPageSound () {
-  document.head.insertAdjacentHTML('beforeend', '<style>body{opacity:0;}</style>')
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) {
+      document.body.style.opacity = 0
+      const wasPlaying = sessionStorage.getItem('music_was_playing') === 'true'
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const wasPlaying = sessionStorage.getItem('music_was_playing') === 'true'
-
-    if (wasPlaying) {
-      const resumeTime = parseFloat(sessionStorage.getItem('music_current_time') || '0')
-      sessionStorage.clear()
-
-      backgroundMusic.currentTime = resumeTime + 0.5
-      backgroundMusic.volume = 0
-
-      backgroundMusic.play().then(() => {
+      if (wasPlaying) {
+        backgroundMusic.play().then(() => {
+          _doFade('in')
+        }).catch(() => {
+          document.body.addEventListener('click', () => backgroundMusic.play(), { once: true })
+          _doFade('in')
+        })
+      } else {
+        backgroundMusic.volume = getTargetVolume()
+        backgroundMusic.play().catch(() => {
+          document.body.addEventListener('click', () => backgroundMusic.play(), { once: true })
+        })
         _doFade('in')
-      }).catch(() => {
-        document.body.style.opacity = 1
-        document.body.addEventListener('click', () => {
-          backgroundMusic.volume = getTargetVolume()
-          backgroundMusic.play()
-        }, { once: true })
-      })
+      }
     } else {
       _doFade('in')
-      backgroundMusic.volume = getTargetVolume()
-      backgroundMusic.play().catch(() => {
-        document.body.addEventListener('click', () => backgroundMusic.play(), { once: true })
-      })
     }
   })
 }

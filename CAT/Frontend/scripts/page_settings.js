@@ -3,8 +3,8 @@ import { applyTranslationsToPage } from './translator.mjs'
 import { initPageSound, navigateWithFade } from './audio_manager.mjs'
 import { translations } from './translations.mjs'
 
-initPageSound()
 customAlert()
+initPageSound()
 
 document.addEventListener('DOMContentLoaded', () => {
   const links = document.querySelectorAll('a')
