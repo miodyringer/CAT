@@ -266,6 +266,10 @@ The server is configured using an `.env` file in the root directory of the proje
 
 You should now see the game's main menu and be able to start playing!
 
+
+---
+
+
 ## 📝 License
 
 This project is licensed under the MIT License.
