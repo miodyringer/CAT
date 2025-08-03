@@ -34,47 +34,45 @@ Our project follows a standard client-server model, with a clear separation betw
 
 The **Backend** is built with **Python** and the **FastAPI** framework. It is responsible for all server-side operations, managing the game state, handling client connections via WebSockets, and enforcing all game rules.
 
-* **`API/`**: This is the core of our server's communication layer, built on FastAPI.
-    * **`routers/`**: Defines the API endpoints using FastAPI's `APIRouter`. `lobby.py` handles creating and joining games, while `game.py` manages in-game actions.
-    * **`connection_manager.py`**: A dedicated class that leverages FastAPI's WebSocket support to manage persistent, real-time connections to all clients.
-    * **`schemas.py`**: Defines the data structures for API communication using Pydantic models. This ensures that all data exchanged between the client and server is validated and consistent.
-    * **`dependencies.py`**: Implements FastAPI's dependency injection system to provide reusable logic, such as retrieving the `game_manager` instance for use in different path operations.
-    * **`pages_connection_api.py`**: Handles the main WebSocket endpoint and orchestrates the incoming and outgoing messages between clients and the game logic.
+* **`pages_connection_api.py`**: This file is the **main entry point that starts the entire web application**. Its confirmed responsibilities are:
+    * **Serving HTML Pages**: It defines HTTP GET routes like `@app.get("/")` to deliver the HTML files from `Frontend/pages` to the user's browser.
+    * **Serving Static Files**: It mounts the frontend directories (e.g., `stylesheets`, `scripts`) as static paths, allowing the HTML files to load their assets.
+    * **Integrating API Routers**: It uses `app.include_router()` to import and activate the HTTP and WebSocket endpoints defined in the `routers` directory, making them accessible to the application.
 
-* **`classes/`**: Contains the core data models of the game as Python classes.
-    * **`game.py`**: Defines the `Game` class, which encapsulates the entire state of a single match, including the board, players, and deck.
-    * **`player.py`**, **`figure.py`**, **`deck.py`**, **`cards.py`**: These classes model the fundamental elements of the game.
-    * **`enums.py`**: Holds enumerations for fixed player colors which improves code readability and maintainability.
+* **`API/`**: This directory contains the supporting modules for the main web server.
+    * **`routers/game.py`**: This is where the **actual WebSocket endpoint is defined** with `@router.websocket("/ws/{game_id}/{player_id}")`. It handles the connection lifecycle for a single client: accepting the connection, passing it to the `ConnectionManager`, and listening for incoming messages in a loop.
+    * **`routers/lobby.py`**: Defines standard **HTTP endpoints** (e.g., `@router.post("/lobby")`) for creating and managing game lobbies before a WebSocket connection is established.
+    * **`connection_manager.py`**: This class acts as the **central registry for all active WebSocket connections**. It maintains a dictionary of connections per lobby and provides `connect()`, `disconnect()`, and `broadcast()` methods to manage the clients.
+    * **`schemas.py`**: Defines Pydantic models (e.g., `GameRead`, `PlayerCreate`) to ensure that all data in API requests and responses is structured and validated correctly.
+    * **`dependencies.py`**: Implements FastAPI's dependency injection system. The `get_game_manager()` function provides a reusable way to access the singleton `game_manager` instance within API routes.
+
+* **`classes/`**: Contains the core data models of the game.
+    * **`game.py`**, **`player.py`**, **`figure.py`**, **`deck.py`**, **`cards.py`**: These files define the fundamental Python classes that model the game's state and elements.
+    * **`enums.py`**: Holds Python `Enum` classes for fixed value sets like `PlayerState` or `CardType` to ensure consistency and improve code readability.
 
 * **`manager/`**: Orchestrates high-level application logic.
-    * **`game_manager.py`**: A crucial singleton class that manages all active games and lobbies. It is responsible for creating new game instances and handling player assignments.
+    * **`game_manager.py`**: A crucial singleton class that manages the lifecycle of all active games and lobbies, containing methods like `create_game` and `get_game`.
 
-* **`config.py`**: Stores and exposes configuration settings for the backend, likely loaded from environment variables.
+* **`config.py`**: Contains a `Settings` class that uses Pydantic to load configuration from environment variables, which are defined in the `.env` file.
 
 ---
 
 ## 🎨 Frontend Responsibilities
 
-The **Frontend** is the user-facing interface that runs in the browser. It is built with standard **HTML, CSS, and JavaScript**, and is responsible for rendering the game and communicating with the backend.
+The **Frontend** is the user-facing interface that runs in the browser, built with standard **HTML, CSS, and JavaScript**.
 
-* **`pages/`**: Contains all the HTML files that structure the different views of the application, such as `menu.html`, `join_lobby.html`, and the main `game.html`.
-
-* **`stylesheets/`**: Holds all CSS files for styling the application. `base.css` defines global styles, while specific files like `game.css` or `menu.css` style their respective pages.
-
-* **`scripts/`**: Contains the client-side JavaScript logic that makes the game interactive.
-    * **`services/`**: This directory is a key architectural pattern, abstracting away all API communication. `game_service.js`, `lobby_service.js`, and `player_service.js` interact with the WebSocket connection managed by `server_service.js` to communicate with the backend.
-    * **UI & Game Logic**: `game_board.js` and `game_ui.js` manage the rendering and user interactions on the main game page, such as drawing the board and handling clicks. Other scripts like `create_lobby.js` and `join_lobby.js` handle the logic for their corresponding HTML pages.
-    * **`audio_manager.mjs`**: Manages the playback of sound effects and music.
-    * **`translator.mjs`** & **`translations.mjs`**: Handle the internationalization (i18n) of the application, allowing for multiple languages.
-    * **`functions.mjs`**: Contains reusable utility functions used across different parts of the frontend code.
-
-* **`audio/`** & **`icon/`**: These folders store static assets like sound files and the website's favicon.
+* **`pages/`**: Contains all the HTML files that structure the different views of the application.
+* **`stylesheets/`**: Holds all CSS files for styling the application.
+* **`scripts/`**: Contains the client-side JavaScript logic.
+    * **`services/`**: This directory abstracts away API communication. `server_service.js` is responsible for the http requests, while other services like `game_service.js` use this connection to send and receive game-specific data.
+    * **UI & Game Logic**: `game_board.js` and `game_ui.js` manage rendering and user interactions on the game page. Also `game_ui.js` uses the websocket connection to receive info when the game has updated.
+* **`audio/`** & **`icon/`**: These folders store static assets like sound files and the favicon.
 
 ---
 
 ### Root-Level Files
 
-* **`.env`**: An environment file to store secrets and configuration variables (e.g., API keys, host settings) that should not be committed to version control.
-* **`requirements.txt`**: Lists all the Python dependencies required to run the backend (e.g., `fastapi`, `uvicorn`).
-* **`deploy.sh`**: A shell script to automate the deployment of the application to a server.
-* **`README.md`**: The main project documentation, providing an overview of the game and its contributors.
+* **`.env`**: An environment file to store configuration variables that are loaded by `pages_connection_api.py` to get the right server data.
+* **`requirements.txt`**: Lists all the Python dependencies required to run the backend.
+* **`deploy.sh`**: A shell script to automate the deployment of the application.
+* **`README.md`**: The main project documentation.
