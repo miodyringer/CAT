@@ -79,6 +79,10 @@ export function initPageSound () {
       const wasPlaying = sessionStorage.getItem('music_was_playing') === 'true'
 
       if (wasPlaying) {
+        const resumeTime = parseFloat(sessionStorage.getItem('music_current_time') || '0')
+        sessionStorage.clear()
+        backgroundMusic.currentTime = resumeTime + 0.5
+        backgroundMusic.volume = 0
         backgroundMusic.play().then(() => {
           _doFade('in')
         }).catch(() => {
