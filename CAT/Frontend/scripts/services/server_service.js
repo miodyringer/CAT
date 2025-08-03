@@ -11,7 +11,6 @@ export async function getConfig () {
     return config
   } catch (error) {
     console.error("Couldn't load API-configuration", error)
-    }
   }
 }
 
