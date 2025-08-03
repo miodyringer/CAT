@@ -1,5 +1,8 @@
 import getCookie from './functions.mjs'
 
+/**
+ * The background music Audio object for the game.
+ */
 export const backgroundMusic = new Audio('/audio/game-theme.mp3')
 backgroundMusic.addEventListener('ended', () => {
   this.currentTime = 0
@@ -9,6 +12,13 @@ backgroundMusic.loop = true
 
 let isFading = false
 
+/**
+ * Fades the background music in or out over a given duration.
+ *
+ * @param {string} direction - 'in' to fade in, 'out' to fade out.
+ * @param {number} [duration=500] - Duration of the fade in milliseconds.
+ * @returns {Promise<void>} Resolves when the fade is complete.
+ */
 function _doFade (direction, duration = 500) {
   if (isFading) return Promise.resolve()
   isFading = true
@@ -46,6 +56,11 @@ function _doFade (direction, duration = 500) {
   })
 }
 
+/**
+ * Gets the target volume for the background music based on user settings.
+ *
+ * @returns {number} The target volume between 0 and 1.
+ */
 function getTargetVolume () {
   const master = ((parseInt(getCookie('master_volume')) / 100) || 1)
   const music = ((parseInt(getCookie('music_volume')) / 100) || 0.5)
@@ -54,6 +69,9 @@ function getTargetVolume () {
   return master * music * 0.5
 }
 
+/**
+ * Initializes the page sound, fading in the background music if applicable.
+ */
 export function initPageSound () {
   document.head.insertAdjacentHTML('beforeend', '<style>body{opacity:0;}</style>')
 
@@ -86,6 +104,11 @@ export function initPageSound () {
   })
 }
 
+/**
+ * Navigates to a new URL with a fade effect, saving the current music state.
+ *
+ * @param {string} destinationUrl - The URL to navigate to.
+ */
 export function navigateWithFade (destinationUrl) {
   if (!backgroundMusic.paused) {
     sessionStorage.setItem('music_was_playing', 'true')
@@ -97,6 +120,12 @@ export function navigateWithFade (destinationUrl) {
   })
 }
 
+/**
+ * Plays a sound effect from the given file path.
+ *
+ * @param {string} filePath - The file path of the sound effect.
+ * @returns {Promise<void>} Resolves when the sound effect is played.
+ */
 export function playSound (filePath) {
   const sound = new Audio(filePath)
   const master = ((parseInt(getCookie('master_volume')) / 100) || 1)
@@ -107,6 +136,9 @@ export function playSound (filePath) {
   return sound.play()
 }
 
+/**
+ * Updates the background music volume based on user settings.
+ */
 export function updateBGVolume () {
   const master = ((getCookie('master_volume') / 100) || 1)
   const music = ((getCookie('music_volume')) / 100 || 0.5)

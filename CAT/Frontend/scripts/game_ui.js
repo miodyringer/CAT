@@ -7,6 +7,10 @@ import getCookie from './functions.mjs'
 let socket = null
 let turnTimerInterval = null
 
+/**
+ * Renders the play action buttons for the currently selected card and figure.
+ * Handles special logic for StartCard, FlexCard, SwapCard, and JokerCard.
+ */
 function renderPlayButton () {
   const container = document.querySelector('.play-action-container')
   container.style.display = 'none'
@@ -96,6 +100,9 @@ function renderPlayButton () {
   container.appendChild(playButton)
 }
 
+/**
+ * Renders the player's hand in the UI, including selection state and icons.
+ */
 function renderHand () {
   const cards = gameService.getHand()
   const handContainer = document.querySelector('.card-hand-container')
@@ -150,6 +157,9 @@ function renderHand () {
   })
 }
 
+/**
+ * Renders the player list in the UI, including kick button and card count.
+ */
 function renderPlayers () {
   const players = gameService.getPlayers()
   const playerListContainer = document.querySelector('.player-list')
@@ -214,6 +224,9 @@ function renderPlayers () {
   })
 }
 
+/**
+ * Displays the controls for Inferno cards if one is currently active.
+ */
 function renderInfernoControls () {
   const container = document.querySelector('.inferno-controls-container')
   const selectedCard = gameService.getHand()[gameService.getSelectedCardIndex()]
@@ -253,6 +266,11 @@ function renderInfernoControls () {
   }
 }
 
+/**
+ * Opens the modal for selecting a card to imitate with the Joker card.
+ * Fetches available cards from the server and displays them for selection.
+ * @returns {Promise<void>}
+ */
 async function openJokerModal () {
   const modalOverlay = document.getElementById('joker-modal-overlay')
   const grid = document.getElementById('joker-card-selection-grid')
@@ -301,6 +319,9 @@ async function openJokerModal () {
   }
 }
 
+/**
+ * Renders the discard pile in the UI.
+ */
 function renderDiscardPile () {
   const container = document.getElementById('discard-pile-container')
   const lastCard = gameService.gameState.last_played_card
@@ -338,6 +359,11 @@ function renderDiscardPile () {
   container.appendChild(cardElement)
 }
 
+/**
+ * Starts the turn timer and displays the remaining time.
+ * @param {number} startTime - The initial value of the timer in seconds.
+ * @param {number} totalDuration - The total duration of the timer in seconds.
+ */
 function startTurnTimer (startTime, totalDuration) {
   stopTurnTimer()
 
@@ -363,6 +389,9 @@ function startTurnTimer (startTime, totalDuration) {
   }, 1000)
 }
 
+/**
+ * Stops the turn timer and resets the display.
+ */
 function stopTurnTimer () {
   const timerDisplay = document.getElementById('turn-timer-display')
   timerDisplay.textContent = ''
@@ -371,6 +400,9 @@ function stopTurnTimer () {
   turnTimerInterval = null
 }
 
+/**
+ * Updates the entire UI based on the current game state.
+ */
 export function updateUI () {
   document.querySelector('.lobby-name h2').textContent = gameService.gameState.name
   document.getElementById('round-display').textContent = translate(getCookie('language'), 'round_text') + `: ${gameService.gameState.round_number}`
@@ -404,6 +436,11 @@ export function updateUI () {
   }
 }
 
+/**
+ * Executes the play action for the selected card and sends the action to the server.
+ * @param {Object} [extraDetails={}] - Additional action details.
+ * @returns {Promise<void>}
+ */
 async function executePlay (extraDetails = {}) {
   stopTurnTimer()
   const gameId = gameService.gameState.uuid
@@ -474,6 +511,11 @@ async function executePlay (extraDetails = {}) {
   }
 }
 
+/**
+ * Sends a vote kick request to the server to kick a player.
+ * @param {number} playerToKickNumber - The number of the player to kick.
+ * @returns {Promise<void>}
+ */
 async function executeVoteKick (playerToKickNumber) {
   const gameId = gameService.gameState.uuid
   const voterId = gameService.localPlayerId
@@ -495,6 +537,10 @@ async function executeVoteKick (playerToKickNumber) {
   }
 }
 
+/**
+ * Initializes the game, loads the game state, and sets up the WebSocket connection.
+ * @returns {Promise<void>}
+ */
 async function initializeGame () {
   const params = new URLSearchParams(window.location.search)
   const gameId = params.get('game_id')
@@ -593,6 +639,10 @@ async function initializeGame () {
   }
 }
 
+/**
+ * Fetches the current game state from the server and updates the UI.
+ * @returns {Promise<void>}
+ */
 async function fetchAndUpdateState () {
   const gameId = gameService.gameState.uuid
   const localPlayerId = gameService.localPlayerId

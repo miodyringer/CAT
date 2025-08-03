@@ -49,11 +49,22 @@ if (muted === 'true') {
   })
 }
 
+/**
+ * Initializes the settings page by reading cookies and setting UI elements accordingly.
+ * Handles theme, volume, text size, contrast, colorblind mode, and language settings.
+ */
+
+/**
+ * Handles language selection changes and applies translations to the page.
+ */
 languageSelect.addEventListener('change', () => {
   document.cookie = 'language=' + languageSelect.value
   applyTranslationsToPage()
 })
 
+/**
+ * Handles theme selection changes and applies the selected theme.
+ */
 document.querySelectorAll('#theme-select input[type="radio"]').forEach(range => {
   range.oninput = () => {
     if (range.checked) {
@@ -63,12 +74,18 @@ document.querySelectorAll('#theme-select input[type="radio"]').forEach(range => 
   }
 })
 
+/**
+ * Handles text size slider changes and applies the new text size.
+ */
 textSize.oninput = () => {
   document.cookie = 'text_size=' + (textSize.value / 100)
   textSize.nextElementSibling.textContent = textSize.value + '%'
   applyPageSettings()
 }
 
+/**
+ * Handles volume slider changes and updates the background volume.
+ */
 volumeSliders.forEach(slider => {
   slider.oninput = () => {
     document.cookie = slider.id + '=' + (slider.value)
@@ -77,11 +94,17 @@ volumeSliders.forEach(slider => {
   }
 })
 
+/**
+ * Handles colorblind mode selection changes and applies the setting.
+ */
 colorblind.addEventListener('change', () => {
   document.cookie = 'colorblind_mode=' + colorblind.value
   applyPageSettings()
 })
 
+/**
+ * Handles high contrast mode toggle and applies the setting.
+ */
 contrast.oninput = () => {
   if (contrast.checked) {
     document.cookie = 'high_contrast_mode=true'
@@ -91,6 +114,9 @@ contrast.oninput = () => {
   applyPageSettings()
 }
 
+/**
+ * Handles mute toggle and updates all volume sliders and background volume.
+ */
 volume.oninput = () => {
   if (volume.checked) {
     document.cookie = 'muted=true'

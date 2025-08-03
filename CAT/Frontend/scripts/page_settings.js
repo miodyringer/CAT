@@ -43,7 +43,7 @@ function customAlert () {
 
   window.confirm = function (message) {
     return new Promise((resolve) => {
-      const lang = getCookie('language') || 'en' // Sprache aus Cookie holen
+      const lang = getCookie('language') || 'en'
       const confirmBox = document.createElement('div')
       confirmBox.className = 'alert-container'
 

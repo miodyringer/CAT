@@ -6,6 +6,13 @@ const lobbyNameInput = document.querySelector('#lobby-name')
 const playerNameInput = document.querySelector('#player-name')
 const createLobbyBtn = document.querySelector('#create-lobby-btn')
 
+/**
+ * Handles the click event for the create lobby button.
+ * Reads the lobby and player name, validates input, sends the create lobby request,
+ * and redirects to the game page on success.
+ *
+ * @returns {Promise<void>} Resolves when the lobby creation process is complete.
+ */
 createLobbyBtn.addEventListener('click', async () => {
   const lobbyName = lobbyNameInput.value
   const playerName = playerNameInput.value
@@ -15,7 +22,6 @@ createLobbyBtn.addEventListener('click', async () => {
     return
   }
 
-  // Dieses Objekt muss genau der Struktur in CreateLobbyRequest entsprechen
   const requestBody = {
     lobby_name: lobbyName,
     player_input: {
